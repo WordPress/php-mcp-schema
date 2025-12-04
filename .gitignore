@@ -1,0 +1,33 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code
+.claude/settings.local.json
+
+# PHP
+*.phar
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/build/
+/dist/
+/.cache/

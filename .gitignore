@@ -1,6 +1,9 @@
 # Dependencies
-/vendor/
-/node_modules/
+vendor/
+node_modules/
+
+# Build output
+dist/
 
 # IDE
 .idea/
@@ -13,21 +16,21 @@
 .DS_Store
 Thumbs.db
 
-# Claude Code
-.claude/settings.local.json
+# Logs
+*.log
+npm-debug.log*
 
-# PHP
-*.phar
-phpunit.xml
-.phpunit.result.cache
-.phpunit.cache/
+# Test coverage
+coverage/
+
+# Cache
+.cache/
+.npm/
 
 # Environment
 .env
 .env.local
-.env.*.local
 
-# Build artifacts
-/build/
-/dist/
-/.cache/
+# Temporary files
+tmp/
+temp/

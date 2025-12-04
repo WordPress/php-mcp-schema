@@ -1,0 +1,7 @@
+# Exclude generator and dev files from Packagist distribution
+/generator              export-ignore
+/.claude                export-ignore
+/.idea                  export-ignore
+/.gitattributes         export-ignore
+/phpstan.neon           export-ignore
+*.DS_Store              export-ignore

@@ -1,0 +1,169 @@
+#!/usr/bin/env node
+/**
+ * MCP PHP Schema Generator - CLI
+ *
+ * Command-line interface for generating PHP DTOs from MCP TypeScript schema.
+ */
+
+import { Command } from 'commander';
+import chalk from 'chalk';
+import ora from 'ora';
+import { generate, GenerateOptions } from '../index.js';
+import { createConfig, DEFAULT_SCHEMA_SOURCE, DEFAULT_PHP_OUTPUT, loadConfigFromFile, listConfigVersions } from '../config/index.js';
+import { clearCache } from '../fetcher/index.js';
+
+const program = new Command();
+
+program
+  .name('mcp-php-generator')
+  .description('Generate PHP 7.4 DTOs from MCP TypeScript schema')
+  .version('1.0.0');
+
+// Generate command
+program
+  .command('generate')
+  .description('Generate PHP DTOs from MCP schema')
+  .requiredOption('-c, --config <file>', 'Configuration file (required)')
+  .option('-o, --output <dir>', 'Output directory (overrides config)')
+  .option('-n, --namespace <ns>', 'PHP namespace (overrides config)')
+  .option('-p, --php-version <ver>', 'PHP version (overrides config)')
+  .option('--builders', 'Generate builder classes')
+  .option('--no-factories', 'Disable factory generation')
+  .option('--dry-run', 'Show what would be generated without writing files')
+  .option('--fresh', 'Force fresh fetch from GitHub (ignore cache)')
+  .option('--verbose', 'Enable verbose output')
+  .action(async (options: Record<string, unknown>) => {
+    const spinner = ora('Initializing...').start();
+
+    try {
+      const configFile = options['config'] as string;
+
+      // Load config from file
+      spinner.text = `Loading config from ${configFile}...`;
+      const baseConfig = loadConfigFromFile(configFile);
+
+      // CLI options override config file values
+      const schemaConfig = { ...baseConfig.schema };
+
+      const outputConfig = { ...baseConfig.output };
+      if (options['output']) outputConfig.outputDir = options['output'] as string;
+      if (options['namespace']) outputConfig.namespace = options['namespace'] as string;
+      if (options['phpVersion']) outputConfig.phpVersion = options['phpVersion'] as typeof outputConfig.phpVersion;
+      if (options['builders']) outputConfig.generateBuilders = true;
+      if (options['factories'] === false) outputConfig.generateFactories = false;
+
+      const config = createConfig({
+        schema: schemaConfig,
+        output: outputConfig,
+        verbose: (options['verbose'] as boolean) ?? baseConfig.verbose,
+        dryRun: (options['dryRun'] as boolean) ?? baseConfig.dryRun,
+      });
+
+      const generateOptions: GenerateOptions = {
+        fresh: options['fresh'] as boolean,
+      };
+
+      spinner.text = 'Fetching schema...';
+      const result = await generate(config, generateOptions);
+
+      spinner.succeed('Generation complete!');
+
+      console.log('');
+      console.log(chalk.bold('Summary:'));
+      console.log(`  ${chalk.green('✓')} DTOs: ${result.stats.dtos}`);
+      console.log(`  ${chalk.green('✓')} Enums: ${result.stats.enums}`);
+      console.log(`  ${chalk.green('✓')} Unions: ${result.stats.unions}`);
+      console.log(`  ${chalk.green('✓')} Factories: ${result.stats.factories}`);
+      console.log(`  ${chalk.green('✓')} Builders: ${result.stats.builders}`);
+      console.log(`  ${chalk.blue('⏱')} Duration: ${result.stats.duration}ms`);
+
+      if (result.errors.length > 0) {
+        console.log('');
+        console.log(chalk.yellow('Warnings:'));
+        for (const error of result.errors) {
+          console.log(`  ${chalk.yellow('!')} ${error.message}`);
+        }
+      }
+
+      if (config.dryRun) {
+        console.log('');
+        console.log(chalk.cyan('(dry-run mode - no files were written)'));
+      }
+    } catch (error) {
+      spinner.fail('Generation failed');
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(chalk.red(`Error: ${message}`));
+      process.exit(1);
+    }
+  });
+
+// Clear cache command
+program
+  .command('clear-cache')
+  .description('Clear the schema cache')
+  .action(async () => {
+    const spinner = ora('Clearing cache...').start();
+
+    try {
+      await clearCache();
+      spinner.succeed('Cache cleared');
+    } catch (error) {
+      spinner.fail('Failed to clear cache');
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(chalk.red(`Error: ${message}`));
+      process.exit(1);
+    }
+  });
+
+// Info command
+program
+  .command('info')
+  .description('Show generator information')
+  .action(() => {
+    console.log(chalk.bold('MCP PHP Schema Generator'));
+    console.log('');
+    console.log('Generates PHP 7.4 DTOs from the Model Context Protocol TypeScript schema.');
+    console.log('');
+    console.log(chalk.bold('Default Configuration:'));
+    console.log(`  Schema Repository: ${DEFAULT_SCHEMA_SOURCE.repository}`);
+    console.log(`  Schema Branch: ${DEFAULT_SCHEMA_SOURCE.branch}`);
+    console.log(`  Output Directory: ${DEFAULT_PHP_OUTPUT.outputDir}`);
+    console.log(`  PHP Namespace: ${DEFAULT_PHP_OUTPUT.namespace}`);
+    console.log(`  PHP Version: ${DEFAULT_PHP_OUTPUT.phpVersion}`);
+    console.log('');
+
+    const versions = listConfigVersions();
+    if (versions.length > 0) {
+      console.log(chalk.bold('Available Config Files:'));
+      for (const version of versions) {
+        console.log(`  - ${version}.json`);
+      }
+      console.log('');
+    }
+
+    console.log(chalk.yellow('Note: --config is required. Schema version must be set in config file.'));
+    console.log('');
+    console.log('For more information, see: https://github.com/WordPress/php-mcp-schema');
+  });
+
+// List configs command
+program
+  .command('configs')
+  .description('List available configuration files')
+  .action(() => {
+    const versions = listConfigVersions();
+    if (versions.length === 0) {
+      console.log(chalk.yellow('No configuration files found in config/ directory.'));
+      return;
+    }
+
+    console.log(chalk.bold('Available Configuration Files:'));
+    console.log('');
+    for (const version of versions) {
+      console.log(`  ${chalk.green('•')} ${version}.json`);
+    }
+    console.log('');
+    console.log(`Use ${chalk.cyan('--config config/<version>.json')} to generate.`);
+  });
+
+program.parse();

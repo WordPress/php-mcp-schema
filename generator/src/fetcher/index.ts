@@ -1,7 +1,8 @@
 /**
  * MCP PHP Schema Generator - Schema Fetcher
  *
- * Fetches TypeScript schema files from GitHub or local filesystem.
+ * Fetches TypeScript schema files from GitHub.
+ * Schema is always fetched from the official MCP repository.
  */
 
 import { mkdir, readFile, writeFile } from 'fs/promises';
@@ -24,20 +25,9 @@ export interface FetchResult {
 const CACHE_DIR = '.cache/schemas';
 
 /**
- * Fetches the TypeScript schema from the configured source.
+ * Fetches the TypeScript schema from GitHub with caching support.
  */
 export async function fetchSchema(config: GeneratorConfig): Promise<FetchResult> {
-  if (config.schema.type === 'github') {
-    return fetchFromGitHub(config);
-  } else {
-    return fetchFromLocal(config.schema);
-  }
-}
-
-/**
- * Fetches schema from GitHub with caching support.
- */
-async function fetchFromGitHub(config: GeneratorConfig): Promise<FetchResult> {
   const url = getSchemaGitHubUrl(config);
   const cacheFile = getCacheFilePath(config.schema);
 
@@ -73,32 +63,10 @@ async function fetchFromGitHub(config: GeneratorConfig): Promise<FetchResult> {
 }
 
 /**
- * Fetches schema from local filesystem.
- */
-async function fetchFromLocal(source: SchemaSource): Promise<FetchResult> {
-  // If path ends with .ts, use it directly; otherwise construct path from version
-  const schemaPath = source.path?.endsWith('.ts')
-    ? source.path
-    : join(source.path ?? '.', source.version, 'schema.ts');
-
-  try {
-    const content = await readFile(schemaPath, 'utf-8');
-    return {
-      content,
-      source: schemaPath,
-      cached: false,
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to read local schema: ${message}`);
-  }
-}
-
-/**
  * Gets the cache file path for a schema version.
  */
 function getCacheFilePath(source: SchemaSource): string {
-  const repoName = source.repository?.replace('/', '_') ?? 'local';
+  const repoName = source.repository.replace('/', '_');
   return join(CACHE_DIR, `${repoName}_${source.version}_schema.ts`);
 }
 
@@ -130,10 +98,6 @@ export async function clearCache(): Promise<void> {
  * Forces a fresh fetch from GitHub, bypassing cache.
  */
 export async function fetchSchemaFresh(config: GeneratorConfig): Promise<FetchResult> {
-  if (config.schema.type === 'local') {
-    return fetchFromLocal(config.schema);
-  }
-
   const url = getSchemaGitHubUrl(config);
   const response = await fetch(url);
 

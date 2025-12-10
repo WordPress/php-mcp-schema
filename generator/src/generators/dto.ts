@@ -512,17 +512,18 @@ export class DtoGenerator {
       let phpDocType = TypeMapper.getPhpDocType(prop.type);
 
       // For DTO types (non-primitives), fromArray() accepts either array or object
-      // Add array| prefix to indicate both are valid inputs
+      // Add array<string, mixed>| prefix to indicate both are valid inputs
+      // Using array<string, mixed> instead of plain array to satisfy PHPStan max level
       if (this.isHydratableType(prop.type)) {
-        // For array of DTOs: array<ClassName> becomes array<array|ClassName>
-        // For single DTO: ClassName becomes array|ClassName
+        // For array of DTOs: array<ClassName> becomes array<array<string, mixed>|ClassName>
+        // For single DTO: ClassName becomes array<string, mixed>|ClassName
         if (prop.type.isArray && prop.type.arrayItemType && !DtoGenerator.PRIMITIVE_TYPES.has(prop.type.arrayItemType)) {
           // Array of DTOs - the FQN is already in phpDocType like array<\Namespace\Class>
-          // We need to modify it to array<array|\Namespace\Class>
-          phpDocType = phpDocType.replace(/array<([^>]+)>/, 'array<array|$1>');
+          // We need to modify it to array<array<string, mixed>|\Namespace\Class>
+          phpDocType = phpDocType.replace(/array<([^>]+)>/, 'array<array<string, mixed>|$1>');
         } else if (!prop.type.isArray && !DtoGenerator.PRIMITIVE_TYPES.has(prop.type.type)) {
-          // Single DTO - add array| prefix
-          phpDocType = `array|${phpDocType}`;
+          // Single DTO - add array<string, mixed>| prefix
+          phpDocType = `array<string, mixed>|${phpDocType}`;
         }
       }
 
@@ -857,7 +858,9 @@ export class DtoGenerator {
     const sortedProps = [...requiredProps, ...optionalProps];
 
     // Generate multi-line array shape for @param (provides IDE autocomplete)
-    // Use @phpstan-param to override with generic type (avoids strict array shape checks)
+    // Note: @phpstan-param allows loose array type for internal nested hydration,
+    // while @param array shape provides IDE documentation and autocomplete.
+    // Runtime validation is done via assertRequired().
     const arrayShape = this.generateArrayShape(properties);
     lines.push(`${indent}/**`);
     lines.push(`${indent} * Creates an instance from an array.`);
@@ -875,6 +878,8 @@ export class DtoGenerator {
     lines.push(`${indent}{`);
 
     // Validate required fields using the ValidatesRequiredFields trait
+    // Note: Const fields (like `type: 'object'`) are NOT validated here because
+    // they are always set from class constants in the constructor, ignoring input.
     if (requiredProps.length > 0) {
       lines.push(`${indent}${indent}self::assertRequired($data, [${requiredProps.map((p) => `'${p.name}'`).join(', ')}]);`);
       lines.push('');

@@ -4,7 +4,25 @@
  * Maps TypeScript types to PHP types.
  */
 
-import type { PhpType } from '../types/index.js';
+import type { PhpType, TsConstant } from '../types/index.js';
+
+/**
+ * Map of constant names to their values, used for resolving typeof expressions.
+ */
+export type ConstantsMap = ReadonlyMap<string, string>;
+
+/**
+ * Creates a constants map from an array of TsConstant objects.
+ */
+export function createConstantsMap(constants: readonly TsConstant[] | undefined): ConstantsMap {
+  const map = new Map<string, string>();
+  if (constants) {
+    for (const c of constants) {
+      map.set(c.name, c.value);
+    }
+  }
+  return map;
+}
 
 /**
  * Maps TypeScript types to PHP types.
@@ -78,19 +96,35 @@ export class TypeMapper {
 
   /**
    * Maps a TypeScript type to a PHP type.
+   *
+   * @param tsType - The TypeScript type string to map
+   * @param propertyName - Optional property name for semantic type inference
+   * @param constants - Optional map of constant names to values for resolving typeof expressions
    */
-  static mapType(tsType: string, propertyName?: string): PhpType {
+  static mapType(tsType: string, propertyName?: string, constants?: ConstantsMap): PhpType {
     const trimmed = this.stripComments(tsType.trim());
 
     // Handle TypeScript 'typeof' expressions - map to the underlying type
-    // e.g., 'typeof JSONRPC_VERSION' -> string (since constants are strings)
+    // e.g., 'typeof JSONRPC_VERSION' -> string with literal phpDocType
     if (trimmed.startsWith('typeof ')) {
-      // The constant being referenced is typically a string constant
+      const constName = trimmed.slice(7).trim(); // Remove 'typeof ' prefix
+      const constValue = constants?.get(constName);
+
+      if (constValue !== undefined) {
+        // We have the actual constant value from the schema
+        return {
+          type: 'string',
+          nullable: false,
+          isArray: false,
+          phpDocType: `'${constValue}'`, // Use the actual constant value as literal type
+        };
+      }
+
+      // Fallback: constant not found, use plain string type
       return {
         type: 'string',
         nullable: false,
         isArray: false,
-        phpDocType: "'2.0'", // JSON-RPC version is always "2.0"
       };
     }
 

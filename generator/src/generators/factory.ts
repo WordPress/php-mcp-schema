@@ -583,7 +583,7 @@ export class FactoryGenerator {
       lines.push(`${indent}${indent}${indent}default:`);
       lines.push(`${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(`);
       lines.push(`${indent}${indent}${indent}${indent}${indent}"Unknown ${field} value '%s'. Valid values: %s",`);
-      lines.push(`${indent}${indent}${indent}${indent}${indent}$data['${field}'],`);
+      lines.push(`${indent}${indent}${indent}${indent}${indent}is_scalar($data['${field}']) ? $data['${field}'] : gettype($data['${field}']),`);
       lines.push(`${indent}${indent}${indent}${indent}${indent}implode(', ', array_keys(self::REGISTRY))`);
       lines.push(`${indent}${indent}${indent}${indent}));`);
       lines.push(`${indent}${indent}}`);

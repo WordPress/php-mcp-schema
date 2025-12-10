@@ -308,10 +308,10 @@ export class DtoGenerator {
     // Properties to declare in this class: own + narrowed (both need declarations)
     const propertiesToDeclare = [...(ownProperties ?? meta.properties), ...narrowedPhpProperties];
 
-    // Determine if this DTO has required fields (non-const properties that are required)
+    // Determine if this DTO needs type assertion helpers (any non-const properties)
+    // The trait provides asString(), asInt(), assertRequired(), etc. for PHPStan max level compliance
     const nonConstProps = meta.properties.filter((p) => p.constValue === undefined);
-    const requiredProps = nonConstProps.filter((p) => p.isRequired);
-    const hasRequiredFields = requiredProps.length > 0;
+    const needsTypeAssertions = nonConstProps.length > 0;
 
     // Detect "structural alias" - a subclass with no own properties (exists for semantic distinction)
     // These are TypeScript type aliases that became separate PHP classes for type safety
@@ -331,7 +331,7 @@ export class DtoGenerator {
     lines.push('');
 
     // Use statements
-    lines.push(...this.renderUseStatements(meta, imports, isRootType, hasRequiredFields));
+    lines.push(...this.renderUseStatements(meta, imports, isRootType, needsTypeAssertions));
     lines.push('');
 
     // Class docblock
@@ -344,8 +344,9 @@ export class DtoGenerator {
     lines.push(`${classDecl} ${meta.className}${extendsClause}${implementsClause}`);
     lines.push('{');
 
-    // Use trait for required field validation (must be first in class body)
-    if (hasRequiredFields) {
+    // Use trait for type assertions and required field validation (must be first in class body)
+    // Trait provides asString(), asInt(), etc. for PHPStan max level compliance
+    if (needsTypeAssertions) {
       lines.push(`${indent}use ValidatesRequiredFields;`);
       lines.push('');
     }
@@ -414,13 +415,13 @@ export class DtoGenerator {
    * @param _meta - Class metadata
    * @param imports - Import map (includes parent class if cross-namespace)
    * @param isRootType - Whether this is a root type (needs AbstractDataTransferObject import)
-   * @param hasRequiredFields - Whether this DTO has required fields (needs ValidatesRequiredFields trait)
+   * @param needsTypeAssertions - Whether this DTO needs type assertion helpers (ValidatesRequiredFields trait)
    */
   private renderUseStatements(
     _meta: PhpClassMeta,
     imports: Map<string, string> = new Map(),
     isRootType: boolean = true,
-    hasRequiredFields: boolean = false
+    needsTypeAssertions: boolean = false
   ): string[] {
     const uses: string[] = [];
 
@@ -429,8 +430,8 @@ export class DtoGenerator {
       uses.push(`use ${this.config.output.namespace}\\Common\\AbstractDataTransferObject;`);
     }
 
-    // ValidatesRequiredFields trait - only for DTOs with required fields
-    if (hasRequiredFields) {
+    // ValidatesRequiredFields trait - provides type assertion helpers for PHPStan max level compliance
+    if (needsTypeAssertions) {
       uses.push(`use ${this.config.output.namespace}\\Common\\Traits\\ValidatesRequiredFields;`);
     }
 

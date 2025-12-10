@@ -9,7 +9,7 @@
 import type { GeneratorConfig, GenerationResult, GeneratedFile, GenerationStats, GenerationError, TsInterface, TsTypeAlias, UnionMembershipMap, UnionMembershipInfo, VersionTracker } from './types/index.js';
 import { fetchSchema, fetchSchemaFresh } from './fetcher/index.js';
 import { parseSchema } from './parser/index.js';
-import { DtoGenerator, EnumGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, DomainClassifier } from './generators/index.js';
+import { DtoGenerator, EnumGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, DomainClassifier, createConstantsMap } from './generators/index.js';
 import { FileWriter, generateAbstractDto, generateAbstractEnum, generateValidatesRequiredFieldsTrait } from './writers/index.js';
 import { SyntheticDtoExtractor, updateInterfacesWithSyntheticTypes } from './extractors/index.js';
 import { buildVersionTracker, createEmptyVersionTracker } from './version-tracker/index.js';
@@ -220,8 +220,11 @@ export async function generate(
   });
 
   if (config.verbose) {
-    progress(`Parsed ${ast.interfaces.length} interfaces, ${ast.typeAliases.length} type aliases`);
+    progress(`Parsed ${ast.interfaces.length} interfaces, ${ast.typeAliases.length} type aliases, ${ast.constants?.length ?? 0} constants`);
   }
+
+  // Create constants map for TypeMapper (resolves 'typeof CONSTANT_NAME' to actual values)
+  const constantsMap = createConstantsMap(ast.constants);
 
   // Step 2.5: Extract synthetic DTOs from inline object types
   progress('Extracting inline object types...');
@@ -304,9 +307,9 @@ export async function generate(
     versionTracker = createEmptyVersionTracker();
   }
 
-  const dtoGenerator = new DtoGenerator(allInterfaces, config, {}, ast.typeAliases, classifier, unionMembershipMap, versionTracker);
+  const dtoGenerator = new DtoGenerator(allInterfaces, config, {}, ast.typeAliases, classifier, unionMembershipMap, versionTracker, constantsMap);
   const factoryGenerator = new FactoryGenerator(config, allInterfaces, ast.typeAliases);  // Include typeAliases for nested union support
-  const builderGenerator = new BuilderGenerator(config, allInterfaces, ast.typeAliases, classifier, versionTracker);
+  const builderGenerator = new BuilderGenerator(config, allInterfaces, ast.typeAliases, classifier, versionTracker, constantsMap);
   const writer = new FileWriter(config);
 
   // Step 4: Create directory structure
@@ -373,15 +376,13 @@ export async function generate(
         const interfacePath = writer.getOutputPath(classification, 'Union', `${alias.name}Interface`);
         files.push({ path: interfacePath, content: interfaceContent, type: 'union' });
 
-        // Generate factory if enabled and discriminator exists
-        if (config.output.generateFactories) {
-          const members = unionGenerator.extractMembers(alias);
-          const factoryContent = factoryGenerator.generate(alias, members);
-          // Only create factory file if generator returned content (has discriminator)
-          if (factoryContent !== null) {
-            const factoryPath = writer.getOutputPath(classification, 'Factory', `${alias.name}Factory`);
-            files.push({ path: factoryPath, content: factoryContent, type: 'factory' });
-          }
+        // Generate factory (always enabled)
+        const members = unionGenerator.extractMembers(alias);
+        const factoryContent = factoryGenerator.generate(alias, members);
+        // Only create factory file if generator returned content (has discriminator)
+        if (factoryContent !== null) {
+          const factoryPath = writer.getOutputPath(classification, 'Factory', `${alias.name}Factory`);
+          files.push({ path: factoryPath, content: factoryContent, type: 'factory' });
         }
       }
     } catch (error) {
@@ -394,8 +395,11 @@ export async function generate(
     }
   }
 
-  // Step 8: Generate builders if enabled
-  if (config.output.generateBuilders) {
+  // Step 8: Generate builders (currently disabled)
+  // TODO: Builder generation can be enabled in the future by setting generateBuilders to true.
+  // The BuilderGenerator class is fully implemented and ready to use.
+  const generateBuilders = false;
+  if (generateBuilders) {
     progress('Generating builders...');
     for (const iface of allInterfaces) {
       try {

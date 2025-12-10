@@ -110,7 +110,7 @@ npm run build     # Compile TypeScript
 
 ## Validation
 
-Generated PHP must pass PHPStan level 8:
+Generated PHP must pass PHPStan level max:
 
 ```bash
 cd ..

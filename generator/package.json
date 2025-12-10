@@ -1,0 +1,65 @@
+{
+  "name": "@wordpress/php-mcp-schema-generator",
+  "version": "1.0.0",
+  "description": "Generate PHP 7.4 DTOs from MCP TypeScript schema definitions",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "mcp-php-generator": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "generate": "rm -rf ../src && node dist/cli/index.js generate",
+    "generate:check": "bash -c 'rm -rf ../src && node dist/cli/index.js generate \"$@\" && cd .. && composer analyse' --",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "php",
+    "dto",
+    "schema",
+    "generator",
+    "typescript"
+  ],
+  "author": "Automattic",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WordPress/php-mcp-schema.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WordPress/php-mcp-schema/issues"
+  },
+  "homepage": "https://github.com/WordPress/php-mcp-schema#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "ts-morph": "^24.0.0",
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.1.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

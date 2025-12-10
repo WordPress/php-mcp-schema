@@ -1,0 +1,8 @@
+{
+  "schema": {
+    "version": "2025-03-26"
+  },
+  "output": {
+    "generateBuilders": false
+  }
+}

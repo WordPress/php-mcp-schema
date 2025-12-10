@@ -192,6 +192,25 @@ export class DtoGenerator {
       }
     }
 
+    // For array types with union interfaces in phpDocType (arrayItemType may be empty)
+    // e.g., phpDocType: array<\WP\McpSchema\...\Union\SomeInterface> or
+    //       array<\WP\McpSchema\...\Union\SomeInterface|\WP\McpSchema\...\Union\SomeInterface>
+    if (phpType.isArray && phpType.phpDocType) {
+      // Extract the first interface from phpDocType - handles both single and union types
+      // Match: array<\Namespace\Union\Interface> or array<\Namespace\Union\Interface|\Namespace\...>
+      const phpDocMatch = phpType.phpDocType.match(/^array<\\([^|>]+\\Union\\(\w+Interface))/);
+      if (phpDocMatch?.[1] && phpDocMatch[2]) {
+        const interfaceFqn = phpDocMatch[1]; // Full namespace path to interface
+        const interfaceName = phpDocMatch[2]; // Just the interface name
+        const factoryClassName = interfaceName.replace(/Interface$/, 'Factory');
+        const factoryNamespace = interfaceFqn.replace(/\\Union\\\w+Interface$/, '\\Factory');
+        const factoryFqn = `${factoryNamespace}\\${factoryClassName}`;
+        if (!currentNamespace.endsWith('\\Factory') && !imports.has(factoryFqn)) {
+          imports.set(factoryFqn, factoryClassName);
+        }
+      }
+    }
+
     // Set FQN in phpDocType for array shape generation (all class references, including same namespace)
     if (resolved.namespace && resolved.className) {
       const fqnWithPrefix = `\\${resolved.namespace}\\${resolved.className}`;

@@ -377,6 +377,227 @@ ${indent}${indent}${indent}${indent}implode(', ', $missing)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
 ${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a string and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string
+${indent} * @phpstan-assert string $value
+${indent} */
+${indent}protected static function asString($value): string
+${indent}{
+${indent}${indent}if (!is_string($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected string, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an int and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return int
+${indent} * @phpstan-assert int $value
+${indent} */
+${indent}protected static function asInt($value): int
+${indent}{
+${indent}${indent}if (!is_int($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected int, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a float and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return float
+${indent} * @phpstan-assert float $value
+${indent} */
+${indent}protected static function asFloat($value): float
+${indent}{
+${indent}${indent}if (!is_float($value) && !is_int($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected float, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return (float) $value;
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a bool and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return bool
+${indent} * @phpstan-assert bool $value
+${indent} */
+${indent}protected static function asBool($value): bool
+${indent}{
+${indent}${indent}if (!is_bool($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected bool, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an array and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, mixed>
+${indent} * @phpstan-assert array<string, mixed> $value
+${indent} */
+${indent}protected static function asArray($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}/** @var array<string, mixed> */
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as string or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|null
+${indent} */
+${indent}protected static function asStringOrNull($value): ?string
+${indent}{
+${indent}${indent}return $value === null ? null : self::asString($value);
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as int or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return int|null
+${indent} */
+${indent}protected static function asIntOrNull($value): ?int
+${indent}{
+${indent}${indent}return $value === null ? null : self::asInt($value);
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as float or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return float|null
+${indent} */
+${indent}protected static function asFloatOrNull($value): ?float
+${indent}{
+${indent}${indent}return $value === null ? null : self::asFloat($value);
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as bool or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return bool|null
+${indent} */
+${indent}protected static function asBoolOrNull($value): ?bool
+${indent}{
+${indent}${indent}return $value === null ? null : self::asBool($value);
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as array or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, mixed>|null
+${indent} */
+${indent}protected static function asArrayOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asArray($value);
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an object and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return object
+${indent} * @phpstan-assert object $value
+${indent} */
+${indent}protected static function asObject($value): object
+${indent}{
+${indent}${indent}if (!is_object($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected object, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as object or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return object|null
+${indent} */
+${indent}protected static function asObjectOrNull($value): ?object
+${indent}{
+${indent}${indent}return $value === null ? null : self::asObject($value);
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an array of strings and returns it.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<int, string>
+${indent} */
+${indent}protected static function asStringArray($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}/** @var array<int, string> */
+${indent}${indent}return array_values(array_map(static fn($item): string => (string) $item, $value));
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as array of strings or null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<int, string>|null
+${indent} */
+${indent}protected static function asStringArrayOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asStringArray($value);
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a scalar (string, int, float, or bool) for sprintf.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|int|float|bool
+${indent} */
+${indent}protected static function asScalar($value)
+${indent}{
+${indent}${indent}if (!is_scalar($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected scalar value, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
 }
 `;
 }

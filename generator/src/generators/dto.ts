@@ -1268,6 +1268,69 @@ export class DtoGenerator {
   }
 
   /**
+   * Checks if a PhpType has a phpDocType that's narrower than its runtime type.
+   *
+   * This detects cases where PHPStan needs a @var annotation to understand
+   * the actual type, such as:
+   * - String literal unions: 'accept'|'decline'|'cancel' (narrower than string)
+   * - Specific numeric literals: 1|2|3 (narrower than int)
+   * - Arrays with narrower item types: array<'user'|'assistant'> vs array<string>
+   * - Arrays of objects: array<object> (runtime helper returns array<string, mixed>)
+   *
+   * @param phpType - The PHP type information
+   * @returns true if the phpDocType is narrower and needs @var annotation
+   */
+  private hasNarrowerPhpDocType(phpType: PhpType): boolean {
+    if (!phpType.phpDocType) {
+      return false;
+    }
+
+    // String with literal union phpDocType (contains quoted strings separated by |)
+    // e.g., "'accept'|'decline'|'cancel'" or "'2.0'"
+    if (phpType.type === 'string' && /^'[^']*'(\|'[^']*')*$/.test(phpType.phpDocType)) {
+      return true;
+    }
+
+    // Untyped (mixed in PHP 7.4) with complex union phpDocType
+    // e.g., "string|number" for JSON-RPC id
+    if (phpType.isUntyped && phpType.phpDocType.includes('|')) {
+      return true;
+    }
+
+    // Array types with narrower phpDocType than what runtime helpers can provide:
+    // - array<'user'|'assistant'> (runtime: array<int, string>)
+    // - array<object> (runtime: array<string, mixed>)
+    // - array<SomeInterface> (runtime: array<string, mixed>)
+    // - array<\FQN\SomeInterface> (union interface arrays - need @var for PHPStan)
+    if (phpType.isArray) {
+      // Array of literal strings - needs @var for PHPStan
+      // e.g., phpDocType like "array<'user'|'assistant'>" or "'user'|'assistant'[]"
+      if (phpType.phpDocType.includes("'") && phpType.phpDocType.includes('|')) {
+        return true;
+      }
+
+      // Array of objects - asArray() returns array<string, mixed>, not array<object>
+      if (phpType.arrayItemType === 'object') {
+        return true;
+      }
+
+      // Array of union interfaces - need @var for PHPStan to understand the type
+      // e.g., array<\WP\McpSchema\...\Union\SomeInterface>
+      if (phpType.phpDocType.includes('Interface') && phpType.phpDocType.includes('\\Union\\')) {
+        return true;
+      }
+
+      // Array of union types (DTO1|DTO2) that don't have an arrayItemType
+      // e.g., array<\WP\McpSchema\...\BlobResourceContents|\WP\McpSchema\...\TextResourceContents>
+      if (!phpType.arrayItemType && phpType.phpDocType.includes('|') && phpType.phpDocType.includes('\\')) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Gets the PHP expression for serializing a property value.
    *
    * For DTO objects: calls ->toArray()

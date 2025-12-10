@@ -6,7 +6,7 @@
  */
 
 import type { TsTypeAlias, TsInterface, PhpType, DomainClassification } from '../types/index.js';
-import { TypeMapper } from './type-mapper.js';
+import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { DomainClassifier } from './domain-classifier.js';
 
 /**
@@ -32,17 +32,20 @@ export class TypeResolver {
   private readonly interfaceMap: Map<string, TsInterface>;
   private readonly classifier: DomainClassifier;
   private readonly baseNamespace: string;
+  private readonly constants?: ConstantsMap;
 
   constructor(
     typeAliases: readonly TsTypeAlias[],
     interfaces: readonly TsInterface[],
     baseNamespace: string,
-    classifier?: DomainClassifier
+    classifier?: DomainClassifier,
+    constants?: ConstantsMap
   ) {
     this.typeAliasMap = new Map(typeAliases.map((a) => [a.name, a]));
     this.interfaceMap = new Map(interfaces.map((i) => [i.name, i]));
     this.classifier = classifier ?? new DomainClassifier();
     this.baseNamespace = baseNamespace;
+    this.constants = constants;
   }
 
   /**
@@ -163,7 +166,7 @@ export class TypeResolver {
     }
 
     // Fall back to TypeMapper for primitives and other types
-    const phpType = TypeMapper.mapType(typeName, propertyName);
+    const phpType = TypeMapper.mapType(typeName, propertyName, this.constants);
 
     // If TypeMapper returned a class-like type, check if we need an import
     if (this.isClassType(phpType.type)) {
@@ -189,7 +192,7 @@ export class TypeResolver {
 
     // Check if it's a primitive union (like string | number)
     if (this.isPrimitiveUnion(type)) {
-      const phpType = TypeMapper.mapType(type, propertyName);
+      const phpType = TypeMapper.mapType(type, propertyName, this.constants);
       return {
         phpType,
         needsImport: false,
@@ -238,7 +241,7 @@ export class TypeResolver {
     }
 
     // Fall back to TypeMapper
-    const phpType = TypeMapper.mapType(type, propertyName);
+    const phpType = TypeMapper.mapType(type, propertyName, this.constants);
     return {
       phpType,
       needsImport: false,

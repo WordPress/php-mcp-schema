@@ -5,7 +5,7 @@
  */
 
 import type { TsInterface, TsTypeAlias, PhpProperty, PhpClassMeta, GeneratorConfig, DomainClassification, UnionMembershipMap, PhpType, VersionTracker } from '../types/index.js';
-import { TypeMapper } from './type-mapper.js';
+import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { DomainClassifier } from './domain-classifier.js';
 import { TypeResolver } from './type-resolver.js';
 import {
@@ -47,11 +47,12 @@ export class DtoGenerator {
     typeAliases: readonly TsTypeAlias[] = [],
     classifier?: DomainClassifier,
     unionMembershipMap?: UnionMembershipMap,
-    versionTracker?: VersionTracker
+    versionTracker?: VersionTracker,
+    constants?: ConstantsMap
   ) {
     this.config = config;
     this.classifier = classifier ?? new DomainClassifier();
-    this.typeResolver = new TypeResolver(typeAliases, interfaces, config.output.namespace, this.classifier);
+    this.typeResolver = new TypeResolver(typeAliases, interfaces, config.output.namespace, this.classifier, constants);
     this.unionMembershipMap = unionMembershipMap ?? new Map();
     this.inheritanceGraph = buildInheritanceGraph(interfaces);
     this.interfaceMap = buildInterfaceMap(interfaces);

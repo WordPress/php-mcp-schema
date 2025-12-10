@@ -6,7 +6,7 @@
 
 import type { TsInterface, TsProperty, TsTypeAlias, GeneratorConfig, DomainClassification, VersionTracker } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
-import { TypeMapper } from './type-mapper.js';
+import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { TypeResolver } from './type-resolver.js';
 import { resolveInheritance } from '../parser/index.js';
 import { formatPhpDocDescription } from './index.js';
@@ -26,12 +26,13 @@ export class BuilderGenerator {
     interfaces: readonly TsInterface[],
     typeAliases: readonly TsTypeAlias[] = [],
     classifier?: DomainClassifier,
-    versionTracker?: VersionTracker
+    versionTracker?: VersionTracker,
+    constants?: ConstantsMap
   ) {
     this.config = config;
     this.classifier = classifier ?? new DomainClassifier();
     this.interfaces = interfaces;
-    this.typeResolver = new TypeResolver(typeAliases, interfaces, config.output.namespace, this.classifier);
+    this.typeResolver = new TypeResolver(typeAliases, interfaces, config.output.namespace, this.classifier, constants);
     this.versionTracker = versionTracker;
   }
 

@@ -57,12 +57,22 @@ export interface TsTypeAlias {
 }
 
 /**
+ * Represents a TypeScript constant (export const NAME = value).
+ */
+export interface TsConstant {
+  readonly name: string;
+  readonly value: string;
+  readonly description?: string;
+}
+
+/**
  * Combined AST output from ts-morph extraction.
  */
 export interface AstOutput {
   readonly interfaces: readonly TsInterface[];
   readonly typeAliases: readonly TsTypeAlias[];
   readonly enums?: readonly TsEnum[];
+  readonly constants?: readonly TsConstant[];
 }
 
 /**

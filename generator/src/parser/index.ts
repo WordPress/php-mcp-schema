@@ -5,8 +5,8 @@
  * type aliases, and metadata.
  */
 
-import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration } from 'ts-morph';
-import type { AstOutput, TsInterface, TsTypeAlias, TsProperty, JsDocTag, TsEnum, TsEnumMember } from '../types/index.js';
+import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration, VariableDeclarationKind } from 'ts-morph';
+import type { AstOutput, TsInterface, TsTypeAlias, TsProperty, JsDocTag, TsEnum, TsEnumMember, TsConstant } from '../types/index.js';
 
 /**
  * Parser options.
@@ -32,11 +32,13 @@ export function parseSchema(content: string, options: ParserOptions = {}): AstOu
   const interfaces = extractInterfaces(sourceFile, options);
   const typeAliases = extractTypeAliases(sourceFile, options);
   const enums = extractEnums(sourceFile, options);
+  const constants = extractConstants(sourceFile);
 
   return {
     interfaces,
     typeAliases,
     enums,
+    constants,
   };
 }
 
@@ -215,6 +217,57 @@ export function getCategoryTag(tags: readonly JsDocTag[]): string | undefined {
 }
 
 /**
+ * Extracts exported string constants from a source file.
+ * Looks for patterns like: export const CONSTANT_NAME = 'value';
+ */
+function extractConstants(sourceFile: SourceFile): TsConstant[] {
+  const constants: TsConstant[] = [];
+
+  for (const statement of sourceFile.getVariableStatements()) {
+    // Only process exported const declarations
+    if (!statement.isExported()) {
+      continue;
+    }
+    if (statement.getDeclarationKind() !== VariableDeclarationKind.Const) {
+      continue;
+    }
+
+    for (const declaration of statement.getDeclarations()) {
+      const initializer = declaration.getInitializer();
+      if (!initializer) {
+        continue;
+      }
+
+      // Only extract string literals
+      const initText = initializer.getText();
+      if ((initText.startsWith("'") && initText.endsWith("'")) ||
+          (initText.startsWith('"') && initText.endsWith('"'))) {
+        // Remove quotes to get the actual value
+        const value = initText.slice(1, -1);
+        constants.push({
+          name: declaration.getName(),
+          value,
+          description: getConstantDescription(statement),
+        });
+      }
+    }
+  }
+
+  return constants;
+}
+
+/**
+ * Gets the JSDoc description from a variable statement.
+ */
+function getConstantDescription(statement: ReturnType<SourceFile['getVariableStatements']>[0]): string | undefined {
+  const jsDocs = statement.getJsDocs();
+  if (jsDocs.length === 0) {
+    return undefined;
+  }
+  return jsDocs[0]?.getDescription()?.trim() || undefined;
+}
+
+/**
  * Parses a TypeScript file from disk.
  */
 export async function parseSchemaFile(filePath: string, options: ParserOptions = {}): Promise<AstOutput> {
@@ -230,11 +283,13 @@ export async function parseSchemaFile(filePath: string, options: ParserOptions =
   const interfaces = extractInterfaces(sourceFile, options);
   const typeAliases = extractTypeAliases(sourceFile, options);
   const enums = extractEnums(sourceFile, options);
+  const constants = extractConstants(sourceFile);
 
   return {
     interfaces,
     typeAliases,
     enums,
+    constants,
   };
 }
 

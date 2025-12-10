@@ -1102,32 +1102,92 @@ export class DtoGenerator {
    * For DTO objects: checks if value is array and calls ::fromArray()
    * For arrays of DTOs: maps over array and calls ::fromArray() on each item
    * For union interfaces: uses the corresponding Factory class
-   * For primitives: returns value directly
+   * For primitives: uses type assertion helpers for PHPStan max level compliance
+   *
+   * Note: Uses @phpstan-ignore for DTO ternary expressions where the else branch
+   * returns mixed but is known to be the correct type at runtime.
    *
    * @param phpType - The PHP type information
    * @param varExpr - The PHP variable expression (e.g., "$data['inputSchema']")
    * @param indent - The base indentation for multi-line expressions
+   * @param isOptional - Whether the property is optional (affects which helper to use)
+   * @param _propertyName - The property name (reserved for future use)
    * @returns Object with expression and whether it needs pre-assignment
    */
   private getDeserializationExpression(
     phpType: PhpType,
     varExpr: string,
-    _indent: string
-  ): { expression: string; needsVariable: boolean; variableCode?: string } {
+    _indent: string,
+    isOptional: boolean = false,
+    _propertyName?: string
+  ): { expression: string; needsVariable: boolean; variableCode?: string; dtoHydrator?: string; varExpr?: string } {
+    const suffix = isOptional ? 'OrNull' : '';
+
+    // Handle object type
+    if (phpType.type === 'object' && !phpType.isArray) {
+      return {
+        expression: `self::asObject${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
+    // Handle array<string> or string[] (array of primitive strings)
+    if (phpType.isArray && phpType.arrayItemType === 'string') {
+      return {
+        expression: `self::asStringArray${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
     // Check if it's an array of DTO objects
-    if (phpType.isArray && phpType.arrayItemType) {
-      const itemType = phpType.arrayItemType;
-      // If the array item is a DTO class (not a primitive), hydrate each item
-      if (!DtoGenerator.PRIMITIVE_TYPES.has(itemType)) {
+    if (phpType.isArray) {
+      const itemType = phpType.arrayItemType ?? '';
+
+      // Check if item type is a DTO class (not a primitive)
+      // For union interfaces, arrayItemType might be empty but phpDocType contains the interface name
+      const isDtoArray = !DtoGenerator.PRIMITIVE_TYPES.has(itemType) && itemType !== '';
+
+      // Also check phpDocType for array of union interfaces: array<FQN\Interface>
+      const phpDocMatch = phpType.phpDocType?.match(/^array<(.+)>$/);
+      const phpDocItemType = phpDocMatch?.[1] ?? '';
+      const isUnionInterfaceArray = phpDocItemType.includes('Interface') && phpDocItemType.includes('\\');
+
+      if (isDtoArray) {
         // For union interfaces (ending with Interface), use the Factory class
         const hydratorClass = this.getHydratorClass(itemType);
         // For arrays, we need to map over and hydrate each item
         // But we need to handle the case where the value might already be an object
+        // Use self::asArray() to narrow the outer array type for PHPStan
+        // Return multiline format for readability
         return {
-          expression: `array_map(static fn($item) => is_array($item) ? ${hydratorClass}::fromArray($item) : $item, ${varExpr})`,
+          expression: isOptional ? 'MULTILINE_OPTIONAL_DTO_ARRAY' : 'MULTILINE_REQUIRED_DTO_ARRAY',
           needsVariable: false,
+          dtoHydrator: hydratorClass,
+          varExpr,
         };
       }
+
+      if (isUnionInterfaceArray) {
+        // Array of union interface types - extract factory name from phpDocType
+        // phpDocType is like: array<\WP\McpSchema\...\Union\SomeInterface>
+        const interfaceNameMatch = phpDocItemType.match(/\\(\w+Interface)(?:\|.*)?$/);
+        const interfaceName = interfaceNameMatch?.[1] ?? '';
+        const factoryName = interfaceName.replace(/Interface$/, 'Factory');
+
+        // Return multiline format for readability
+        return {
+          expression: isOptional ? 'MULTILINE_OPTIONAL_DTO_ARRAY' : 'MULTILINE_REQUIRED_DTO_ARRAY',
+          needsVariable: false,
+          dtoHydrator: factoryName,
+          varExpr,
+        };
+      }
+
+      // Array of primitives - use asArray() helper
+      return {
+        expression: `self::asArray(${varExpr})`,
+        needsVariable: false,
+      };
     }
 
     // Check if it's a single DTO object (not a primitive)
@@ -1135,17 +1195,56 @@ export class DtoGenerator {
       // For union interfaces (ending with Interface), use the Factory class
       const hydratorClass = this.getHydratorClass(phpType.type);
       // Need to check if value is array and hydrate, or use as-is if already object
+      // Use self::asArray() when calling fromArray to narrow the type
+      // Return multiline format for readability and to stay under 120 char line limit
       return {
-        expression: `is_array(${varExpr}) ? ${hydratorClass}::fromArray(${varExpr}) : ${varExpr}`,
+        expression: isOptional ? 'MULTILINE_OPTIONAL_DTO' : 'MULTILINE_REQUIRED_DTO',
+        needsVariable: false,
+        // Store parts for multiline rendering
+        dtoHydrator: hydratorClass,
+        varExpr,
+      };
+    }
+
+    // Primitive types - use type assertion helpers for PHPStan max level
+    const helperMethod = this.getPrimitiveHelper(phpType.type, isOptional);
+    if (helperMethod) {
+      return {
+        expression: `self::${helperMethod}(${varExpr})`,
         needsVariable: false,
       };
     }
 
-    // Primitive type or array of primitives - return as-is
+    // Unknown or mixed type - return as-is
     return {
       expression: varExpr,
       needsVariable: false,
     };
+  }
+
+  /**
+   * Gets the helper method name for a primitive type.
+   *
+   * @param typeName - The PHP type name (string, int, float, bool, etc.)
+   * @param isOptional - Whether the property is optional (uses OrNull variant)
+   * @returns The helper method name (e.g., "asString", "asStringOrNull") or undefined
+   */
+  private getPrimitiveHelper(typeName: string, isOptional: boolean): string | undefined {
+    const suffix = isOptional ? 'OrNull' : '';
+    switch (typeName) {
+      case 'string':
+        return `asString${suffix}`;
+      case 'int':
+        return `asInt${suffix}`;
+      case 'float':
+        return `asFloat${suffix}`;
+      case 'bool':
+        return `asBool${suffix}`;
+      case 'array':
+        return `asArray${suffix}`;
+      default:
+        return undefined;
+    }
   }
 
   /**

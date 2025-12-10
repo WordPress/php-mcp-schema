@@ -14,9 +14,9 @@ const __dirname = dirname(__filename);
 
 /**
  * Default schema source configuration (version must be provided via config file).
+ * Schema is always fetched from the official MCP GitHub repository.
  */
 export const DEFAULT_SCHEMA_SOURCE: Omit<SchemaSource, 'version'> = {
-  type: 'github',
   repository: 'modelcontextprotocol/modelcontextprotocol',
   branch: 'main',
   path: 'schema',
@@ -24,15 +24,13 @@ export const DEFAULT_SCHEMA_SOURCE: Omit<SchemaSource, 'version'> = {
 
 /**
  * Default PHP output configuration.
+ * Note: Generated code targets PHP 7.4 for maximum compatibility.
  */
 export const DEFAULT_PHP_OUTPUT: PhpOutputConfig = {
   outputDir: '../src',
   namespace: 'WP\\McpSchema',
-  phpVersion: '7.4',
   indentation: 'spaces',
   indentSize: 4,
-  generateBuilders: false,
-  generateFactories: true,
 };
 
 /**
@@ -64,21 +62,9 @@ export function createConfig(options: Partial<GeneratorConfig> & { schema: { ver
  * @throws Error if configuration is invalid
  */
 export function validateConfig(config: GeneratorConfig): void {
-  // Validate schema source
-  if (config.schema.type === 'github') {
-    if (!config.schema.repository) {
-      throw new Error('GitHub repository is required when schema type is "github"');
-    }
-  } else if (config.schema.type === 'local') {
-    if (!config.schema.path) {
-      throw new Error('Local path is required when schema type is "local"');
-    }
-  }
-
-  // Validate PHP version
-  const validPhpVersions = ['7.4', '8.0', '8.1', '8.2', '8.3'];
-  if (!validPhpVersions.includes(config.output.phpVersion)) {
-    throw new Error(`Invalid PHP version: ${config.output.phpVersion}`);
+  // Validate schema version
+  if (!config.schema.version) {
+    throw new Error('Schema version is required');
   }
 
   // Validate indentation

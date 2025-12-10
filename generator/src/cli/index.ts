@@ -26,9 +26,6 @@ program
   .requiredOption('-c, --config <file>', 'Configuration file (required)')
   .option('-o, --output <dir>', 'Output directory (overrides config)')
   .option('-n, --namespace <ns>', 'PHP namespace (overrides config)')
-  .option('-p, --php-version <ver>', 'PHP version (overrides config)')
-  .option('--builders', 'Generate builder classes')
-  .option('--no-factories', 'Disable factory generation')
   .option('--dry-run', 'Show what would be generated without writing files')
   .option('--fresh', 'Force fresh fetch from GitHub (ignore cache)')
   .option('--verbose', 'Enable verbose output')
@@ -48,9 +45,6 @@ program
       const outputConfig = { ...baseConfig.output };
       if (options['output']) outputConfig.outputDir = options['output'] as string;
       if (options['namespace']) outputConfig.namespace = options['namespace'] as string;
-      if (options['phpVersion']) outputConfig.phpVersion = options['phpVersion'] as typeof outputConfig.phpVersion;
-      if (options['builders']) outputConfig.generateBuilders = true;
-      if (options['factories'] === false) outputConfig.generateFactories = false;
 
       const config = createConfig({
         schema: schemaConfig,
@@ -129,7 +123,7 @@ program
     console.log(`  Schema Branch: ${DEFAULT_SCHEMA_SOURCE.branch}`);
     console.log(`  Output Directory: ${DEFAULT_PHP_OUTPUT.outputDir}`);
     console.log(`  PHP Namespace: ${DEFAULT_PHP_OUTPUT.namespace}`);
-    console.log(`  PHP Version: ${DEFAULT_PHP_OUTPUT.phpVersion}`);
+    console.log(`  Target PHP: 7.4 (for maximum compatibility)`);
     console.log('');
 
     const versions = listConfigVersions();

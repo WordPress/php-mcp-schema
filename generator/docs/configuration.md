@@ -7,32 +7,23 @@ Configuration files are JSON stored in `config/`:
 ```json
 {
   "schema": {
-    "type": "github",
-    "repository": "modelcontextprotocol/modelcontextprotocol",
-    "branch": "main",
-    "path": "schema",
     "version": "2025-11-25"
   },
   "output": {
     "outputDir": "../src",
     "namespace": "WP\\McpSchema",
-    "phpVersion": "7.4",
     "indentation": "spaces",
-    "indentSize": 4,
-    "generateBuilders": false,
-    "generateFactories": true
+    "indentSize": 4
   }
 }
 ```
 
 ## Schema Options
 
+The schema is always fetched from the official MCP GitHub repository (`modelcontextprotocol/modelcontextprotocol`).
+
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `type` | `"github"` \| `"local"` | `"github"` | Schema source type |
-| `repository` | `string` | `"modelcontextprotocol/modelcontextprotocol"` | GitHub repository |
-| `branch` | `string` | `"main"` | Git branch |
-| `path` | `string` | `"schema"` | Path within repository |
 | `version` | `string` | **required** | Schema version (e.g., `"2025-11-25"`) |
 
 ## Output Options
@@ -41,11 +32,10 @@ Configuration files are JSON stored in `config/`:
 |--------|------|---------|-------------|
 | `outputDir` | `string` | `"../src"` | Output directory (relative to generator/) |
 | `namespace` | `string` | `"WP\\McpSchema"` | Base PHP namespace |
-| `phpVersion` | `string` | `"7.4"` | Target PHP version (`"7.4"`-`"8.3"`) |
 | `indentation` | `"spaces"` \| `"tabs"` | `"spaces"` | Indentation style |
 | `indentSize` | `number` | `4` | Spaces per indent (1-8) |
-| `generateBuilders` | `boolean` | `false` | Generate fluent builder classes |
-| `generateFactories` | `boolean` | `true` | Generate factory classes for unions |
+
+**Note:** Generated code targets PHP 7.4 for maximum compatibility. Factory classes for unions are always generated.
 
 ## CLI Overrides
 
@@ -57,12 +47,6 @@ node dist/cli/index.js generate -c config/2025-11-25.json -o /custom/path
 
 # Override namespace
 node dist/cli/index.js generate -c config/2025-11-25.json -n "My\\Namespace"
-
-# Enable builders (overrides config)
-node dist/cli/index.js generate -c config/2025-11-25.json --builders
-
-# Disable factories (overrides config)
-node dist/cli/index.js generate -c config/2025-11-25.json --no-factories
 ```
 
 ## Generation Options

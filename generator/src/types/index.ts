@@ -284,12 +284,12 @@ export type UnionMembershipMap = Map<string, UnionMembershipInfo[]>;
 
 /**
  * Schema source configuration.
+ * Source is always GitHub (modelcontextprotocol/modelcontextprotocol).
  */
 export interface SchemaSource {
-  readonly type: 'github' | 'local';
-  readonly repository?: string;
-  readonly branch?: string;
-  readonly path?: string;
+  readonly repository: string;
+  readonly branch: string;
+  readonly path: string;
   readonly version: string;
 }
 
@@ -299,11 +299,8 @@ export interface SchemaSource {
 export interface PhpOutputConfig {
   readonly outputDir: string;
   readonly namespace: string;
-  readonly phpVersion: '7.4' | '8.0' | '8.1' | '8.2' | '8.3';
   readonly indentation: 'spaces' | 'tabs';
   readonly indentSize: number;
-  readonly generateBuilders: boolean;
-  readonly generateFactories: boolean;
 }
 
 /**

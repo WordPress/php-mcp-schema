@@ -890,38 +890,117 @@ export class DtoGenerator {
     if (sortedProps.length === 0) {
       lines.push(`${indent}${indent}return new self();`);
     } else {
-      lines.push(`${indent}${indent}return new self(`);
+      // For non-primitive DTO types, we need to extract variables with @var annotations
+      // to help PHPStan understand the types when the else branch of a ternary returns mixed
+      const variableAssignments: string[] = [];
+      const constructorArgs: string[] = [];
 
       for (let i = 0; i < sortedProps.length; i++) {
         const prop = sortedProps[i]!;
-        const { jsonKey } = this.getPropertyNames(prop.name);
-        const isLast = i === sortedProps.length - 1;
-        const comma = isLast ? '' : ',';
+        const { phpName, jsonKey } = this.getPropertyNames(prop.name);
 
         // Get deserialization expression for nested DTO types
         const rawExpr = `$data['${jsonKey}']`;
-        const deserExpr = this.getDeserializationExpression(prop.type, rawExpr, indent);
+        const isOptional = !prop.isRequired;
+        const deserExpr = this.getDeserializationExpression(prop.type, rawExpr, indent, isOptional, prop.name);
+
+        // Check if this is a DTO type (non-primitive) that needs a @var annotation
+        const isPrimitiveType = DtoGenerator.PRIMITIVE_TYPES.has(prop.type.type) &&
+          (!prop.type.isArray || !prop.type.arrayItemType || DtoGenerator.PRIMITIVE_TYPES.has(prop.type.arrayItemType));
+
+        // Check if the type needs a @var annotation for narrowing:
+        // - Non-primitive types (DTOs, interfaces)
+        // - Primitive types with narrower phpDocType (e.g., string with literal union like 'a'|'b'|'c')
+        const needsVarAnnotation = !isPrimitiveType || this.hasNarrowerPhpDocType(prop.type);
 
         if (prop.isRequired) {
-          lines.push(`${indent}${indent}${indent}${deserExpr.expression}${comma}`);
-        } else {
-          // For optional properties with DTO types, we need to handle null case
-          // If it's a DTO type, use isset() check with hydration
-          const isPrimitiveType = DtoGenerator.PRIMITIVE_TYPES.has(prop.type.type) &&
-            (!prop.type.isArray || !prop.type.arrayItemType || DtoGenerator.PRIMITIVE_TYPES.has(prop.type.arrayItemType));
+          if (needsVarAnnotation) {
+            // Extract to variable with @var annotation for PHPStan type narrowing
+            const varName = `$${phpName}`;
+            const phpDocType = TypeMapper.getPhpDocType(prop.type);
+            variableAssignments.push(`${indent}${indent}/** @var ${phpDocType} ${varName} */`);
 
-          if (isPrimitiveType) {
-            // Primitive type - simple null coalescing
-            const defaultValue = this.getDefaultValue(prop);
-            lines.push(`${indent}${indent}${indent}${rawExpr} ?? ${defaultValue}${comma}`);
+            // Handle multiline DTO hydration for readability
+            if (deserExpr.expression === 'MULTILINE_REQUIRED_DTO' && deserExpr.dtoHydrator) {
+              const dataExpr = deserExpr.varExpr ?? rawExpr;
+              variableAssignments.push(`${indent}${indent}${varName} = is_array(${dataExpr})`);
+              variableAssignments.push(`${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray(self::asArray(${dataExpr}))`);
+              variableAssignments.push(`${indent}${indent}${indent}: ${dataExpr};`);
+            } else if (deserExpr.expression === 'MULTILINE_REQUIRED_DTO_ARRAY' && deserExpr.dtoHydrator) {
+              const dataExpr = deserExpr.varExpr ?? rawExpr;
+              variableAssignments.push(`${indent}${indent}${varName} = array_map(`);
+              variableAssignments.push(`${indent}${indent}${indent}static fn($item) => is_array($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}: $item,`);
+              variableAssignments.push(`${indent}${indent}${indent}self::asArray(${dataExpr})`);
+              variableAssignments.push(`${indent}${indent});`);
+            } else {
+              variableAssignments.push(`${indent}${indent}${varName} = ${deserExpr.expression};`);
+            }
+            variableAssignments.push('');
+            constructorArgs.push(varName);
           } else {
-            // DTO type - need to check isset before hydrating
+            // Simple primitive type - use inline expression
+            constructorArgs.push(deserExpr.expression);
+          }
+        } else {
+          // Optional property
+          if (!needsVarAnnotation) {
+            // Simple primitive type - use the OrNull helper which handles missing/null values
+            // Use null coalescing to handle missing keys before the helper
+            constructorArgs.push(deserExpr.expression.replace(`$data['${jsonKey}']`, `$data['${jsonKey}'] ?? null`));
+          } else {
+            // Complex type - extract to variable with @var annotation
+            const varName = `$${phpName}`;
+            const phpDocType = TypeMapper.getPhpDocType(prop.type);
+            const nullableType = phpDocType.includes('null') ? phpDocType : `${phpDocType}|null`;
             const defaultValue = this.getDefaultValue(prop);
-            lines.push(`${indent}${indent}${indent}isset(${rawExpr}) ? ${deserExpr.expression} : ${defaultValue}${comma}`);
+            variableAssignments.push(`${indent}${indent}/** @var ${nullableType} ${varName} */`);
+            variableAssignments.push(`${indent}${indent}${varName} = isset(${rawExpr})`);
+
+            // Handle multiline DTO hydration for readability
+            if (deserExpr.expression === 'MULTILINE_OPTIONAL_DTO' && deserExpr.dtoHydrator) {
+              const dataExpr = deserExpr.varExpr ?? rawExpr;
+              variableAssignments.push(`${indent}${indent}${indent}? (is_array(${dataExpr})`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray(self::asArray(${dataExpr}))`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}: ${dataExpr})`);
+            } else if (deserExpr.expression === 'MULTILINE_OPTIONAL_DTO_ARRAY' && deserExpr.dtoHydrator) {
+              const dataExpr = deserExpr.varExpr ?? rawExpr;
+              variableAssignments.push(`${indent}${indent}${indent}? array_map(`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}static fn($item) => is_array($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}${indent}: $item,`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}self::asArray(${dataExpr})`);
+              variableAssignments.push(`${indent}${indent}${indent})`);
+            } else {
+              variableAssignments.push(`${indent}${indent}${indent}? ${deserExpr.expression}`);
+            }
+            variableAssignments.push(`${indent}${indent}${indent}: ${defaultValue};`);
+            variableAssignments.push('');
+            constructorArgs.push(varName);
           }
         }
       }
 
+      // Output variable assignments
+      for (const line of variableAssignments) {
+        lines.push(line);
+      }
+
+      // Output constructor call
+      lines.push(`${indent}${indent}return new self(`);
+      for (let i = 0; i < constructorArgs.length; i++) {
+        const isLast = i === constructorArgs.length - 1;
+        const comma = isLast ? '' : ',';
+        const arg = constructorArgs[i]!;
+        // If arg is a variable reference (starts with $), just output it
+        // Otherwise it's an inline expression
+        if (arg.startsWith('$')) {
+          lines.push(`${indent}${indent}${indent}${arg}${comma}`);
+        } else {
+          lines.push(`${indent}${indent}${indent}${arg}${comma}`);
+        }
+      }
       lines.push(`${indent}${indent});`);
     }
 

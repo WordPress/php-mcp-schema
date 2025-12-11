@@ -107,7 +107,7 @@ class EmbeddedResource extends AbstractDataTransferObject implements ContentBloc
         return new self(
             $resource,
             $annotations,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

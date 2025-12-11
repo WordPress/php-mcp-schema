@@ -160,7 +160,7 @@ class ResourceTemplate extends BaseMetadata
             self::asStringOrNull($data['description'] ?? null),
             self::asStringOrNull($data['mimeType'] ?? null),
             $annotations,
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             $icons
         );
     }

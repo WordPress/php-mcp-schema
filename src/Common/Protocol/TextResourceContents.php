@@ -64,7 +64,7 @@ class TextResourceContents extends ResourceContents
             self::asString($data['uri']),
             self::asString($data['text']),
             self::asStringOrNull($data['mimeType'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

@@ -60,7 +60,7 @@ class CreateTaskResult extends Result
 
         return new self(
             $task,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

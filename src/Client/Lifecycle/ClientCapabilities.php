@@ -131,7 +131,7 @@ class ClientCapabilities extends AbstractDataTransferObject
             : null;
 
         return new self(
-            self::asArray($data['experimental'] ?? null),
+            self::asArrayOrNull($data['experimental'] ?? null),
             $roots,
             $sampling,
             $elicitation,

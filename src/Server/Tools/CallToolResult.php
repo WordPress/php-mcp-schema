@@ -106,8 +106,8 @@ class CallToolResult extends Result implements ServerResultInterface
 
         return new self(
             $content,
-            self::asArray($data['_meta'] ?? null),
-            self::asArray($data['structuredContent'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
+            self::asArrayOrNull($data['structuredContent'] ?? null),
             self::asBoolOrNull($data['isError'] ?? null)
         );
     }

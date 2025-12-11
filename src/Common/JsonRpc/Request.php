@@ -60,7 +60,7 @@ class Request extends AbstractDataTransferObject
 
         return new self(
             self::asString($data['method']),
-            self::asArray($data['params'] ?? null)
+            self::asArrayOrNull($data['params'] ?? null)
         );
     }
 

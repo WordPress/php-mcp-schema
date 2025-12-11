@@ -61,7 +61,7 @@ class CompleteResult extends Result implements ServerResultInterface
 
         return new self(
             $completion,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

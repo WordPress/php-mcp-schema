@@ -157,7 +157,7 @@ class ServerCapabilities extends AbstractDataTransferObject
             : null;
 
         return new self(
-            self::asArray($data['experimental'] ?? null),
+            self::asArrayOrNull($data['experimental'] ?? null),
             self::asObjectOrNull($data['logging'] ?? null),
             self::asObjectOrNull($data['completions'] ?? null),
             $prompts,

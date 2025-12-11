@@ -87,7 +87,7 @@ class LoggingMessageNotificationParams extends NotificationParams
         return new self(
             $level,
             $data['data'],
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['logger'] ?? null)
         );
     }

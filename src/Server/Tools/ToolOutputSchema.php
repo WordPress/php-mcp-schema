@@ -76,7 +76,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
     {
         return new self(
             self::asStringOrNull($data['$schema'] ?? null),
-            self::asArray($data['properties'] ?? null),
+            self::asArrayOrNull($data['properties'] ?? null),
             self::asStringArrayOrNull($data['required'] ?? null)
         );
     }

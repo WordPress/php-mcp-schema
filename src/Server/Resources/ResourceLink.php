@@ -109,7 +109,7 @@ class ResourceLink extends Resource implements ContentBlockInterface
             self::asStringOrNull($data['mimeType'] ?? null),
             $annotations,
             self::asIntOrNull($data['size'] ?? null),
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['title'] ?? null),
             $icons
         );

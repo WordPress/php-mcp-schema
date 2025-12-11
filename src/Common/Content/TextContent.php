@@ -105,7 +105,7 @@ class TextContent extends AbstractDataTransferObject implements SamplingMessageC
         return new self(
             self::asString($data['text']),
             $annotations,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

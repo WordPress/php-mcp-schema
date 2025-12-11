@@ -119,7 +119,7 @@ class AudioContent extends AbstractDataTransferObject implements SamplingMessage
             self::asString($data['data']),
             self::asString($data['mimeType']),
             $annotations,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

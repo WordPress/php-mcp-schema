@@ -67,7 +67,7 @@ class ListRootsResult extends Result implements ClientResultInterface
 
         return new self(
             $roots,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

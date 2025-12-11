@@ -69,7 +69,7 @@ class ListResourceTemplatesResult extends PaginatedResult implements ServerResul
         return new self(
             $resourceTemplates,
             self::asStringOrNull($data['nextCursor'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

@@ -81,7 +81,7 @@ class ResourceContents extends AbstractDataTransferObject
         return new self(
             self::asString($data['uri']),
             self::asStringOrNull($data['mimeType'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

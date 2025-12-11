@@ -62,7 +62,7 @@ class JSONRPCNotification extends Notification implements JSONRPCMessageInterfac
         return new self(
             self::asString($data['method']),
             $jsonrpc,
-            self::asArray($data['params'] ?? null)
+            self::asArrayOrNull($data['params'] ?? null)
         );
     }
 

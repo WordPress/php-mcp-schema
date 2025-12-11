@@ -69,7 +69,7 @@ class ListToolsResult extends PaginatedResult implements ServerResultInterface
         return new self(
             $tools,
             self::asStringOrNull($data['nextCursor'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

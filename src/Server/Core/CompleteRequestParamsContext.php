@@ -46,7 +46,7 @@ class CompleteRequestParamsContext extends AbstractDataTransferObject
     public static function fromArray(array $data): self
     {
         return new self(
-            self::asArray($data['arguments'] ?? null)
+            self::asArrayOrNull($data['arguments'] ?? null)
         );
     }
 

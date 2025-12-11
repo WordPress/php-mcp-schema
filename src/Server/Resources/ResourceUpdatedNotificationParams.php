@@ -57,7 +57,7 @@ class ResourceUpdatedNotificationParams extends NotificationParams
 
         return new self(
             self::asString($data['uri']),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

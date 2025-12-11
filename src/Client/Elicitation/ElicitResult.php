@@ -79,8 +79,8 @@ class ElicitResult extends Result implements ClientResultInterface
 
         return new self(
             $action,
-            self::asArray($data['_meta'] ?? null),
-            self::asArray($data['content'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null),
+            self::asArrayOrNull($data['content'] ?? null)
         );
     }
 

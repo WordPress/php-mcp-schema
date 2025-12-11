@@ -176,7 +176,7 @@ class Resource extends BaseMetadata
             self::asStringOrNull($data['mimeType'] ?? null),
             $annotations,
             self::asIntOrNull($data['size'] ?? null),
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             $icons
         );
     }

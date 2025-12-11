@@ -91,7 +91,7 @@ class CallToolRequestParams extends TaskAugmentedRequestParams
             self::asString($data['name']),
             $task,
             $_meta,
-            self::asArray($data['arguments'] ?? null)
+            self::asArrayOrNull($data['arguments'] ?? null)
         );
     }
 

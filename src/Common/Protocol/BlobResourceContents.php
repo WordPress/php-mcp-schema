@@ -64,7 +64,7 @@ class BlobResourceContents extends ResourceContents
             self::asString($data['uri']),
             self::asString($data['blob']),
             self::asStringOrNull($data['mimeType'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

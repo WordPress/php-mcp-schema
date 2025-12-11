@@ -114,7 +114,7 @@ class ToolUseContent extends AbstractDataTransferObject implements SamplingMessa
             self::asString($data['id']),
             self::asString($data['name']),
             self::asArray($data['input']),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

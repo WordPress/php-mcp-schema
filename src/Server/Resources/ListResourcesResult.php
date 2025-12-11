@@ -69,7 +69,7 @@ class ListResourcesResult extends PaginatedResult implements ServerResultInterfa
         return new self(
             $resources,
             self::asStringOrNull($data['nextCursor'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

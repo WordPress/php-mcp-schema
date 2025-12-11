@@ -100,7 +100,7 @@ class ProgressNotificationParams extends NotificationParams
         return new self(
             $progressToken,
             self::asFloat($data['progress']),
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asIntOrNull($data['total'] ?? null),
             self::asStringOrNull($data['message'] ?? null)
         );

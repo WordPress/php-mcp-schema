@@ -78,7 +78,7 @@ class GetPromptResult extends Result implements ServerResultInterface
 
         return new self(
             $messages,
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['description'] ?? null)
         );
     }

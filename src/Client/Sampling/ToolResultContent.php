@@ -144,9 +144,9 @@ class ToolResultContent extends AbstractDataTransferObject implements SamplingMe
         return new self(
             self::asString($data['toolUseId']),
             $content,
-            self::asArray($data['structuredContent'] ?? null),
+            self::asArrayOrNull($data['structuredContent'] ?? null),
             self::asBoolOrNull($data['isError'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

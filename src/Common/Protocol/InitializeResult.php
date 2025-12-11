@@ -109,7 +109,7 @@ class InitializeResult extends Result implements ServerResultInterface
             self::asString($data['protocolVersion']),
             $capabilities,
             $serverInfo,
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['instructions'] ?? null)
         );
     }

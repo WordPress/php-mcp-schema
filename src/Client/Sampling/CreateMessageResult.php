@@ -123,7 +123,7 @@ class CreateMessageResult extends Result implements ClientResultInterface
             self::asString($data['model']),
             $role,
             $content,
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             $stopReason
         );
     }

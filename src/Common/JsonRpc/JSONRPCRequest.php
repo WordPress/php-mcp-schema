@@ -77,7 +77,7 @@ class JSONRPCRequest extends Request implements JSONRPCMessageInterface
             self::asString($data['method']),
             $jsonrpc,
             $id,
-            self::asArray($data['params'] ?? null)
+            self::asArrayOrNull($data['params'] ?? null)
         );
     }
 

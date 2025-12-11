@@ -79,7 +79,7 @@ class GetPromptRequestParams extends RequestParams
         return new self(
             self::asString($data['name']),
             $_meta,
-            self::asArray($data['arguments'] ?? null)
+            self::asArrayOrNull($data['arguments'] ?? null)
         );
     }
 

@@ -76,7 +76,7 @@ class CancelledNotificationParams extends NotificationParams
             : null;
 
         return new self(
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             $requestId,
             self::asStringOrNull($data['reason'] ?? null)
         );

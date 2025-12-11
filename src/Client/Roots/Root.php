@@ -85,7 +85,7 @@ class Root extends AbstractDataTransferObject
         return new self(
             self::asString($data['uri']),
             self::asStringOrNull($data['name'] ?? null),
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

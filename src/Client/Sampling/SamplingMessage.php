@@ -89,7 +89,7 @@ class SamplingMessage extends AbstractDataTransferObject
         return new self(
             $role,
             $content,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

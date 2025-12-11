@@ -132,7 +132,7 @@ class Prompt extends BaseMetadata
             self::asStringOrNull($data['title'] ?? null),
             self::asStringOrNull($data['description'] ?? null),
             $arguments,
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             $icons
         );
     }

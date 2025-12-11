@@ -1204,7 +1204,7 @@ export class DtoGenerator {
 
       // Array of primitives - use asArray() helper
       return {
-        expression: `self::asArray(${varExpr})`,
+        expression: `self::asArray${suffix}(${varExpr})`,
         needsVariable: false,
       };
     }

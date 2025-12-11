@@ -60,7 +60,7 @@ class ReadResourceResult extends Result implements ServerResultInterface
 
         return new self(
             $contents,
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

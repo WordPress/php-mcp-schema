@@ -48,7 +48,7 @@ class Result extends AbstractDataTransferObject
     public static function fromArray(array $data): self
     {
         return new self(
-            self::asArray($data['_meta'] ?? null)
+            self::asArrayOrNull($data['_meta'] ?? null)
         );
     }
 

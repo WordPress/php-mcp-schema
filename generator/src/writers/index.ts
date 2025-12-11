@@ -583,6 +583,92 @@ ${indent}${indent}return $value === null ? null : self::asStringArray($value);
 ${indent}}
 
 ${indent}/**
+${indent} * Asserts a value is an associative array with string values only.
+${indent} *
+${indent} * Used for MCP types like { [key: string]: string } index signatures.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, string>
+${indent} * @phpstan-assert array<string, string> $value
+${indent} */
+${indent}protected static function asStringMap($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}foreach ($value as $key => $v) {
+${indent}${indent}${indent}if (!is_string($v)) {
+${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}${indent}'Expected string value for key "%s", got %s',
+${indent}${indent}${indent}${indent}${indent}(string) $key,
+${indent}${indent}${indent}${indent}${indent}gettype($v)
+${indent}${indent}${indent}${indent}));
+${indent}${indent}${indent}}
+${indent}${indent}}
+${indent}${indent}/** @var array<string, string> */
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as string map or null.
+${indent} *
+${indent} * Used for optional MCP types like { [key: string]: string } | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, string>|null
+${indent} */
+${indent}protected static function asStringMapOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asStringMap($value);
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an associative array with object values only.
+${indent} *
+${indent} * Used for MCP types like { [key: string]: object } index signatures.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, object>
+${indent} * @phpstan-assert array<string, object> $value
+${indent} */
+${indent}protected static function asObjectMap($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}foreach ($value as $key => $v) {
+${indent}${indent}${indent}if (!is_object($v)) {
+${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}${indent}'Expected object value for key "%s", got %s',
+${indent}${indent}${indent}${indent}${indent}(string) $key,
+${indent}${indent}${indent}${indent}${indent}gettype($v)
+${indent}${indent}${indent}${indent}));
+${indent}${indent}${indent}}
+${indent}${indent}}
+${indent}${indent}/** @var array<string, object> */
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as object map or null.
+${indent} *
+${indent} * Used for optional MCP types like { [key: string]: object } | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, object>|null
+${indent} */
+${indent}protected static function asObjectMapOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asObjectMap($value);
+${indent}}
+
+${indent}/**
 ${indent} * Asserts a value is a scalar (string, int, float, or bool) for sprintf.
 ${indent} *
 ${indent} * @param mixed $value

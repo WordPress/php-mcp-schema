@@ -26,7 +26,7 @@ class ServerCapabilities extends AbstractDataTransferObject
      *
      * @since 2024-11-05
      *
-     * @var array<string, mixed>|null
+     * @var array<string, object>|null
      */
     protected ?array $experimental;
 
@@ -85,7 +85,7 @@ class ServerCapabilities extends AbstractDataTransferObject
     protected ?ServerCapabilitiesTasks $tasks;
 
     /**
-     * @param array<string, mixed>|null $experimental @since 2024-11-05
+     * @param array<string, object>|null $experimental @since 2024-11-05
      * @param object|null $logging @since 2024-11-05
      * @param object|null $completions @since 2025-03-26
      * @param \WP\McpSchema\Server\Lifecycle\ServerCapabilitiesPrompts|null $prompts @since 2024-11-05
@@ -115,7 +115,7 @@ class ServerCapabilities extends AbstractDataTransferObject
      * Creates an instance from an array.
      *
      * @param array{
-     *     experimental?: array<string, mixed>|null,
+     *     experimental?: array<string, object>|null,
      *     logging?: object|null,
      *     completions?: object|null,
      *     prompts?: array<string, mixed>|\WP\McpSchema\Server\Lifecycle\ServerCapabilitiesPrompts|null,
@@ -157,7 +157,7 @@ class ServerCapabilities extends AbstractDataTransferObject
             : null;
 
         return new self(
-            self::asArrayOrNull($data['experimental'] ?? null),
+            self::asObjectMapOrNull($data['experimental'] ?? null),
             self::asObjectOrNull($data['logging'] ?? null),
             self::asObjectOrNull($data['completions'] ?? null),
             $prompts,
@@ -202,7 +202,7 @@ class ServerCapabilities extends AbstractDataTransferObject
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, object>|null
      */
     public function getExperimental(): ?array
     {

@@ -40,14 +40,14 @@ class ElicitResult extends Result implements ClientResultInterface
      *
      * @since 2025-06-18
      *
-     * @var array<string, mixed>|null
+     * @var array<string, string>|null
      */
     protected ?array $content;
 
     /**
      * @param 'accept'|'decline'|'cancel' $action @since 2025-06-18
      * @param array<string, mixed>|null $_meta @since 2025-06-18
-     * @param array<string, mixed>|null $content @since 2025-06-18
+     * @param array<string, string>|null $content @since 2025-06-18
      */
     public function __construct(
         string $action,
@@ -65,7 +65,7 @@ class ElicitResult extends Result implements ClientResultInterface
      * @param array{
      *     _meta?: array<string, mixed>|null,
      *     action: 'accept'|'decline'|'cancel',
-     *     content?: array<string, mixed>|null
+     *     content?: array<string, string>|null
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
@@ -80,7 +80,7 @@ class ElicitResult extends Result implements ClientResultInterface
         return new self(
             $action,
             self::asArrayOrNull($data['_meta'] ?? null),
-            self::asArrayOrNull($data['content'] ?? null)
+            self::asStringMapOrNull($data['content'] ?? null)
         );
     }
 
@@ -110,7 +110,7 @@ class ElicitResult extends Result implements ClientResultInterface
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, string>|null
      */
     public function getContent(): ?array
     {

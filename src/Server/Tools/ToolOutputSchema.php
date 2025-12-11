@@ -35,7 +35,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
     protected string $type;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, object>|null
      */
     protected ?array $properties;
 
@@ -46,7 +46,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
 
     /**
      * @param string|null $schema
-     * @param array<string, mixed>|null $properties
+     * @param array<string, object>|null $properties
      * @param array<string>|null $required
      */
     public function __construct(
@@ -66,7 +66,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
      * @param array{
      *     '$schema'?: string|null,
      *     type: 'object',
-     *     properties?: array<string, mixed>|null,
+     *     properties?: array<string, object>|null,
      *     required?: array<string>|null
      * } $data
      * @phpstan-param array<string, mixed> $data
@@ -76,7 +76,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
     {
         return new self(
             self::asStringOrNull($data['$schema'] ?? null),
-            self::asArrayOrNull($data['properties'] ?? null),
+            self::asObjectMapOrNull($data['properties'] ?? null),
             self::asStringArrayOrNull($data['required'] ?? null)
         );
     }
@@ -121,7 +121,7 @@ class ToolOutputSchema extends AbstractDataTransferObject
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, object>|null
      */
     public function getProperties(): ?array
     {

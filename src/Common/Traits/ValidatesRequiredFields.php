@@ -243,6 +243,92 @@ trait ValidatesRequiredFields
     }
 
     /**
+     * Asserts a value is an associative array with string values only.
+     *
+     * Used for MCP types like { [key: string]: string } index signatures.
+     *
+     * @param mixed $value
+     * @return array<string, string>
+     * @phpstan-assert array<string, string> $value
+     */
+    protected static function asStringMap($value): array
+    {
+        if (!is_array($value)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected array, got %s',
+                gettype($value)
+            ));
+        }
+        foreach ($value as $key => $v) {
+            if (!is_string($v)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Expected string value for key "%s", got %s',
+                    (string) $key,
+                    gettype($v)
+                ));
+            }
+        }
+        /** @var array<string, string> */
+        return $value;
+    }
+
+    /**
+     * Returns a value as string map or null.
+     *
+     * Used for optional MCP types like { [key: string]: string } | null.
+     *
+     * @param mixed $value
+     * @return array<string, string>|null
+     */
+    protected static function asStringMapOrNull($value): ?array
+    {
+        return $value === null ? null : self::asStringMap($value);
+    }
+
+    /**
+     * Asserts a value is an associative array with object values only.
+     *
+     * Used for MCP types like { [key: string]: object } index signatures.
+     *
+     * @param mixed $value
+     * @return array<string, object>
+     * @phpstan-assert array<string, object> $value
+     */
+    protected static function asObjectMap($value): array
+    {
+        if (!is_array($value)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected array, got %s',
+                gettype($value)
+            ));
+        }
+        foreach ($value as $key => $v) {
+            if (!is_object($v)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Expected object value for key "%s", got %s',
+                    (string) $key,
+                    gettype($v)
+                ));
+            }
+        }
+        /** @var array<string, object> */
+        return $value;
+    }
+
+    /**
+     * Returns a value as object map or null.
+     *
+     * Used for optional MCP types like { [key: string]: object } | null.
+     *
+     * @param mixed $value
+     * @return array<string, object>|null
+     */
+    protected static function asObjectMapOrNull($value): ?array
+    {
+        return $value === null ? null : self::asObjectMap($value);
+    }
+
+    /**
      * Asserts a value is a scalar (string, int, float, or bool) for sprintf.
      *
      * @param mixed $value

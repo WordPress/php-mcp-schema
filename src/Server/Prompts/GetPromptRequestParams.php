@@ -35,14 +35,14 @@ class GetPromptRequestParams extends RequestParams
      *
      * @since 2025-11-25
      *
-     * @var array<string, mixed>|null
+     * @var array<string, string>|null
      */
     protected ?array $arguments;
 
     /**
      * @param string $name @since 2025-11-25
      * @param \WP\McpSchema\Common\JsonRpc\RequestParamsMeta|null $_meta @since 2025-11-25
-     * @param array<string, mixed>|null $arguments @since 2025-11-25
+     * @param array<string, string>|null $arguments @since 2025-11-25
      */
     public function __construct(
         string $name,
@@ -60,7 +60,7 @@ class GetPromptRequestParams extends RequestParams
      * @param array{
      *     _meta?: array<string, mixed>|\WP\McpSchema\Common\JsonRpc\RequestParamsMeta|null,
      *     name: string,
-     *     arguments?: array<string, mixed>|null
+     *     arguments?: array<string, string>|null
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
@@ -79,7 +79,7 @@ class GetPromptRequestParams extends RequestParams
         return new self(
             self::asString($data['name']),
             $_meta,
-            self::asArrayOrNull($data['arguments'] ?? null)
+            self::asStringMapOrNull($data['arguments'] ?? null)
         );
     }
 
@@ -109,7 +109,7 @@ class GetPromptRequestParams extends RequestParams
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, string>|null
      */
     public function getArguments(): ?array
     {

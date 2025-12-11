@@ -155,6 +155,18 @@ export interface PhpType {
    * Used for PHP 7.4 compatibility (e.g., `mixed` is PHP 8.0+).
    */
   readonly isUntyped?: boolean;
+  /**
+   * When true, this type represents an index signature like { [key: string]: T }.
+   * Used to select the appropriate validation helper in fromArray().
+   */
+  readonly isIndexSignature?: boolean;
+  /**
+   * The value type of an index signature.
+   * - 'string': { [key: string]: string } -> use asStringMap() helper
+   * - 'object': { [key: string]: object } -> use asArray() helper
+   * - 'mixed': { [key: string]: unknown } -> use asArray() helper
+   */
+  readonly indexSignatureValueType?: 'string' | 'object' | 'mixed';
 }
 
 /**

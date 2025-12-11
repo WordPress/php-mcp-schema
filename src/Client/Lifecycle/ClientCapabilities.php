@@ -26,7 +26,7 @@ class ClientCapabilities extends AbstractDataTransferObject
      *
      * @since 2024-11-05
      *
-     * @var array<string, mixed>|null
+     * @var array<string, object>|null
      */
     protected ?array $experimental;
 
@@ -67,7 +67,7 @@ class ClientCapabilities extends AbstractDataTransferObject
     protected ?ClientCapabilitiesTasks $tasks;
 
     /**
-     * @param array<string, mixed>|null $experimental @since 2024-11-05
+     * @param array<string, object>|null $experimental @since 2024-11-05
      * @param \WP\McpSchema\Client\Lifecycle\ClientCapabilitiesRoots|null $roots @since 2024-11-05
      * @param \WP\McpSchema\Client\Lifecycle\ClientCapabilitiesSampling|null $sampling @since 2024-11-05
      * @param \WP\McpSchema\Client\Lifecycle\ClientCapabilitiesElicitation|null $elicitation @since 2025-06-18
@@ -91,7 +91,7 @@ class ClientCapabilities extends AbstractDataTransferObject
      * Creates an instance from an array.
      *
      * @param array{
-     *     experimental?: array<string, mixed>|null,
+     *     experimental?: array<string, object>|null,
      *     roots?: array<string, mixed>|\WP\McpSchema\Client\Lifecycle\ClientCapabilitiesRoots|null,
      *     sampling?: array<string, mixed>|\WP\McpSchema\Client\Lifecycle\ClientCapabilitiesSampling|null,
      *     elicitation?: array<string, mixed>|\WP\McpSchema\Client\Lifecycle\ClientCapabilitiesElicitation|null,
@@ -131,7 +131,7 @@ class ClientCapabilities extends AbstractDataTransferObject
             : null;
 
         return new self(
-            self::asArrayOrNull($data['experimental'] ?? null),
+            self::asObjectMapOrNull($data['experimental'] ?? null),
             $roots,
             $sampling,
             $elicitation,
@@ -168,7 +168,7 @@ class ClientCapabilities extends AbstractDataTransferObject
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, object>|null
      */
     public function getExperimental(): ?array
     {

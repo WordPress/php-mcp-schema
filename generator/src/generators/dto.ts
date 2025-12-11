@@ -1158,6 +1158,24 @@ export class DtoGenerator {
       };
     }
 
+    // Handle index signatures with string values: { [key: string]: string }
+    // These use asStringMap() for runtime validation that all values are strings
+    if (phpType.isIndexSignature && phpType.indexSignatureValueType === 'string') {
+      return {
+        expression: `self::asStringMap${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
+    // Handle index signatures with object values: { [key: string]: object }
+    // These use asObjectMap() for runtime validation that all values are objects
+    if (phpType.isIndexSignature && phpType.indexSignatureValueType === 'object') {
+      return {
+        expression: `self::asObjectMap${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
     // Check if it's an array of DTO objects
     if (phpType.isArray) {
       const itemType = phpType.arrayItemType ?? '';

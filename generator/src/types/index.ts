@@ -61,7 +61,8 @@ export interface TsTypeAlias {
  */
 export interface TsConstant {
   readonly name: string;
-  readonly value: string;
+  readonly value: string | number;
+  readonly valueType: 'string' | 'number';
   readonly description?: string;
 }
 
@@ -360,3 +361,24 @@ export interface VersionTracker {
   /** Check if a definition was modified after introduction */
   wasModified(definitionName: string): boolean;
 }
+
+// ============================================================================
+// Skill Types (Re-exported)
+// ============================================================================
+
+export type {
+  SkillConfig,
+  SkillSchemaIndex,
+  SkillSchemaSummary,
+  SkillRpcMethod,
+  SkillTypeInfo,
+  SkillFactoryInfo,
+  SkillDomainData,
+  SkillTypeTableEntry,
+  SkillSubdomainSection,
+  SkillRpcEntry,
+  SkillFactoryEntry,
+  SkillGeneratedFile,
+  SkillGenerationResult,
+  SkillGenerationStats,
+} from './skill-types.js';

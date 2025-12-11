@@ -401,6 +401,7 @@ export class IntersectionTypeWrapperGenerator {
     // Properties from merged types
     if (info.ownProperties.length > 0) {
       for (const prop of info.ownProperties) {
+        const { phpName } = this.getPropertyNames(prop.name);
         const phpType = TypeMapper.mapType(prop.type, prop.name);
         const nullable = prop.isOptional || phpType.nullable;
 
@@ -417,7 +418,7 @@ export class IntersectionTypeWrapperGenerator {
 
         // Property declaration
         const typeHint = phpType.isUntyped ? '' : (nullable ? `?${phpType.type} ` : `${phpType.type} `);
-        lines.push(`${indent}protected ${typeHint}$${prop.name}${nullable ? ' = null' : ''};`);
+        lines.push(`${indent}protected ${typeHint}$${phpName}${nullable ? ' = null' : ''};`);
         lines.push('');
       }
     }
@@ -429,26 +430,30 @@ export class IntersectionTypeWrapperGenerator {
     const allOptional = info.allProperties.filter((p) => p.isOptional);
 
     for (const prop of allRequired) {
+      const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
-      lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type} $${prop.name} @since ${this.config.schema.version}`);
+      lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type} $${phpName} @since ${this.config.schema.version}`);
     }
     for (const prop of allOptional) {
+      const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
-      lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type}|null $${prop.name} @since ${this.config.schema.version}`);
+      lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type}|null $${phpName} @since ${this.config.schema.version}`);
     }
     lines.push(`${indent} */`);
 
     // Constructor signature
     const constructorParams: string[] = [];
     for (const prop of allRequired) {
+      const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       const typeHint = phpType.isUntyped ? '' : `${phpType.type} `;
-      constructorParams.push(`${typeHint}$${prop.name}`);
+      constructorParams.push(`${typeHint}$${phpName}`);
     }
     for (const prop of allOptional) {
+      const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       const typeHint = phpType.isUntyped ? '' : `?${phpType.type} `;
-      constructorParams.push(`${typeHint}$${prop.name} = null`);
+      constructorParams.push(`${typeHint}$${phpName} = null`);
     }
 
     lines.push(`${indent}public function __construct(`);
@@ -461,7 +466,10 @@ export class IntersectionTypeWrapperGenerator {
     // Call parent constructor with base properties
     const baseRequired = info.baseProperties.filter((p) => !p.isOptional);
     const baseOptional = info.baseProperties.filter((p) => p.isOptional);
-    const parentArgs = [...baseRequired, ...baseOptional].map((p) => `$${p.name}`).join(', ');
+    const parentArgs = [...baseRequired, ...baseOptional].map((p) => {
+      const { phpName } = this.getPropertyNames(p.name);
+      return `$${phpName}`;
+    }).join(', ');
     if (parentArgs) {
       lines.push(`${indent}${indent}parent::__construct(${parentArgs});`);
     } else {
@@ -470,7 +478,8 @@ export class IntersectionTypeWrapperGenerator {
 
     // Assign own properties
     for (const prop of info.ownProperties) {
-      lines.push(`${indent}${indent}$this->${prop.name} = $${prop.name};`);
+      const { phpName } = this.getPropertyNames(prop.name);
+      lines.push(`${indent}${indent}$this->${phpName} = $${phpName};`);
     }
 
     lines.push(`${indent}}`);
@@ -486,8 +495,11 @@ export class IntersectionTypeWrapperGenerator {
     lines.push(`${indent}public static function fromArray(array $data): self`);
     lines.push(`${indent}{`);
 
-    // Required fields assertion
-    const requiredFields = allRequired.map((p) => `'${p.name}'`).join(', ');
+    // Required fields assertion - use JSON key (original name) for array access
+    const requiredFields = allRequired.map((p) => {
+      const { jsonKey } = this.getPropertyNames(p.name);
+      return `'${jsonKey}'`;
+    }).join(', ');
     if (requiredFields) {
       lines.push(`${indent}${indent}self::assertRequired($data, [${requiredFields}]);`);
       lines.push('');
@@ -503,6 +515,7 @@ export class IntersectionTypeWrapperGenerator {
     for (let i = 0; i < allProps.length; i++) {
       const prop = allProps[i]!;
       const isOptional = allPropsOptionalFlag[i] ?? false;
+      const { phpName, jsonKey } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
 
       // Check if this is a string literal union type (PHPDoc type contains quotes)
@@ -510,10 +523,10 @@ export class IntersectionTypeWrapperGenerator {
 
       if (isStringLiteralUnion && !isOptional) {
         // Need a variable with @var annotation
-        const varName = `$${prop.name}`;
+        const varName = `$${phpName}`;
         varsWithAnnotations.push(
           `${indent}${indent}/** @var ${phpType.phpDocType} ${varName} */`,
-          `${indent}${indent}${varName} = self::asString($data['${prop.name}']);`,
+          `${indent}${indent}${varName} = self::asString($data['${jsonKey}']);`,
           ''
         );
         fromArrayArgs.push(varName);
@@ -551,12 +564,13 @@ export class IntersectionTypeWrapperGenerator {
 
     // Add own properties to result
     for (const prop of info.ownProperties) {
+      const { phpName, jsonKey } = this.getPropertyNames(prop.name);
       if (prop.isOptional) {
-        lines.push(`${indent}${indent}if ($this->${prop.name} !== null) {`);
-        lines.push(`${indent}${indent}${indent}$result['${prop.name}'] = $this->${prop.name};`);
+        lines.push(`${indent}${indent}if ($this->${phpName} !== null) {`);
+        lines.push(`${indent}${indent}${indent}$result['${jsonKey}'] = $this->${phpName};`);
         lines.push(`${indent}${indent}}`);
       } else {
-        lines.push(`${indent}${indent}$result['${prop.name}'] = $this->${prop.name};`);
+        lines.push(`${indent}${indent}$result['${jsonKey}'] = $this->${phpName};`);
       }
     }
     lines.push('');
@@ -565,6 +579,7 @@ export class IntersectionTypeWrapperGenerator {
 
     // Getters for own properties
     for (const prop of info.ownProperties) {
+      const { phpName } = this.getPropertyNames(prop.name);
       lines.push('');
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       const nullable = prop.isOptional || phpType.nullable;
@@ -573,9 +588,9 @@ export class IntersectionTypeWrapperGenerator {
       lines.push(`${indent}/**`);
       lines.push(`${indent} * @return ${phpType.phpDocType || phpType.type}${nullable ? '|null' : ''}`);
       lines.push(`${indent} */`);
-      lines.push(`${indent}public function get${this.capitalize(prop.name)}()${returnType}`);
+      lines.push(`${indent}public function get${this.capitalize(phpName)}()${returnType}`);
       lines.push(`${indent}{`);
-      lines.push(`${indent}${indent}return $this->${prop.name};`);
+      lines.push(`${indent}${indent}return $this->${phpName};`);
       lines.push(`${indent}}`);
     }
 
@@ -589,8 +604,9 @@ export class IntersectionTypeWrapperGenerator {
    * Renders an argument for the fromArray factory method.
    */
   private renderFromArrayArg(prop: TsProperty, isOptional = false): string {
+    const { jsonKey } = this.getPropertyNames(prop.name);
     const phpType = TypeMapper.mapType(prop.type, prop.name);
-    const key = isOptional ? `$data['${prop.name}'] ?? null` : `$data['${prop.name}']`;
+    const key = isOptional ? `$data['${jsonKey}'] ?? null` : `$data['${jsonKey}']`;
 
     // Map the conversion helper
     if (phpType.type === 'string') {
@@ -619,6 +635,28 @@ export class IntersectionTypeWrapperGenerator {
    */
   private capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  /**
+   * Sanitizes a property name for PHP (strips leading $).
+   * Returns both the PHP property name and the original JSON key.
+   *
+   * Property names like `$schema` in TypeScript need special handling:
+   * - PHP property name: `schema` (no leading $, since PHP prefixes all vars with $)
+   * - JSON key: `$schema` (preserve original for serialization)
+   */
+  private getPropertyNames(originalName: string): { phpName: string; jsonKey: string } {
+    // If name starts with $, strip it for PHP but keep it for JSON serialization
+    if (originalName.startsWith('$')) {
+      return {
+        phpName: originalName.slice(1),
+        jsonKey: originalName,
+      };
+    }
+    return {
+      phpName: originalName,
+      jsonKey: originalName,
+    };
   }
 
   /**

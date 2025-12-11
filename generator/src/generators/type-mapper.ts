@@ -9,13 +9,13 @@ import type { PhpType, TsConstant } from '../types/index.js';
 /**
  * Map of constant names to their values, used for resolving typeof expressions.
  */
-export type ConstantsMap = ReadonlyMap<string, string>;
+export type ConstantsMap = ReadonlyMap<string, string | number>;
 
 /**
  * Creates a constants map from an array of TsConstant objects.
  */
 export function createConstantsMap(constants: readonly TsConstant[] | undefined): ConstantsMap {
-  const map = new Map<string, string>();
+  const map = new Map<string, string | number>();
   if (constants) {
     for (const c of constants) {
       map.set(c.name, c.value);

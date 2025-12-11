@@ -275,14 +275,41 @@ export class SyntheticDtoExtractor {
 
   /**
    * Parses a single property string like "name?: string" or "$schema?: string".
+   * Also handles JSDoc comments that may precede the property definition.
    */
   private parsePropertyString(propStr: string): TsProperty | null {
     if (!propStr) {
       return null;
     }
 
+    // Extract JSDoc description if present
+    let description: string | undefined;
+    let cleanPropStr = propStr;
+
+    // Check for JSDoc comment: /** ... */
+    const jsDocMatch = propStr.match(/^\/\*\*[\s\S]*?\*\/\s*/);
+    if (jsDocMatch) {
+      const jsDocComment = jsDocMatch[0];
+      cleanPropStr = propStr.slice(jsDocComment.length).trim();
+
+      // Extract the description text from the JSDoc
+      // Remove /** and */ and clean up the * prefixes on each line
+      const commentContent = jsDocComment
+        .replace(/^\/\*\*\s*/, '')  // Remove opening /**
+        .replace(/\*\/\s*$/, '')    // Remove closing */
+        .split('\n')
+        .map(line => line.replace(/^\s*\*\s?/, '').trimEnd()) // Remove * prefix and trailing whitespace
+        .filter(line => line.length > 0)
+        .join(' ')
+        .trim();
+
+      if (commentContent) {
+        description = commentContent;
+      }
+    }
+
     // Match pattern: name?: Type (name can start with $ like $schema)
-    const match = propStr.match(/^(\$?\w+)(\?)?:\s*(.+)$/);
+    const match = cleanPropStr.match(/^(\$?\w+)(\?)?:\s*(.+)$/);
     if (!match) {
       return null;
     }
@@ -297,6 +324,7 @@ export class SyntheticDtoExtractor {
       type: typeStr.trim(),
       isOptional: optional === '?',
       isReadonly: false,
+      description,
     };
   }
 }

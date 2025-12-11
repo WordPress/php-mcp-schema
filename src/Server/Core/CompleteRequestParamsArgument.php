@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WP\McpSchema\Server\Core;
 
 use WP\McpSchema\Common\AbstractDataTransferObject;
+use WP\McpSchema\Common\Traits\ValidatesRequiredFields;
 
 /**
  * The argument's information
@@ -15,23 +16,52 @@ use WP\McpSchema\Common\AbstractDataTransferObject;
  */
 class CompleteRequestParamsArgument extends AbstractDataTransferObject
 {
+    use ValidatesRequiredFields;
+
     /**
+     * The name of the argument
+     *
+     * @var string
      */
-    public function __construct()
-    {
+    protected string $name;
+
+    /**
+     * The value of the argument to use for completion matching.
+     *
+     * @var string
+     */
+    protected string $value;
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    public function __construct(
+        string $name,
+        string $value
+    ) {
+        $this->name = $name;
+        $this->value = $value;
     }
 
     /**
      * Creates an instance from an array.
      *
      * @param array{
+     *     name: string,
+     *     value: string
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
-        return new self();
+        self::assertRequired($data, ['name', 'value']);
+
+        return new self(
+            self::asString($data['name']),
+            self::asString($data['value'])
+        );
     }
 
     /**
@@ -43,6 +73,25 @@ class CompleteRequestParamsArgument extends AbstractDataTransferObject
     {
         $result = [];
 
+        $result['name'] = $this->name;
+        $result['value'] = $this->value;
+
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue(): string
+    {
+        return $this->value;
     }
 }

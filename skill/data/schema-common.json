@@ -1015,11 +1015,15 @@
       "namespace": "WP\\McpSchema\\Common\\JsonRpc\\RequestParamsMeta",
       "purpose": "See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "progressToken": "ProgressToken?"
+      },
       "usedBy": [
         "RequestParams"
       ],
-      "uses": []
+      "uses": [
+        "ProgressToken"
+      ]
     },
     "GetTaskRequestParams": {
       "kind": "class",
@@ -1028,7 +1032,9 @@
       "namespace": "WP\\McpSchema\\Common\\Tasks\\GetTaskRequestParams",
       "purpose": "Parameters for GetTaskRequest",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "taskId": "string"
+      },
       "usedBy": [
         "GetTaskRequest"
       ],
@@ -1041,7 +1047,9 @@
       "namespace": "WP\\McpSchema\\Common\\Protocol\\GetTaskPayloadRequestParams",
       "purpose": "Parameters for GetTaskPayloadRequest",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "taskId": "string"
+      },
       "usedBy": [
         "GetTaskPayloadRequest"
       ],
@@ -1054,7 +1062,9 @@
       "namespace": "WP\\McpSchema\\Common\\Tasks\\CancelTaskRequestParams",
       "purpose": "Parameters for CancelTaskRequest",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "taskId": "string"
+      },
       "usedBy": [
         "CancelTaskRequest"
       ],

@@ -1051,7 +1051,9 @@
       "namespace": "WP\\McpSchema\\Server\\Lifecycle\\ServerCapabilitiesPrompts",
       "purpose": "Present if the server offers any prompt templates",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "listChanged": "boolean?"
+      },
       "usedBy": [
         "ServerCapabilities"
       ],
@@ -1064,7 +1066,10 @@
       "namespace": "WP\\McpSchema\\Server\\Lifecycle\\ServerCapabilitiesResources",
       "purpose": "Present if the server offers any resources to read",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "subscribe": "boolean?",
+        "listChanged": "boolean?"
+      },
       "usedBy": [
         "ServerCapabilities"
       ],
@@ -1077,7 +1082,9 @@
       "namespace": "WP\\McpSchema\\Server\\Lifecycle\\ServerCapabilitiesTools",
       "purpose": "Present if the server offers any tools to call",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "listChanged": "boolean?"
+      },
       "usedBy": [
         "ServerCapabilities"
       ],
@@ -1090,7 +1097,10 @@
       "namespace": "WP\\McpSchema\\Server\\Lifecycle\\ServerCapabilitiesTasks",
       "purpose": "Present if the server supports task-augmented requests",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "list": "object?",
+        "cancel": "object?"
+      },
       "usedBy": [
         "ServerCapabilities"
       ],
@@ -1139,7 +1149,10 @@
       "namespace": "WP\\McpSchema\\Server\\Core\\CompleteRequestParamsArgument",
       "purpose": "The argument's information",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "name": "string",
+        "value": "string"
+      },
       "usedBy": [
         "CompleteRequestParams"
       ],
@@ -1152,7 +1165,9 @@
       "namespace": "WP\\McpSchema\\Server\\Core\\CompleteRequestParamsContext",
       "purpose": "Additional, optional context for completions",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "arguments": "{ [key: string]: string }?"
+      },
       "usedBy": [
         "CompleteRequestParams"
       ],
@@ -1165,7 +1180,11 @@
       "namespace": "WP\\McpSchema\\Server\\Core\\CompleteResultCompletion",
       "purpose": "Complete Result Completion data structure",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "values": "string[]",
+        "total": "number?",
+        "hasMore": "boolean?"
+      },
       "usedBy": [
         "CompleteResult"
       ],

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Tasks;
 
 use WP\McpSchema\Common\AbstractDataTransferObject;
+use WP\McpSchema\Common\Traits\ValidatesRequiredFields;
 
 /**
  * @mcp-domain Common
@@ -13,23 +14,40 @@ use WP\McpSchema\Common\AbstractDataTransferObject;
  */
 class CancelTaskRequestParams extends AbstractDataTransferObject
 {
+    use ValidatesRequiredFields;
+
     /**
+     * The task identifier to cancel.
+     *
+     * @var string
      */
-    public function __construct()
-    {
+    protected string $taskId;
+
+    /**
+     * @param string $taskId
+     */
+    public function __construct(
+        string $taskId
+    ) {
+        $this->taskId = $taskId;
     }
 
     /**
      * Creates an instance from an array.
      *
      * @param array{
+     *     taskId: string
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
-        return new self();
+        self::assertRequired($data, ['taskId']);
+
+        return new self(
+            self::asString($data['taskId'])
+        );
     }
 
     /**
@@ -41,6 +59,16 @@ class CancelTaskRequestParams extends AbstractDataTransferObject
     {
         $result = [];
 
+        $result['taskId'] = $this->taskId;
+
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTaskId(): string
+    {
+        return $this->taskId;
     }
 }

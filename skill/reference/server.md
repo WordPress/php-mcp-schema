@@ -17,10 +17,10 @@
 | --- | --- | --- |
 | CompleteRequest | A request from the client to the server, to ask for compl... | method: "completion/..., params: CompleteRequ... |
 | CompleteRequestParams | Parameters for a `completion/complete` request | ref: PromptRefere..., argument: CompleteRequ..., context?: CompleteRequ... |
-| CompleteRequestParamsArgument | The argument's information | - |
-| CompleteRequestParamsContext | Additional, optional context for completions | - |
+| CompleteRequestParamsArgument | The argument's information | name: string, value: string |
+| CompleteRequestParamsContext | Additional, optional context for completions | arguments?: { [key: stri... |
 | CompleteResult | The server's response to a completion/complete request | completion: CompleteResu... |
-| CompleteResultCompletion | Complete Result Completion data structure | - |
+| CompleteResultCompletion | Complete Result Completion data structure | values: string[], total?: number, hasMore?: boolean |
 | PromptReference | Identifies a prompt | type: "ref/prompt" |
 | ResourceTemplateReference | A reference to a resource or resource template definition | type: "ref/resource", uri: string |
 
@@ -39,10 +39,10 @@
 | Type | Purpose | Key Properties |
 | --- | --- | --- |
 | ServerCapabilities | Capabilities that a server may support | experimental?: { [key: stri..., logging?: object, completions?: object, +4 more |
-| ServerCapabilitiesPrompts | Present if the server offers any prompt templates | - |
-| ServerCapabilitiesResources | Present if the server offers any resources to read | - |
-| ServerCapabilitiesTasks | Present if the server supports task-augmented requests | - |
-| ServerCapabilitiesTools | Present if the server offers any tools to call | - |
+| ServerCapabilitiesPrompts | Present if the server offers any prompt templates | listChanged?: boolean |
+| ServerCapabilitiesResources | Present if the server offers any resources to read | subscribe?: boolean, listChanged?: boolean |
+| ServerCapabilitiesTasks | Present if the server supports task-augmented requests | list?: object, cancel?: object |
+| ServerCapabilitiesTools | Present if the server offers any tools to call | listChanged?: boolean |
 | ServerNotificationInterface | Union type: CancelledNotification \| ProgressNotification ... | - |
 | ServerResultInterface | Union type: EmptyResult \| InitializeResult \| CompleteResu... | - |
 

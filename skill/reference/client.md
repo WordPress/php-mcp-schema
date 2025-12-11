@@ -16,7 +16,7 @@
 | --- | --- | --- |
 | BooleanSchema | Boolean Schema data structure | type: "boolean", title?: string, description?: string, +1 more |
 | ElicitationCompleteNotification | An optional notification from the server to the client, i... | method: "notificatio..., params: ElicitationC... |
-| ElicitationCompleteNotificationParams | Parameters for ElicitationCompleteNotification | - |
+| ElicitationCompleteNotificationParams | Parameters for ElicitationCompleteNotification | elicitationId: string |
 | ElicitRequest | A request from the server to elicit additional informatio... | method: "elicitation..., params: ElicitReques... |
 | ElicitRequestFormParams | The parameters for a request to elicit non-sensitive info... | mode?: "form", message: string, requestedSchema: ElicitReques... |
 | ElicitRequestFormParamsRequestedSchema | A restricted subset of JSON Schema | $schema?: string, type: "object", required?: string[] |
@@ -34,7 +34,7 @@
 | TitledMultiSelectEnumSchemaItems | Schema for array items with enum options and display labels | - |
 | TitledSingleSelectEnumSchema | Schema for single-selection enumeration with display titl... | type: "string", title?: string, description?: string, +2 more |
 | UntitledMultiSelectEnumSchema | Schema for multiple-selection enumeration without display... | type: "array", title?: string, description?: string, +4 more |
-| UntitledMultiSelectEnumSchemaItems | Schema for the array items | type: "string" |
+| UntitledMultiSelectEnumSchemaItems | Schema for the array items | type: "string", enum: string[] |
 | UntitledSingleSelectEnumSchema | Schema for single-selection enumeration without display t... | type: "string", title?: string, description?: string, +2 more |
 
 ### Relationships
@@ -53,9 +53,9 @@
 | --- | --- | --- |
 | ClientCapabilities | Capabilities a client may support | experimental?: { [key: stri..., roots?: ClientCapabi..., sampling?: ClientCapabi..., +2 more |
 | ClientCapabilitiesElicitation | Present if the client supports elicitation from the server | form?: object, url?: object |
-| ClientCapabilitiesRoots | Present if the client supports listing roots | - |
-| ClientCapabilitiesSampling | Present if the client supports sampling from an LLM | - |
-| ClientCapabilitiesTasks | Present if the client supports task-augmented requests | - |
+| ClientCapabilitiesRoots | Present if the client supports listing roots | listChanged?: boolean |
+| ClientCapabilitiesSampling | Present if the client supports sampling from an LLM | context?: object, tools?: object |
+| ClientCapabilitiesTasks | Present if the client supports task-augmented requests | list?: object, cancel?: object |
 | ClientResultInterface | Union type: EmptyResult \| CreateMessageResult \| ListRoots... | - |
 
 ## Roots

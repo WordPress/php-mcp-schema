@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation;
 
 use WP\McpSchema\Common\AbstractDataTransferObject;
+use WP\McpSchema\Common\Traits\ValidatesRequiredFields;
 
 /**
  * @mcp-domain Client
@@ -13,23 +14,40 @@ use WP\McpSchema\Common\AbstractDataTransferObject;
  */
 class ElicitationCompleteNotificationParams extends AbstractDataTransferObject
 {
+    use ValidatesRequiredFields;
+
     /**
+     * The ID of the elicitation that completed.
+     *
+     * @var string
      */
-    public function __construct()
-    {
+    protected string $elicitationId;
+
+    /**
+     * @param string $elicitationId
+     */
+    public function __construct(
+        string $elicitationId
+    ) {
+        $this->elicitationId = $elicitationId;
     }
 
     /**
      * Creates an instance from an array.
      *
      * @param array{
+     *     elicitationId: string
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
-        return new self();
+        self::assertRequired($data, ['elicitationId']);
+
+        return new self(
+            self::asString($data['elicitationId'])
+        );
     }
 
     /**
@@ -41,6 +59,16 @@ class ElicitationCompleteNotificationParams extends AbstractDataTransferObject
     {
         $result = [];
 
+        $result['elicitationId'] = $this->elicitationId;
+
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getElicitationId(): string
+    {
+        return $this->elicitationId;
     }
 }

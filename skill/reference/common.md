@@ -53,7 +53,7 @@
 | Request | Request for  operation | method: string, params?: { [key: stri... |
 | RequestIdInterface | A uniquely identifying ID for a request in JSON-RPC | - |
 | RequestParams | Common params for any request | _meta?: RequestParam... |
-| RequestParamsMeta | See [General fields: `_meta`](/specification/2025-11-25/b... | - |
+| RequestParamsMeta | See [General fields: `_meta`](/specification/2025-11-25/b... | progressToken?: ProgressToken |
 
 ### Relationships
 
@@ -92,7 +92,7 @@
 | EmbeddedResource | The contents of a resource, embedded into a prompt or too... | type: "resource", resource: TextResource..., annotations?: Annotations, +1 more |
 | EmptyResult | A response that indicates success but carries no data | - |
 | GetTaskPayloadRequest | A request to retrieve the result of a completed task | method: "tasks/result", params: GetTaskPaylo... |
-| GetTaskPayloadRequestParams | Parameters for GetTaskPayloadRequest | - |
+| GetTaskPayloadRequestParams | Parameters for GetTaskPayloadRequest | taskId: string |
 | GetTaskPayloadResult | The response to a tasks/result request | - |
 | Icons | Base interface to add `icons` property | icons?: Icon[] |
 | InitializedNotification | This notification is sent from the client to the server a... | method: "notificatio..., params?: Notification... |
@@ -129,10 +129,10 @@
 | Type | Purpose | Key Properties |
 | --- | --- | --- |
 | CancelTaskRequest | A request to cancel a task | method: "tasks/cancel", params: CancelTaskRe... |
-| CancelTaskRequestParams | Parameters for CancelTaskRequest | - |
+| CancelTaskRequestParams | Parameters for CancelTaskRequest | taskId: string |
 | CancelTaskResult | The response to a tasks/cancel request | taskId: string, status: "working" \| ..., statusMessage?: string, +4 more |
 | GetTaskRequest | A request to retrieve the state of a task | method: "tasks/get", params: GetTaskReque... |
-| GetTaskRequestParams | Parameters for GetTaskRequest | - |
+| GetTaskRequestParams | Parameters for GetTaskRequest | taskId: string |
 | GetTaskResult | The response to a tasks/get request | taskId: string, status: "working" \| ..., statusMessage?: string, +4 more |
 | ListTasksRequest | A request to retrieve a list of tasks | method: "tasks/list" |
 | ListTasksResult | The response to a tasks/list request | tasks: Task[] |

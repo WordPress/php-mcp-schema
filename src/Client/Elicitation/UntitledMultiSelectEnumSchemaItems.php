@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation;
 
 use WP\McpSchema\Common\AbstractDataTransferObject;
+use WP\McpSchema\Common\Traits\ValidatesRequiredFields;
 
 /**
  * Schema for the array items.
@@ -15,6 +16,8 @@ use WP\McpSchema\Common\AbstractDataTransferObject;
  */
 class UntitledMultiSelectEnumSchemaItems extends AbstractDataTransferObject
 {
+    use ValidatesRequiredFields;
+
     public const TYPE = 'string';
 
     /**
@@ -23,24 +26,39 @@ class UntitledMultiSelectEnumSchemaItems extends AbstractDataTransferObject
     protected string $type;
 
     /**
+     * Array of enum values to choose from.
+     *
+     * @var array<string>
      */
-    public function __construct()
-    {
+    protected array $enum;
+
+    /**
+     * @param array<string> $enum
+     */
+    public function __construct(
+        array $enum
+    ) {
         $this->type = self::TYPE;
+        $this->enum = $enum;
     }
 
     /**
      * Creates an instance from an array.
      *
      * @param array{
-     *     type: 'string'
+     *     type: 'string',
+     *     enum: array<string>
      * } $data
      * @phpstan-param array<string, mixed> $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
-        return new self();
+        self::assertRequired($data, ['enum']);
+
+        return new self(
+            self::asStringArray($data['enum'])
+        );
     }
 
     /**
@@ -53,6 +71,7 @@ class UntitledMultiSelectEnumSchemaItems extends AbstractDataTransferObject
         $result = [];
 
         $result['type'] = $this->type;
+        $result['enum'] = $this->enum;
 
         return $result;
     }
@@ -63,5 +82,13 @@ class UntitledMultiSelectEnumSchemaItems extends AbstractDataTransferObject
     public function getType(): string
     {
         return $this->type;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getEnum(): array
+    {
+        return $this->enum;
     }
 }

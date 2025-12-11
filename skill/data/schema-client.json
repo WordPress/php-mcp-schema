@@ -733,7 +733,9 @@
       "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesRoots",
       "purpose": "Present if the client supports listing roots",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "listChanged": "boolean?"
+      },
       "usedBy": [
         "ClientCapabilities"
       ],
@@ -746,7 +748,10 @@
       "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesSampling",
       "purpose": "Present if the client supports sampling from an LLM",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "context": "object?",
+        "tools": "object?"
+      },
       "usedBy": [
         "ClientCapabilities"
       ],
@@ -775,7 +780,10 @@
       "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesTasks",
       "purpose": "Present if the client supports task-augmented requests",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "list": "object?",
+        "cancel": "object?"
+      },
       "usedBy": [
         "ClientCapabilities"
       ],
@@ -806,7 +814,8 @@
       "purpose": "Schema for the array items",
       "implements": [],
       "properties": {
-        "type": "\"string\""
+        "type": "\"string\"",
+        "enum": "string[]"
       },
       "usedBy": [
         "UntitledMultiSelectEnumSchema"
@@ -833,7 +842,9 @@
       "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitationCompleteNotificationParams",
       "purpose": "Parameters for ElicitationCompleteNotification",
       "implements": [],
-      "properties": {},
+      "properties": {
+        "elicitationId": "string"
+      },
       "usedBy": [
         "ElicitationCompleteNotification"
       ],

@@ -66,7 +66,7 @@ class GetTaskRequest extends JSONRPCRequest implements ClientRequestInterface, S
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\Tasks\GetTaskRequestParams $params */
         $params = is_array($data['params'])

@@ -258,4 +258,36 @@ trait ValidatesRequiredFields
         }
         return $value;
     }
+
+    /**
+     * Asserts a value is a string or number (int/float) and returns it.
+     *
+     * Used for MCP types like ProgressToken that accept string | number.
+     *
+     * @param mixed $value
+     * @return string|int|float
+     */
+    protected static function asStringOrNumber($value)
+    {
+        if (!is_string($value) && !is_int($value) && !is_float($value)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Expected string or number, got %s',
+                gettype($value)
+            ));
+        }
+        return $value;
+    }
+
+    /**
+     * Returns a value as string or number (int/float), or null.
+     *
+     * Used for optional MCP types like ProgressToken that accept string | number | null.
+     *
+     * @param mixed $value
+     * @return string|int|float|null
+     */
+    protected static function asStringOrNumberOrNull($value)
+    {
+        return $value === null ? null : self::asStringOrNumber($value);
+    }
 }

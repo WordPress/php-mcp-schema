@@ -71,7 +71,7 @@ class JSONRPCRequest extends Request implements JSONRPCMessageInterface
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         return new self(
             self::asString($data['method']),

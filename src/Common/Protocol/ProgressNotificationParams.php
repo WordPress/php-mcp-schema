@@ -95,7 +95,7 @@ class ProgressNotificationParams extends NotificationParams
         self::assertRequired($data, ['progressToken', 'progress']);
 
         /** @var string|number $progressToken */
-        $progressToken = $data['progressToken'];
+        $progressToken = self::asStringOrNumber($data['progressToken']);
 
         return new self(
             $progressToken,

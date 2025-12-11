@@ -9,6 +9,17 @@ import type { TsConstant, GeneratorConfig } from '../types/index.js';
 import { formatPhpDocDescription } from './index.js';
 
 /**
+ * Escapes a string value for use in a PHP single-quoted string literal.
+ *
+ * In PHP single-quoted strings, only single quotes and backslashes need escaping:
+ * - ' becomes \'
+ * - \ becomes \\
+ */
+function escapePhpSingleQuotedString(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+/**
  * Generates a PHP constants class from TypeScript exported constants.
  */
 export class ConstantsGenerator {
@@ -70,7 +81,7 @@ export class ConstantsGenerator {
           lines.push(...formatPhpDocDescription(constant.description, indent));
           lines.push(`${indent} */`);
         }
-        lines.push(`${indent}public const ${constant.name} = '${constant.value}';`);
+        lines.push(`${indent}public const ${constant.name} = '${escapePhpSingleQuotedString(String(constant.value))}';`);
       }
       lines.push('');
     }

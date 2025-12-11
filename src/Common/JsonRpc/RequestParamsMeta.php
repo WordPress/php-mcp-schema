@@ -47,7 +47,7 @@ class RequestParamsMeta extends AbstractDataTransferObject
     {
         /** @var string|number|null $progressToken */
         $progressToken = isset($data['progressToken'])
-            ? $data['progressToken']
+            ? self::asStringOrNumberOrNull($data['progressToken'])
             : null;
 
         return new self(

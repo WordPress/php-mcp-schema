@@ -66,7 +66,7 @@ class InitializeRequest extends JSONRPCRequest implements ClientRequestInterface
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\Protocol\InitializeRequestParams $params */
         $params = is_array($data['params'])

@@ -72,7 +72,7 @@ class CancelledNotificationParams extends NotificationParams
     {
         /** @var string|number|null $requestId */
         $requestId = isset($data['requestId'])
-            ? $data['requestId']
+            ? self::asStringOrNumberOrNull($data['requestId'])
             : null;
 
         return new self(

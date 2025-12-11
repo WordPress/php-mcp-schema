@@ -82,7 +82,7 @@ class JSONRPCErrorResponse extends AbstractDataTransferObject implements JSONRPC
 
         /** @var string|number|null $id */
         $id = isset($data['id'])
-            ? $data['id']
+            ? self::asStringOrNumberOrNull($data['id'])
             : null;
 
         return new self(

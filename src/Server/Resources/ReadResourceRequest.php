@@ -66,7 +66,7 @@ class ReadResourceRequest extends JSONRPCRequest implements ClientRequestInterfa
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Server\Resources\ReadResourceRequestParams $params */
         $params = is_array($data['params'])

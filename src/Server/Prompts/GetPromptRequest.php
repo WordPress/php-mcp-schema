@@ -66,7 +66,7 @@ class GetPromptRequest extends JSONRPCRequest implements ClientRequestInterface
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Server\Prompts\GetPromptRequestParams $params */
         $params = is_array($data['params'])

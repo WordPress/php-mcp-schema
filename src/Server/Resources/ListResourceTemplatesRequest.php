@@ -65,7 +65,7 @@ class ListResourceTemplatesRequest extends PaginatedRequest implements ClientReq
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\Protocol\PaginatedRequestParams|null $params */
         $params = isset($data['params'])

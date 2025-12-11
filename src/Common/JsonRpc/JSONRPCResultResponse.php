@@ -77,7 +77,7 @@ class JSONRPCResultResponse extends AbstractDataTransferObject implements JSONRP
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\Protocol\Result $result */
         $result = is_array($data['result'])

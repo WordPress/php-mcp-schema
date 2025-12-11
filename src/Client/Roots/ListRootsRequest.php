@@ -73,7 +73,7 @@ class ListRootsRequest extends JSONRPCRequest implements ServerRequestInterface
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\JsonRpc\RequestParams|null $params */
         $params = isset($data['params'])

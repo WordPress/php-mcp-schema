@@ -66,7 +66,7 @@ class CreateMessageRequest extends JSONRPCRequest implements ServerRequestInterf
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Client\Sampling\CreateMessageRequestParams $params */
         $params = is_array($data['params'])

@@ -1234,6 +1234,15 @@ export class DtoGenerator {
       };
     }
 
+    // Handle string|number union type (ProgressToken pattern)
+    // This is an untyped PHP 7.4 field with phpDocType 'string|number'
+    if (phpType.isUntyped && phpType.phpDocType === 'string|number') {
+      return {
+        expression: `self::asStringOrNumber${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
     // Unknown or mixed type - return as-is
     return {
       expression: varExpr,

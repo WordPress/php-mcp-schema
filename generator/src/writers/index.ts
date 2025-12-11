@@ -598,6 +598,38 @@ ${indent}${indent}${indent}));
 ${indent}${indent}}
 ${indent}${indent}return $value;
 ${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a string or number (int/float) and returns it.
+${indent} *
+${indent} * Used for MCP types like ProgressToken that accept string | number.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|int|float
+${indent} */
+${indent}protected static function asStringOrNumber($value)
+${indent}{
+${indent}${indent}if (!is_string($value) && !is_int($value) && !is_float($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected string or number, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as string or number (int/float), or null.
+${indent} *
+${indent} * Used for optional MCP types like ProgressToken that accept string | number | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|int|float|null
+${indent} */
+${indent}protected static function asStringOrNumberOrNull($value)
+${indent}{
+${indent}${indent}return $value === null ? null : self::asStringOrNumber($value);
+${indent}}
 }
 `;
 }

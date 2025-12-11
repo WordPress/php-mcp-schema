@@ -65,7 +65,7 @@ class ListTasksRequest extends PaginatedRequest implements ClientRequestInterfac
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Common\Protocol\PaginatedRequestParams|null $params */
         $params = isset($data['params'])

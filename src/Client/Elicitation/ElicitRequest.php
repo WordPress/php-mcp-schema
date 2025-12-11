@@ -68,7 +68,7 @@ class ElicitRequest extends JSONRPCRequest implements ServerRequestInterface
         $jsonrpc = self::asString($data['jsonrpc']);
 
         /** @var string|number $id */
-        $id = $data['id'];
+        $id = self::asStringOrNumber($data['id']);
 
         /** @var \WP\McpSchema\Client\Elicitation\Union\ElicitRequestParamsInterface $params */
         $params = is_array($data['params'])

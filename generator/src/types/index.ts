@@ -179,6 +179,12 @@ export interface PhpProperty {
   readonly isRequired: boolean;
   readonly defaultValue?: string;
   readonly constValue?: string;
+  /**
+   * Maximum number of items allowed in an array property.
+   * Extracted from JSDoc comments like "Must not exceed N items".
+   * Used to generate validation in fromArray().
+   */
+  readonly maxItems?: number;
 }
 
 /**

@@ -16,6 +16,9 @@ class CompleteResultCompletion extends AbstractDataTransferObject
 {
     use ValidatesRequiredFields;
 
+    /** Maximum number of items allowed in values per MCP spec */
+    public const MAX_VALUES = 100;
+
     /**
      * An array of completion values. Must not exceed 100 items.
      *
@@ -66,6 +69,15 @@ class CompleteResultCompletion extends AbstractDataTransferObject
     public static function fromArray(array $data): self
     {
         self::assertRequired($data, ['values']);
+
+        if (is_array($data['values']) && count($data['values']) > self::MAX_VALUES) {
+            throw new \InvalidArgumentException(sprintf(
+                '%s::values must not exceed %d items, got %d',
+                static::class,
+                self::MAX_VALUES,
+                count($data['values'])
+            ));
+        }
 
         return new self(
             self::asStringArray($data['values']),

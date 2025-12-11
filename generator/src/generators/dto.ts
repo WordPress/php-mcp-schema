@@ -224,12 +224,16 @@ export class DtoGenerator {
     // Check for const values (discriminator fields)
     const constValue = this.extractConstValue(p.type);
 
+    // Extract maxItems constraint from JSDoc description (e.g., "Must not exceed 100 items")
+    const maxItems = this.extractMaxItems(p.description);
+
     return {
       name: p.name,
       type: phpType,
       description: p.description,
       isRequired: !p.isOptional,
       constValue,
+      maxItems,
     } as PhpProperty;
   }
 
@@ -259,6 +263,27 @@ export class DtoGenerator {
     // Match number literals
     if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
       return trimmed;
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Extracts maxItems constraint from JSDoc description.
+   * Looks for patterns like "Must not exceed N items" in the description.
+   *
+   * @param description - The property's JSDoc description
+   * @returns The max items number if found, undefined otherwise
+   */
+  private extractMaxItems(description?: string): number | undefined {
+    if (!description) {
+      return undefined;
+    }
+
+    // Match patterns like "Must not exceed 100 items" (case-insensitive)
+    const match = description.match(/must not exceed (\d+) items/i);
+    if (match?.[1]) {
+      return parseInt(match[1], 10);
     }
 
     return undefined;
@@ -390,6 +415,14 @@ export class DtoGenerator {
     const discriminatorConstants = this.renderDiscriminatorConstants(unionMemberships, indent);
     if (discriminatorConstants.length > 0) {
       lines.push(...discriminatorConstants);
+      lines.push('');
+    }
+
+    // MaxItems constants for array properties with length limits
+    // Generated from JSDoc patterns like "Must not exceed N items"
+    const maxItemsConstants = this.renderMaxItemsConstants(meta.properties, indent);
+    if (maxItemsConstants.length > 0) {
+      lines.push(...maxItemsConstants);
       lines.push('');
     }
 
@@ -648,6 +681,79 @@ export class DtoGenerator {
   }
 
   /**
+   * Renders maxItems constants for array properties with length limits.
+   *
+   * Generates constants like MAX_VALUES = 100 for properties that have
+   * maxItems constraints extracted from JSDoc comments.
+   *
+   * @param properties - Properties to check for maxItems
+   * @param indent - Indentation string
+   * @returns Array of constant declaration lines
+   */
+  private renderMaxItemsConstants(properties: readonly PhpProperty[], indent: string): string[] {
+    const propsWithMaxItems = properties.filter((p) => p.maxItems !== undefined);
+
+    if (propsWithMaxItems.length === 0) {
+      return [];
+    }
+
+    const lines: string[] = [];
+    for (const prop of propsWithMaxItems) {
+      // Generate constant name: values -> MAX_VALUES, items -> MAX_ITEMS
+      const constName = `MAX_${this.toConstantName(prop.name)}`;
+      lines.push(`${indent}/** Maximum number of items allowed in ${prop.name} per MCP spec */`);
+      lines.push(`${indent}public const ${constName} = ${prop.maxItems};`);
+    }
+    return lines;
+  }
+
+  /**
+   * Renders maxItems validation code for fromArray().
+   *
+   * Generates validation that throws InvalidArgumentException when an array
+   * property exceeds its maxItems limit.
+   *
+   * @param properties - Properties with maxItems constraints
+   * @param indent - Indentation string
+   * @returns Array of validation code lines
+   */
+  private renderMaxItemsValidation(properties: readonly PhpProperty[], indent: string): string[] {
+    const lines: string[] = [];
+
+    for (const prop of properties) {
+      if (prop.maxItems === undefined) continue;
+
+      const { jsonKey } = this.getPropertyNames(prop.name);
+      const constName = `MAX_${this.toConstantName(prop.name)}`;
+
+      // For required properties, we know the field exists (assertRequired already passed)
+      // For optional properties, only validate if the field is present
+      // Use is_array() check to satisfy PHPStan (data values are mixed)
+      if (prop.isRequired) {
+        lines.push(`${indent}${indent}if (is_array($data['${jsonKey}']) && count($data['${jsonKey}']) > self::${constName}) {`);
+        lines.push(`${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(`);
+        lines.push(`${indent}${indent}${indent}${indent}'%s::${prop.name} must not exceed %d items, got %d',`);
+        lines.push(`${indent}${indent}${indent}${indent}static::class,`);
+        lines.push(`${indent}${indent}${indent}${indent}self::${constName},`);
+        lines.push(`${indent}${indent}${indent}${indent}count($data['${jsonKey}'])`);
+        lines.push(`${indent}${indent}${indent}));`);
+        lines.push(`${indent}${indent}}`);
+      } else {
+        lines.push(`${indent}${indent}if (isset($data['${jsonKey}']) && is_array($data['${jsonKey}']) && count($data['${jsonKey}']) > self::${constName}) {`);
+        lines.push(`${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(`);
+        lines.push(`${indent}${indent}${indent}${indent}'%s::${prop.name} must not exceed %d items, got %d',`);
+        lines.push(`${indent}${indent}${indent}${indent}static::class,`);
+        lines.push(`${indent}${indent}${indent}${indent}self::${constName},`);
+        lines.push(`${indent}${indent}${indent}${indent}count($data['${jsonKey}'])`);
+        lines.push(`${indent}${indent}${indent}));`);
+        lines.push(`${indent}${indent}}`);
+      }
+    }
+
+    return lines;
+  }
+
+  /**
    * Renders property declarations.
    *
    * @param properties - Properties to render
@@ -901,6 +1007,13 @@ export class DtoGenerator {
     // they are always set from class constants in the constructor, ignoring input.
     if (requiredProps.length > 0) {
       lines.push(`${indent}${indent}self::assertRequired($data, [${requiredProps.map((p) => `'${p.name}'`).join(', ')}]);`);
+      lines.push('');
+    }
+
+    // Validate maxItems constraints for array properties (from JSDoc "Must not exceed N items")
+    const propsWithMaxItems = sortedProps.filter((p) => p.maxItems !== undefined);
+    if (propsWithMaxItems.length > 0) {
+      lines.push(...this.renderMaxItemsValidation(propsWithMaxItems, indent));
       lines.push('');
     }
 

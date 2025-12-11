@@ -606,7 +606,7 @@ export class IntersectionTypeWrapperGenerator {
       return isOptional ? `self::asFloatOrNull(${key})` : `self::asFloat(${key})`;
     }
     if (phpType.type === 'array') {
-      return `self::asArray(${key})`;
+      return isOptional ? `self::asArrayOrNull(${key})` : `self::asArray(${key})`;
     }
 
     // For custom types, we'd need more sophisticated handling

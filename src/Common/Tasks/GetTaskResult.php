@@ -148,7 +148,7 @@ class GetTaskResult extends Result implements ClientResultInterface, ServerResul
             self::asString($data['createdAt']),
             self::asString($data['lastUpdatedAt']),
             self::asInt($data['ttl']),
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['statusMessage'] ?? null),
             self::asIntOrNull($data['pollInterval'] ?? null)
         );

@@ -148,7 +148,7 @@ class CancelTaskResult extends Result implements ClientResultInterface, ServerRe
             self::asString($data['createdAt']),
             self::asString($data['lastUpdatedAt']),
             self::asInt($data['ttl']),
-            self::asArray($data['_meta'] ?? null),
+            self::asArrayOrNull($data['_meta'] ?? null),
             self::asStringOrNull($data['statusMessage'] ?? null),
             self::asIntOrNull($data['pollInterval'] ?? null)
         );

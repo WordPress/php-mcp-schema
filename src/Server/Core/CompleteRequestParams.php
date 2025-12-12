@@ -119,7 +119,7 @@ class CompleteRequestParams extends RequestParams
     {
         $result = parent::toArray();
 
-        $result['ref'] = $this->ref;
+        $result['ref'] = (is_object($this->ref) && method_exists($this->ref, 'toArray')) ? $this->ref->toArray() : $this->ref;
         $result['argument'] = $this->argument->toArray();
         if ($this->context !== null) {
             $result['context'] = $this->context->toArray();

@@ -142,7 +142,7 @@ class CreateMessageResult extends Result implements ClientResultInterface
             $result['stopReason'] = $this->stopReason;
         }
         $result['role'] = $this->role;
-        $result['content'] = $this->content;
+        $result['content'] = array_map(static fn($item) => (is_object($item) && method_exists($item, 'toArray')) ? $item->toArray() : $item, $this->content);
 
         return $result;
     }

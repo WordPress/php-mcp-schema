@@ -121,7 +121,7 @@ class EmbeddedResource extends AbstractDataTransferObject implements ContentBloc
         $result = [];
 
         $result['type'] = $this->type;
-        $result['resource'] = $this->resource;
+        $result['resource'] = (is_object($this->resource) && method_exists($this->resource, 'toArray')) ? $this->resource->toArray() : $this->resource;
         if ($this->annotations !== null) {
             $result['annotations'] = $this->annotations->toArray();
         }

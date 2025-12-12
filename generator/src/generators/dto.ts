@@ -1509,9 +1509,20 @@ export class DtoGenerator {
       }
     }
 
+    // Array types without a single arrayItemType can still be arrays of DTO unions, e.g.:
+    // array<Foo|Bar> where Foo and Bar are DTOs. At runtime, allow both DTO objects and already-serialized arrays.
+    if (phpType.isArray && !phpType.arrayItemType && phpType.phpDocType?.includes('\\WP\\McpSchema\\')) {
+      return `array_map(static fn($item) => (is_object($item) && method_exists($item, 'toArray')) ? $item->toArray() : $item, ${varExpr})`;
+    }
+
     // Check if it's a single DTO object (not a primitive)
     if (!phpType.isArray && !DtoGenerator.PRIMITIVE_TYPES.has(phpType.type)) {
       return `${varExpr}->toArray()`;
+    }
+
+    // Untyped (PHP 7.4) properties can represent DTO unions via PHPDoc. Serialize to arrays when runtime value is a DTO.
+    if (phpType.isUntyped && phpType.phpDocType?.includes('\\WP\\McpSchema\\')) {
+      return `(is_object(${varExpr}) && method_exists(${varExpr}, 'toArray')) ? ${varExpr}->toArray() : ${varExpr}`;
     }
 
     // Primitive type or array of primitives - return as-is

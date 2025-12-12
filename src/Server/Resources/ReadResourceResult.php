@@ -73,7 +73,7 @@ class ReadResourceResult extends Result implements ServerResultInterface
     {
         $result = parent::toArray();
 
-        $result['contents'] = $this->contents;
+        $result['contents'] = array_map(static fn($item) => (is_object($item) && method_exists($item, 'toArray')) ? $item->toArray() : $item, $this->contents);
 
         return $result;
     }

@@ -61,6 +61,7 @@ export class TypeMapper {
   private static readonly INTEGER_PATTERNS = [
     /^-?\d+$/, // Literal integers
     /.Id$/i, // Compound IDs like requestId, sessionId (NOT standalone "id" - JSON-RPC id is string|number)
+    /^code$/i, // JSON-RPC error code
     /Length$/i, // minLength, maxLength - character counts
     /Items$/i, // minItems, maxItems - array item counts
     /^size$/i, // file size in bytes

@@ -23,9 +23,9 @@ class Error extends AbstractDataTransferObject
      *
      * @since 2025-11-25
      *
-     * @var float
+     * @var int
      */
-    protected float $code;
+    protected int $code;
 
     /**
      * A short description of the error. The message SHOULD be limited to a concise single sentence.
@@ -46,12 +46,12 @@ class Error extends AbstractDataTransferObject
     protected $data;
 
     /**
-     * @param float $code @since 2025-11-25
+     * @param int $code @since 2025-11-25
      * @param string $message @since 2025-11-25
      * @param mixed|null $data @since 2025-11-25
      */
     public function __construct(
-        float $code,
+        int $code,
         string $message,
         $data = null
     ) {
@@ -64,7 +64,7 @@ class Error extends AbstractDataTransferObject
      * Creates an instance from an array.
      *
      * @param array{
-     *     code: float,
+     *     code: int,
      *     message: string,
      *     data?: mixed|null
      * } $data
@@ -76,7 +76,7 @@ class Error extends AbstractDataTransferObject
         self::assertRequired($data, ['code', 'message']);
 
         return new self(
-            self::asFloat($data['code']),
+            self::asInt($data['code']),
             self::asString($data['message']),
             $data['data'] ?? null
         );
@@ -101,9 +101,9 @@ class Error extends AbstractDataTransferObject
     }
 
     /**
-     * @return float
+     * @return int
      */
-    public function getCode(): float
+    public function getCode(): int
     {
         return $this->code;
     }

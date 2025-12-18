@@ -187,15 +187,21 @@ trait ValidatesRequiredFields
     /**
      * Asserts a value is an object and returns it.
      *
+     * Accepts both PHP arrays and objects, auto-converting arrays to objects.
+     * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
+     *
      * @param mixed $value
      * @return object
      * @phpstan-assert object $value
      */
     protected static function asObject($value): object
     {
+        if (is_array($value)) {
+            return (object) $value;
+        }
         if (!is_object($value)) {
             throw new \InvalidArgumentException(sprintf(
-                'Expected object, got %s',
+                'Expected array or object, got %s',
                 gettype($value)
             ));
         }
@@ -289,6 +295,8 @@ trait ValidatesRequiredFields
      * Asserts a value is an associative array with object values only.
      *
      * Used for MCP types like { [key: string]: object } index signatures.
+     * Accepts both PHP arrays and objects as values, auto-converting arrays to objects.
+     * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
      *
      * @param mixed $value
      * @return array<string, object>
@@ -302,17 +310,24 @@ trait ValidatesRequiredFields
                 gettype($value)
             ));
         }
+        
+        $result = [];
         foreach ($value as $key => $v) {
-            if (!is_object($v)) {
+            if (is_array($v)) {
+                $result[$key] = (object) $v;
+            } elseif (is_object($v)) {
+                $result[$key] = $v;
+            } else {
                 throw new \InvalidArgumentException(sprintf(
-                    'Expected object value for key "%s", got %s',
+                    'Expected array or object for key "%s", got %s',
                     (string) $key,
                     gettype($v)
                 ));
             }
         }
+        
         /** @var array<string, object> */
-        return $value;
+        return $result;
     }
 
     /**

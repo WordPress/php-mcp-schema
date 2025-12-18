@@ -527,15 +527,21 @@ ${indent}}
 ${indent}/**
 ${indent} * Asserts a value is an object and returns it.
 ${indent} *
+${indent} * Accepts both PHP arrays and objects, auto-converting arrays to objects.
+${indent} * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
+${indent} *
 ${indent} * @param mixed $value
 ${indent} * @return object
 ${indent} * @phpstan-assert object $value
 ${indent} */
 ${indent}protected static function asObject($value): object
 ${indent}{
+${indent}${indent}if (is_array($value)) {
+${indent}${indent}${indent}return (object) $value;
+${indent}${indent}}
 ${indent}${indent}if (!is_object($value)) {
 ${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
-${indent}${indent}${indent}${indent}'Expected object, got %s',
+${indent}${indent}${indent}${indent}'Expected array or object, got %s',
 ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
@@ -629,6 +635,8 @@ ${indent}/**
 ${indent} * Asserts a value is an associative array with object values only.
 ${indent} *
 ${indent} * Used for MCP types like { [key: string]: object } index signatures.
+${indent} * Accepts both PHP arrays and objects as values, auto-converting arrays to objects.
+${indent} * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
 ${indent} *
 ${indent} * @param mixed $value
 ${indent} * @return array<string, object>
@@ -642,17 +650,24 @@ ${indent}${indent}${indent}${indent}'Expected array, got %s',
 ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
+${indent}${indent}
+${indent}${indent}$result = [];
 ${indent}${indent}foreach ($value as $key => $v) {
-${indent}${indent}${indent}if (!is_object($v)) {
+${indent}${indent}${indent}if (is_array($v)) {
+${indent}${indent}${indent}${indent}$result[$key] = (object) $v;
+${indent}${indent}${indent}} elseif (is_object($v)) {
+${indent}${indent}${indent}${indent}$result[$key] = $v;
+${indent}${indent}${indent}} else {
 ${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
-${indent}${indent}${indent}${indent}${indent}'Expected object value for key "%s", got %s',
+${indent}${indent}${indent}${indent}${indent}'Expected array or object for key "%s", got %s',
 ${indent}${indent}${indent}${indent}${indent}(string) $key,
 ${indent}${indent}${indent}${indent}${indent}gettype($v)
 ${indent}${indent}${indent}${indent}));
 ${indent}${indent}${indent}}
 ${indent}${indent}}
+${indent}${indent}
 ${indent}${indent}/** @var array<string, object> */
-${indent}${indent}return $value;
+${indent}${indent}return $result;
 ${indent}}
 
 ${indent}/**

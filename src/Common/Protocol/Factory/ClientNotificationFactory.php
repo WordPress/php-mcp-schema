@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Protocol\Factory;
 
 use WP\McpSchema\Common\Protocol\Union\ClientNotificationInterface;
-use WP\McpSchema\Common\Protocol\CancelledNotification;
-use WP\McpSchema\Common\Protocol\ProgressNotification;
-use WP\McpSchema\Common\Protocol\InitializedNotification;
-use WP\McpSchema\Client\Roots\RootsListChangedNotification;
-use WP\McpSchema\Common\Tasks\TaskStatusNotification;
+use WP\McpSchema\Common\Protocol\DTO\CancelledNotification;
+use WP\McpSchema\Common\Protocol\DTO\ProgressNotification;
+use WP\McpSchema\Common\Protocol\DTO\InitializedNotification;
+use WP\McpSchema\Client\Roots\DTO\RootsListChangedNotification;
+use WP\McpSchema\Common\Tasks\DTO\TaskStatusNotification;
 
 /**
  * Factory for creating ClientNotification union type instances.

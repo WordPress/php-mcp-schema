@@ -7,7 +7,7 @@ namespace WP\McpSchema\Client\Elicitation\Factory;
 use WP\McpSchema\Client\Elicitation\Union\EnumSchemaInterface;
 use WP\McpSchema\Client\Elicitation\Factory\SingleSelectEnumSchemaFactory;
 use WP\McpSchema\Client\Elicitation\Factory\MultiSelectEnumSchemaFactory;
-use WP\McpSchema\Client\Elicitation\LegacyTitledEnumSchema;
+use WP\McpSchema\Client\Elicitation\DTO\LegacyTitledEnumSchema;
 
 /**
  * Factory for creating EnumSchema union type instances.

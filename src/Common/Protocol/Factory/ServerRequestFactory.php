@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Protocol\Factory;
 
 use WP\McpSchema\Common\Protocol\Union\ServerRequestInterface;
-use WP\McpSchema\Common\Protocol\PingRequest;
-use WP\McpSchema\Client\Sampling\CreateMessageRequest;
-use WP\McpSchema\Client\Roots\ListRootsRequest;
-use WP\McpSchema\Client\Elicitation\ElicitRequest;
-use WP\McpSchema\Common\Tasks\GetTaskRequest;
-use WP\McpSchema\Common\Protocol\GetTaskPayloadRequest;
-use WP\McpSchema\Common\Tasks\ListTasksRequest;
-use WP\McpSchema\Common\Tasks\CancelTaskRequest;
+use WP\McpSchema\Common\Protocol\DTO\PingRequest;
+use WP\McpSchema\Client\Sampling\DTO\CreateMessageRequest;
+use WP\McpSchema\Client\Roots\DTO\ListRootsRequest;
+use WP\McpSchema\Client\Elicitation\DTO\ElicitRequest;
+use WP\McpSchema\Common\Tasks\DTO\GetTaskRequest;
+use WP\McpSchema\Common\Protocol\DTO\GetTaskPayloadRequest;
+use WP\McpSchema\Common\Tasks\DTO\ListTasksRequest;
+use WP\McpSchema\Common\Tasks\DTO\CancelTaskRequest;
 
 /**
  * Factory for creating ServerRequest union type instances.

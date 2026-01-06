@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Protocol\Factory;
 
 use WP\McpSchema\Common\Protocol\Union\ClientRequestInterface;
-use WP\McpSchema\Common\Protocol\PingRequest;
-use WP\McpSchema\Common\Protocol\InitializeRequest;
-use WP\McpSchema\Server\Core\CompleteRequest;
-use WP\McpSchema\Server\Logging\SetLevelRequest;
-use WP\McpSchema\Server\Prompts\GetPromptRequest;
-use WP\McpSchema\Server\Prompts\ListPromptsRequest;
-use WP\McpSchema\Server\Resources\ListResourcesRequest;
-use WP\McpSchema\Server\Resources\ListResourceTemplatesRequest;
-use WP\McpSchema\Server\Resources\ReadResourceRequest;
-use WP\McpSchema\Server\Resources\SubscribeRequest;
-use WP\McpSchema\Server\Resources\UnsubscribeRequest;
-use WP\McpSchema\Server\Tools\CallToolRequest;
-use WP\McpSchema\Server\Tools\ListToolsRequest;
-use WP\McpSchema\Common\Tasks\GetTaskRequest;
-use WP\McpSchema\Common\Protocol\GetTaskPayloadRequest;
-use WP\McpSchema\Common\Tasks\ListTasksRequest;
-use WP\McpSchema\Common\Tasks\CancelTaskRequest;
+use WP\McpSchema\Common\Protocol\DTO\PingRequest;
+use WP\McpSchema\Common\Protocol\DTO\InitializeRequest;
+use WP\McpSchema\Server\Core\DTO\CompleteRequest;
+use WP\McpSchema\Server\Logging\DTO\SetLevelRequest;
+use WP\McpSchema\Server\Prompts\DTO\GetPromptRequest;
+use WP\McpSchema\Server\Prompts\DTO\ListPromptsRequest;
+use WP\McpSchema\Server\Resources\DTO\ListResourcesRequest;
+use WP\McpSchema\Server\Resources\DTO\ListResourceTemplatesRequest;
+use WP\McpSchema\Server\Resources\DTO\ReadResourceRequest;
+use WP\McpSchema\Server\Resources\DTO\SubscribeRequest;
+use WP\McpSchema\Server\Resources\DTO\UnsubscribeRequest;
+use WP\McpSchema\Server\Tools\DTO\CallToolRequest;
+use WP\McpSchema\Server\Tools\DTO\ListToolsRequest;
+use WP\McpSchema\Common\Tasks\DTO\GetTaskRequest;
+use WP\McpSchema\Common\Protocol\DTO\GetTaskPayloadRequest;
+use WP\McpSchema\Common\Tasks\DTO\ListTasksRequest;
+use WP\McpSchema\Common\Tasks\DTO\CancelTaskRequest;
 
 /**
  * Factory for creating ClientRequest union type instances.

@@ -6,7 +6,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\TaskAugmentedRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\TaskAugmentedRequestParams",
       "purpose": "Common params for any task-augmented request",
       "extends": "RequestParams",
       "implements": [],
@@ -28,7 +28,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\RequestParams",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\RequestParams",
       "purpose": "Common params for any request",
       "implements": [],
       "properties": {
@@ -53,7 +53,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Request",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Request",
       "purpose": "Request for  operation",
       "implements": [],
       "properties": {
@@ -69,7 +69,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\NotificationParams",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\NotificationParams",
       "purpose": "Parameters for Notification",
       "implements": [],
       "properties": {
@@ -92,7 +92,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Notification",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Notification",
       "purpose": "Notification for  events",
       "implements": [],
       "properties": {
@@ -108,7 +108,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Result",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Result",
       "purpose": "Result from  operation",
       "implements": [],
       "properties": {
@@ -137,7 +137,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Error",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Error",
       "purpose": "Error data structure",
       "implements": [],
       "properties": {
@@ -154,7 +154,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\JSONRPCRequest",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCRequest",
       "purpose": "A request that expects a response",
       "extends": "Request",
       "implements": [
@@ -192,7 +192,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\JSONRPCNotification",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCNotification",
       "purpose": "A notification which does not expect a response",
       "extends": "Notification",
       "implements": [
@@ -223,7 +223,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\JSONRPCResultResponse",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCResultResponse",
       "purpose": "A successful (non-error) response to a request",
       "implements": [
         "JSONRPCResponseInterface"
@@ -245,7 +245,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\JSONRPCErrorResponse",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCErrorResponse",
       "purpose": "A response to a request that indicates an error occurred",
       "implements": [
         "JSONRPCResponseInterface"
@@ -267,7 +267,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\URLElicitationRequiredError",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\URLElicitationRequiredError",
       "purpose": "An error response that indicates that the server requires the client to provide additional information via an elicitation request",
       "extends": "Omit",
       "implements": [],
@@ -284,7 +284,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\CancelledNotificationParams",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\CancelledNotificationParams",
       "purpose": "Parameters for a `notifications/cancelled` notification",
       "extends": "NotificationParams",
       "implements": [],
@@ -304,7 +304,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\CancelledNotification",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\CancelledNotification",
       "purpose": "This notification can be sent by either side to indicate that it is cancelling a previously-issued request",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -332,7 +332,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\InitializeRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeRequestParams",
       "purpose": "Parameters for an `initialize` request",
       "extends": "RequestParams",
       "implements": [],
@@ -354,7 +354,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\InitializeRequest",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeRequest",
       "purpose": "This request is sent from the client to the server when it first connects, asking it to begin initialization",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -380,7 +380,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\InitializeResult",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeResult",
       "purpose": "After receiving an initialize request from the client, the server sends this response",
       "extends": "Result",
       "implements": [
@@ -405,7 +405,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\InitializedNotification",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializedNotification",
       "purpose": "This notification is sent from the client to the server after initialization has finished",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -431,7 +431,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Core",
-      "namespace": "WP\\McpSchema\\Common\\Core\\Icon",
+      "namespace": "WP\\McpSchema\\Common\\Core\\DTO\\Icon",
       "purpose": "An optionally-sized icon that can be displayed in a user interface",
       "implements": [],
       "properties": {
@@ -449,7 +449,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Icons",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Icons",
       "purpose": "Base interface to add `icons` property",
       "implements": [],
       "properties": {
@@ -470,7 +470,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\BaseMetadata",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\BaseMetadata",
       "purpose": "Base interface for metadata with name (identifier) and title (display name) properties",
       "implements": [],
       "properties": {
@@ -492,7 +492,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Common\\Lifecycle\\Implementation",
+      "namespace": "WP\\McpSchema\\Common\\Lifecycle\\DTO\\Implementation",
       "purpose": "Describes the MCP implementation",
       "extends": "BaseMetadata",
       "implements": [],
@@ -514,7 +514,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\PingRequest",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PingRequest",
       "purpose": "A ping, issued by either the server or the client, to check that the other party is still alive",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -542,7 +542,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\ProgressNotificationParams",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\ProgressNotificationParams",
       "purpose": "Parameters for a `notifications/progress` notification",
       "extends": "NotificationParams",
       "implements": [],
@@ -564,7 +564,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\ProgressNotification",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\ProgressNotification",
       "purpose": "An out-of-band notification used to inform the receiver of a progress update for a long-running request",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -592,7 +592,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\PaginatedRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedRequestParams",
       "purpose": "Common parameters for paginated requests",
       "extends": "RequestParams",
       "implements": [],
@@ -611,7 +611,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\PaginatedRequest",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedRequest",
       "purpose": "Request for Paginated operation",
       "extends": "JSONRPCRequest",
       "implements": [],
@@ -634,7 +634,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\PaginatedResult",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedResult",
       "purpose": "Result from Paginated operation",
       "extends": "Result",
       "implements": [],
@@ -657,7 +657,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\TextResourceContents",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\TextResourceContents",
       "purpose": "Text Resource Contents data structure",
       "extends": "ResourceContents",
       "implements": [],
@@ -675,7 +675,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\BlobResourceContents",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\BlobResourceContents",
       "purpose": "Blob Resource Contents data structure",
       "extends": "ResourceContents",
       "implements": [],
@@ -693,7 +693,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\EmbeddedResource",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\EmbeddedResource",
       "purpose": "The contents of a resource, embedded into a prompt or tool call result",
       "implements": [
         "ContentBlockInterface"
@@ -721,7 +721,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\GetTaskRequest",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskRequest",
       "purpose": "A request to retrieve the state of a task",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -749,7 +749,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\GetTaskPayloadRequest",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadRequest",
       "purpose": "A request to retrieve the result of a completed task",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -777,7 +777,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\GetTaskPayloadResult",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadResult",
       "purpose": "The response to a tasks/result request",
       "extends": "Result",
       "implements": [
@@ -797,7 +797,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\CancelTaskRequest",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskRequest",
       "purpose": "A request to cancel a task",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -825,7 +825,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\ListTasksRequest",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\ListTasksRequest",
       "purpose": "A request to retrieve a list of tasks",
       "extends": "PaginatedRequest",
       "implements": [
@@ -851,7 +851,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\ListTasksResult",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\ListTasksResult",
       "purpose": "The response to a tasks/list request",
       "extends": "PaginatedResult",
       "implements": [
@@ -874,7 +874,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\TaskStatusNotification",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\TaskStatusNotification",
       "purpose": "An optional notification from the receiver to the requestor, informing them that a task's status has changed",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -902,7 +902,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Annotations",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Annotations",
       "purpose": "Optional annotations for the client",
       "implements": [],
       "properties": {
@@ -926,7 +926,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\TextContent",
+      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\TextContent",
       "purpose": "Text provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -954,7 +954,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\ImageContent",
+      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\ImageContent",
       "purpose": "An image provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -983,7 +983,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\AudioContent",
+      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\AudioContent",
       "purpose": "Audio provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -1012,7 +1012,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\RequestParamsMeta",
+      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\RequestParamsMeta",
       "purpose": "See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage",
       "implements": [],
       "properties": {
@@ -1029,7 +1029,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\GetTaskRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskRequestParams",
       "purpose": "Parameters for GetTaskRequest",
       "implements": [],
       "properties": {
@@ -1044,7 +1044,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\GetTaskPayloadRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadRequestParams",
       "purpose": "Parameters for GetTaskPayloadRequest",
       "implements": [],
       "properties": {
@@ -1059,7 +1059,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\CancelTaskRequestParams",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskRequestParams",
       "purpose": "Parameters for CancelTaskRequest",
       "implements": [],
       "properties": {
@@ -1125,7 +1125,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\EmptyResult",
+      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\EmptyResult",
       "purpose": "A response that indicates success but carries no data.",
       "extends": "Result",
       "implements": [
@@ -1263,7 +1263,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\GetTaskResult",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskResult",
       "purpose": "The response to a tasks/get request.",
       "extends": "Result",
       "implements": [
@@ -1292,7 +1292,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\CancelTaskResult",
+      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskResult",
       "purpose": "The response to a tasks/cancel request.",
       "extends": "Result",
       "implements": [

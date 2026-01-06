@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation\Factory;
 
 use WP\McpSchema\Client\Elicitation\Union\PrimitiveSchemaDefinitionInterface;
-use WP\McpSchema\Client\Elicitation\StringSchema;
-use WP\McpSchema\Client\Elicitation\NumberSchema;
-use WP\McpSchema\Client\Elicitation\BooleanSchema;
+use WP\McpSchema\Client\Elicitation\DTO\StringSchema;
+use WP\McpSchema\Client\Elicitation\DTO\NumberSchema;
+use WP\McpSchema\Client\Elicitation\DTO\BooleanSchema;
 use WP\McpSchema\Client\Elicitation\Factory\EnumSchemaFactory;
 
 /**

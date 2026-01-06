@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation\Factory;
 
 use WP\McpSchema\Client\Elicitation\Union\ElicitRequestParamsInterface;
-use WP\McpSchema\Client\Elicitation\ElicitRequestFormParams;
-use WP\McpSchema\Client\Elicitation\ElicitRequestURLParams;
+use WP\McpSchema\Client\Elicitation\DTO\ElicitRequestFormParams;
+use WP\McpSchema\Client\Elicitation\DTO\ElicitRequestURLParams;
 
 /**
  * Factory for creating ElicitRequestParams union type instances.

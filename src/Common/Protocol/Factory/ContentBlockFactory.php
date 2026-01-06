@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Protocol\Factory;
 
 use WP\McpSchema\Common\Protocol\Union\ContentBlockInterface;
-use WP\McpSchema\Common\Content\TextContent;
-use WP\McpSchema\Common\Content\ImageContent;
-use WP\McpSchema\Common\Content\AudioContent;
-use WP\McpSchema\Server\Resources\ResourceLink;
-use WP\McpSchema\Common\Protocol\EmbeddedResource;
+use WP\McpSchema\Common\Content\DTO\TextContent;
+use WP\McpSchema\Common\Content\DTO\ImageContent;
+use WP\McpSchema\Common\Content\DTO\AudioContent;
+use WP\McpSchema\Server\Resources\DTO\ResourceLink;
+use WP\McpSchema\Common\Protocol\DTO\EmbeddedResource;
 
 /**
  * Factory for creating ContentBlock union type instances.

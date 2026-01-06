@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation\Factory;
 
 use WP\McpSchema\Client\Elicitation\Union\SingleSelectEnumSchemaInterface;
-use WP\McpSchema\Client\Elicitation\UntitledSingleSelectEnumSchema;
-use WP\McpSchema\Client\Elicitation\TitledSingleSelectEnumSchema;
+use WP\McpSchema\Client\Elicitation\DTO\UntitledSingleSelectEnumSchema;
+use WP\McpSchema\Client\Elicitation\DTO\TitledSingleSelectEnumSchema;
 
 /**
  * Factory for creating SingleSelectEnumSchema union type instances.

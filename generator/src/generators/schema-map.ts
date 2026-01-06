@@ -686,9 +686,8 @@ export class SchemaMapGenerator {
 
   private getNamespace(classification: DomainClassification, name: string, subdir?: string): string {
     const parts: string[] = [this.config.output.namespace, classification.domain, classification.subdomain];
-    if (subdir) {
-      parts.push(subdir);
-    }
+    // DTOs go in the DTO subfolder, other types (Enum, Union, Factory) in their respective subfolders
+    parts.push(subdir ?? 'DTO');
     parts.push(name);
     return parts.join('\\');
   }

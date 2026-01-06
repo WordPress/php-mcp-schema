@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WP\McpSchema\Client\Elicitation\Factory;
 
 use WP\McpSchema\Client\Elicitation\Union\MultiSelectEnumSchemaInterface;
-use WP\McpSchema\Client\Elicitation\UntitledMultiSelectEnumSchema;
-use WP\McpSchema\Client\Elicitation\TitledMultiSelectEnumSchema;
+use WP\McpSchema\Client\Elicitation\DTO\UntitledMultiSelectEnumSchema;
+use WP\McpSchema\Client\Elicitation\DTO\TitledMultiSelectEnumSchema;
 
 /**
  * Factory for creating MultiSelectEnumSchema union type instances.

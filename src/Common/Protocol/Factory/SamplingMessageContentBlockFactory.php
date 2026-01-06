@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace WP\McpSchema\Common\Protocol\Factory;
 
 use WP\McpSchema\Common\Protocol\Union\SamplingMessageContentBlockInterface;
-use WP\McpSchema\Common\Content\TextContent;
-use WP\McpSchema\Common\Content\ImageContent;
-use WP\McpSchema\Common\Content\AudioContent;
-use WP\McpSchema\Client\Sampling\ToolUseContent;
-use WP\McpSchema\Client\Sampling\ToolResultContent;
+use WP\McpSchema\Common\Content\DTO\TextContent;
+use WP\McpSchema\Common\Content\DTO\ImageContent;
+use WP\McpSchema\Common\Content\DTO\AudioContent;
+use WP\McpSchema\Client\Sampling\DTO\ToolUseContent;
+use WP\McpSchema\Client\Sampling\DTO\ToolResultContent;
 
 /**
  * Factory for creating SamplingMessageContentBlock union type instances.

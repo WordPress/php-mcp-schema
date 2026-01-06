@@ -328,14 +328,14 @@ export class IntersectionTypeWrapperGenerator {
     indent: string
   ): string {
     const lines: string[] = [];
-    const namespace = `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}`;
+    const namespace = `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}\\DTO`;
 
     // Find the base class's classification to build its namespace
     const baseInterface = this.interfaces.find((i) => i.name === info.baseType);
     const baseClassification = baseInterface
       ? this.classifier.classify(info.baseType, baseInterface.tags)
       : classification;
-    const baseNamespace = `${this.config.output.namespace}\\${baseClassification.domain}\\${baseClassification.subdomain}`;
+    const baseNamespace = `${this.config.output.namespace}\\${baseClassification.domain}\\${baseClassification.subdomain}\\DTO`;
 
     // PHP opening tag
     lines.push('<?php');
@@ -676,6 +676,6 @@ export class IntersectionTypeWrapperGenerator {
    */
   getOutputPath(info: IntersectionTypeWrapperInfo): string {
     const classification = this.classifier.classify(info.typeName, info.typeAlias.tags);
-    return `${classification.domain}/${classification.subdomain}/${info.typeName}.php`;
+    return `${classification.domain}/${classification.subdomain}/DTO/${info.typeName}.php`;
   }
 }

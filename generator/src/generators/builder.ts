@@ -279,10 +279,10 @@ export class BuilderGenerator {
 
   /**
    * Gets the PHP namespace for the DTO.
-   * DTOs are placed directly in the subdomain namespace (no Dto subfolder).
+   * DTOs are placed in the DTO subfolder namespace.
    */
   private getDtoNamespace(classification: DomainClassification): string {
-    return `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}`;
+    return `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}\\DTO`;
   }
 
   /**

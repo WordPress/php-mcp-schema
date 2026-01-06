@@ -6,7 +6,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilities",
+      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\DTO\\ClientCapabilities",
       "purpose": "Capabilities a client may support",
       "implements": [],
       "properties": {
@@ -30,7 +30,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Client\\Tasks\\TaskMetadata",
+      "namespace": "WP\\McpSchema\\Client\\Tasks\\DTO\\TaskMetadata",
       "purpose": "Metadata for augmenting a request with task execution",
       "implements": [],
       "properties": {
@@ -45,7 +45,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Client\\Tasks\\RelatedTaskMetadata",
+      "namespace": "WP\\McpSchema\\Client\\Tasks\\DTO\\RelatedTaskMetadata",
       "purpose": "Metadata for associating messages with a task",
       "implements": [],
       "properties": {
@@ -58,7 +58,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Client\\Tasks\\Task",
+      "namespace": "WP\\McpSchema\\Client\\Tasks\\DTO\\Task",
       "purpose": "Data associated with a task",
       "implements": [],
       "properties": {
@@ -84,7 +84,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Client\\Tasks\\CreateTaskResult",
+      "namespace": "WP\\McpSchema\\Client\\Tasks\\DTO\\CreateTaskResult",
       "purpose": "A response to a task-augmented request",
       "extends": "Result",
       "implements": [],
@@ -101,7 +101,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\CreateMessageRequestParams",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\CreateMessageRequestParams",
       "purpose": "Parameters for a `sampling/createMessage` request",
       "extends": "TaskAugmentedRequestParams",
       "implements": [],
@@ -132,7 +132,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\ToolChoice",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\ToolChoice",
       "purpose": "Controls tool selection behavior for sampling requests",
       "implements": [],
       "properties": {
@@ -147,7 +147,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\CreateMessageRequest",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\CreateMessageRequest",
       "purpose": "A request from the server to sample an LLM via the client",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -173,7 +173,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\CreateMessageResult",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\CreateMessageResult",
       "purpose": "The client's response to a sampling/createMessage request from the server",
       "extends": "Result",
       "implements": [
@@ -195,7 +195,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\SamplingMessage",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\SamplingMessage",
       "purpose": "Describes a message issued to or received from an LLM API",
       "implements": [],
       "properties": {
@@ -216,7 +216,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\ToolUseContent",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\ToolUseContent",
       "purpose": "A request from the assistant to call a tool",
       "implements": [
         "SamplingMessageContentBlockInterface"
@@ -241,7 +241,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\ToolResultContent",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\ToolResultContent",
       "purpose": "The result of a tool use, provided by the user back to the assistant",
       "implements": [
         "SamplingMessageContentBlockInterface"
@@ -269,7 +269,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\ModelPreferences",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\ModelPreferences",
       "purpose": "The server's preferences for model selection, requested of the client during sampling",
       "implements": [],
       "properties": {
@@ -289,7 +289,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Sampling",
-      "namespace": "WP\\McpSchema\\Client\\Sampling\\ModelHint",
+      "namespace": "WP\\McpSchema\\Client\\Sampling\\DTO\\ModelHint",
       "purpose": "Hints to use for model selection",
       "implements": [],
       "properties": {
@@ -304,7 +304,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Roots",
-      "namespace": "WP\\McpSchema\\Client\\Roots\\ListRootsRequest",
+      "namespace": "WP\\McpSchema\\Client\\Roots\\DTO\\ListRootsRequest",
       "purpose": "Sent from the server to request a list of root URIs from the client",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -330,7 +330,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Roots",
-      "namespace": "WP\\McpSchema\\Client\\Roots\\ListRootsResult",
+      "namespace": "WP\\McpSchema\\Client\\Roots\\DTO\\ListRootsResult",
       "purpose": "The client's response to a roots/list request from the server",
       "extends": "Result",
       "implements": [
@@ -351,7 +351,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Roots",
-      "namespace": "WP\\McpSchema\\Client\\Roots\\Root",
+      "namespace": "WP\\McpSchema\\Client\\Roots\\DTO\\Root",
       "purpose": "Represents a root directory or file that the server can operate on",
       "implements": [],
       "properties": {
@@ -368,7 +368,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Roots",
-      "namespace": "WP\\McpSchema\\Client\\Roots\\RootsListChangedNotification",
+      "namespace": "WP\\McpSchema\\Client\\Roots\\DTO\\RootsListChangedNotification",
       "purpose": "A notification from the client to the server, informing it that the list of roots has changed",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -394,7 +394,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitRequestFormParams",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitRequestFormParams",
       "purpose": "The parameters for a request to elicit non-sensitive information from the user via a form in the client",
       "extends": "TaskAugmentedRequestParams",
       "implements": [
@@ -421,7 +421,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitRequestURLParams",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitRequestURLParams",
       "purpose": "The parameters for a request to elicit information from the user via a URL in the client",
       "extends": "TaskAugmentedRequestParams",
       "implements": [
@@ -448,7 +448,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitRequest",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitRequest",
       "purpose": "A request from the server to elicit additional information from the user via the client",
       "extends": "JSONRPCRequest",
       "implements": [
@@ -474,7 +474,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\StringSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\StringSchema",
       "purpose": "String Schema data structure",
       "implements": [
         "PrimitiveSchemaDefinitionInterface"
@@ -501,7 +501,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\NumberSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\NumberSchema",
       "purpose": "Number Schema data structure",
       "implements": [
         "PrimitiveSchemaDefinitionInterface"
@@ -523,7 +523,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\BooleanSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\BooleanSchema",
       "purpose": "Boolean Schema data structure",
       "implements": [
         "PrimitiveSchemaDefinitionInterface"
@@ -547,7 +547,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\UntitledSingleSelectEnumSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\UntitledSingleSelectEnumSchema",
       "purpose": "Schema for single-selection enumeration without display titles for options",
       "implements": [
         "SingleSelectEnumSchemaInterface"
@@ -572,7 +572,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\TitledSingleSelectEnumSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\TitledSingleSelectEnumSchema",
       "purpose": "Schema for single-selection enumeration with display titles for each option",
       "implements": [
         "SingleSelectEnumSchemaInterface"
@@ -599,7 +599,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\UntitledMultiSelectEnumSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\UntitledMultiSelectEnumSchema",
       "purpose": "Schema for multiple-selection enumeration without display titles for options",
       "implements": [
         "MultiSelectEnumSchemaInterface"
@@ -628,7 +628,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\TitledMultiSelectEnumSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\TitledMultiSelectEnumSchema",
       "purpose": "Schema for multiple-selection enumeration with display titles for each option",
       "implements": [
         "MultiSelectEnumSchemaInterface"
@@ -657,7 +657,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\LegacyTitledEnumSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\LegacyTitledEnumSchema",
       "purpose": "Use TitledSingleSelectEnumSchema instead",
       "implements": [
         "EnumSchemaInterface"
@@ -683,7 +683,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitResult",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitResult",
       "purpose": "The client's response to an elicitation request",
       "extends": "Result",
       "implements": [
@@ -704,7 +704,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitationCompleteNotification",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitationCompleteNotification",
       "purpose": "An optional notification from the server to the client, informing it of a completion of a out-of-band elicitation request",
       "extends": "JSONRPCNotification",
       "implements": [
@@ -730,7 +730,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesRoots",
+      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\DTO\\ClientCapabilitiesRoots",
       "purpose": "Present if the client supports listing roots",
       "implements": [],
       "properties": {
@@ -745,7 +745,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesSampling",
+      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\DTO\\ClientCapabilitiesSampling",
       "purpose": "Present if the client supports sampling from an LLM",
       "implements": [],
       "properties": {
@@ -761,7 +761,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesElicitation",
+      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\DTO\\ClientCapabilitiesElicitation",
       "purpose": "Present if the client supports elicitation from the server",
       "implements": [],
       "properties": {
@@ -777,7 +777,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\ClientCapabilitiesTasks",
+      "namespace": "WP\\McpSchema\\Client\\Lifecycle\\DTO\\ClientCapabilitiesTasks",
       "purpose": "Present if the client supports task-augmented requests",
       "implements": [],
       "properties": {
@@ -793,7 +793,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitRequestFormParamsRequestedSchema",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitRequestFormParamsRequestedSchema",
       "purpose": "A restricted subset of JSON Schema",
       "implements": [],
       "properties": {
@@ -810,7 +810,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\UntitledMultiSelectEnumSchemaItems",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\UntitledMultiSelectEnumSchemaItems",
       "purpose": "Schema for the array items",
       "implements": [],
       "properties": {
@@ -826,7 +826,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\TitledMultiSelectEnumSchemaItems",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\TitledMultiSelectEnumSchemaItems",
       "purpose": "Schema for array items with enum options and display labels",
       "implements": [],
       "properties": {},
@@ -839,7 +839,7 @@
       "kind": "class",
       "domain": "Client",
       "subdomain": "Elicitation",
-      "namespace": "WP\\McpSchema\\Client\\Elicitation\\ElicitationCompleteNotificationParams",
+      "namespace": "WP\\McpSchema\\Client\\Elicitation\\DTO\\ElicitationCompleteNotificationParams",
       "purpose": "Parameters for ElicitationCompleteNotification",
       "implements": [],
       "properties": {

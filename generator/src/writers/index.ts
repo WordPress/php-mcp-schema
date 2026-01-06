@@ -88,16 +88,16 @@ export class FileWriter {
 
   /**
    * Gets the output path for a type.
-   * DTOs are placed directly in the subdomain folder, other types get their own subfolder.
+   * All types get their own subfolder (DTO, Enum, Union, Factory, Builder).
    */
   getOutputPath(
     classification: DomainClassification,
     typeCategory: 'Dto' | 'Enum' | 'Union' | 'Factory' | 'Builder',
     className: string
   ): string {
-    // DTOs go directly in subdomain folder, other types get their own subfolder
+    // All types get their own subfolder - DTOs go in DTO/, others in their respective folders
     if (typeCategory === 'Dto') {
-      return `${classification.domain}/${classification.subdomain}/${className}.php`;
+      return `${classification.domain}/${classification.subdomain}/DTO/${className}.php`;
     }
     return `${classification.domain}/${classification.subdomain}/${typeCategory}/${className}.php`;
   }

@@ -444,7 +444,7 @@ export class FactoryGenerator {
         const memberIface = this.interfaces.find((i) => i.name === member.name);
         if (memberIface) {
           const memberClassification = this.classifier.classify(member.name, memberIface.tags);
-          const memberNamespace = `${this.config.output.namespace}\\${memberClassification.domain}\\${memberClassification.subdomain}`;
+          const memberNamespace = `${this.config.output.namespace}\\${memberClassification.domain}\\${memberClassification.subdomain}\\DTO`;
           lines.push(`use ${memberNamespace}\\${member.name};`);
         }
       }

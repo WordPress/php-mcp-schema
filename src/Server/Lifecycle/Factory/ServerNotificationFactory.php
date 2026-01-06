@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace WP\McpSchema\Server\Lifecycle\Factory;
 
 use WP\McpSchema\Server\Lifecycle\Union\ServerNotificationInterface;
-use WP\McpSchema\Common\Protocol\CancelledNotification;
-use WP\McpSchema\Common\Protocol\ProgressNotification;
-use WP\McpSchema\Server\Logging\LoggingMessageNotification;
-use WP\McpSchema\Server\Resources\ResourceUpdatedNotification;
-use WP\McpSchema\Server\Resources\ResourceListChangedNotification;
-use WP\McpSchema\Server\Tools\ToolListChangedNotification;
-use WP\McpSchema\Server\Prompts\PromptListChangedNotification;
-use WP\McpSchema\Client\Elicitation\ElicitationCompleteNotification;
-use WP\McpSchema\Common\Tasks\TaskStatusNotification;
+use WP\McpSchema\Common\Protocol\DTO\CancelledNotification;
+use WP\McpSchema\Common\Protocol\DTO\ProgressNotification;
+use WP\McpSchema\Server\Logging\DTO\LoggingMessageNotification;
+use WP\McpSchema\Server\Resources\DTO\ResourceUpdatedNotification;
+use WP\McpSchema\Server\Resources\DTO\ResourceListChangedNotification;
+use WP\McpSchema\Server\Tools\DTO\ToolListChangedNotification;
+use WP\McpSchema\Server\Prompts\DTO\PromptListChangedNotification;
+use WP\McpSchema\Client\Elicitation\DTO\ElicitationCompleteNotification;
+use WP\McpSchema\Common\Tasks\DTO\TaskStatusNotification;
 
 /**
  * Factory for creating ServerNotification union type instances.

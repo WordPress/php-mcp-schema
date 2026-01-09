@@ -217,8 +217,11 @@ export function getCategoryTag(tags: readonly JsDocTag[]): string | undefined {
 }
 
 /**
- * Extracts exported string constants from a source file.
- * Looks for patterns like: export const CONSTANT_NAME = 'value';
+ * Extracts exported constants from a source file.
+ * Looks for patterns like:
+ * - export const CONSTANT_NAME = 'value';  (string)
+ * - export const CONSTANT_NAME = 123;      (number)
+ * - export const CONSTANT_NAME = -32700;   (negative number)
  */
 function extractConstants(sourceFile: SourceFile): TsConstant[] {
   const constants: TsConstant[] = [];
@@ -238,8 +241,10 @@ function extractConstants(sourceFile: SourceFile): TsConstant[] {
         continue;
       }
 
-      // Only extract string literals
       const initText = initializer.getText();
+      const description = getConstantDescription(statement);
+
+      // Check for string literals
       if ((initText.startsWith("'") && initText.endsWith("'")) ||
           (initText.startsWith('"') && initText.endsWith('"'))) {
         // Remove quotes to get the actual value
@@ -247,7 +252,20 @@ function extractConstants(sourceFile: SourceFile): TsConstant[] {
         constants.push({
           name: declaration.getName(),
           value,
-          description: getConstantDescription(statement),
+          valueType: 'string',
+          description,
+        });
+        continue;
+      }
+
+      // Check for numeric literals (including negative numbers)
+      const numericMatch = initText.match(/^-?\d+$/);
+      if (numericMatch) {
+        constants.push({
+          name: declaration.getName(),
+          value: parseInt(initText, 10),
+          valueType: 'number',
+          description,
         });
       }
     }

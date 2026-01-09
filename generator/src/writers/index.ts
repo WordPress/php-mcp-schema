@@ -88,16 +88,16 @@ export class FileWriter {
 
   /**
    * Gets the output path for a type.
-   * DTOs are placed directly in the subdomain folder, other types get their own subfolder.
+   * All types get their own subfolder (DTO, Enum, Union, Factory, Builder).
    */
   getOutputPath(
     classification: DomainClassification,
     typeCategory: 'Dto' | 'Enum' | 'Union' | 'Factory' | 'Builder',
     className: string
   ): string {
-    // DTOs go directly in subdomain folder, other types get their own subfolder
+    // All types get their own subfolder - DTOs go in DTO/, others in their respective folders
     if (typeCategory === 'Dto') {
-      return `${classification.domain}/${classification.subdomain}/${className}.php`;
+      return `${classification.domain}/${classification.subdomain}/DTO/${className}.php`;
     }
     return `${classification.domain}/${classification.subdomain}/${typeCategory}/${className}.php`;
   }
@@ -527,15 +527,21 @@ ${indent}}
 ${indent}/**
 ${indent} * Asserts a value is an object and returns it.
 ${indent} *
+${indent} * Accepts both PHP arrays and objects, auto-converting arrays to objects.
+${indent} * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
+${indent} *
 ${indent} * @param mixed $value
 ${indent} * @return object
 ${indent} * @phpstan-assert object $value
 ${indent} */
 ${indent}protected static function asObject($value): object
 ${indent}{
+${indent}${indent}if (is_array($value)) {
+${indent}${indent}${indent}return (object) $value;
+${indent}${indent}}
 ${indent}${indent}if (!is_object($value)) {
 ${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
-${indent}${indent}${indent}${indent}'Expected object, got %s',
+${indent}${indent}${indent}${indent}'Expected array or object, got %s',
 ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
@@ -583,6 +589,101 @@ ${indent}${indent}return $value === null ? null : self::asStringArray($value);
 ${indent}}
 
 ${indent}/**
+${indent} * Asserts a value is an associative array with string values only.
+${indent} *
+${indent} * Used for MCP types like { [key: string]: string } index signatures.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, string>
+${indent} * @phpstan-assert array<string, string> $value
+${indent} */
+${indent}protected static function asStringMap($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}foreach ($value as $key => $v) {
+${indent}${indent}${indent}if (!is_string($v)) {
+${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}${indent}'Expected string value for key "%s", got %s',
+${indent}${indent}${indent}${indent}${indent}(string) $key,
+${indent}${indent}${indent}${indent}${indent}gettype($v)
+${indent}${indent}${indent}${indent}));
+${indent}${indent}${indent}}
+${indent}${indent}}
+${indent}${indent}/** @var array<string, string> */
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as string map or null.
+${indent} *
+${indent} * Used for optional MCP types like { [key: string]: string } | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, string>|null
+${indent} */
+${indent}protected static function asStringMapOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asStringMap($value);
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is an associative array with object values only.
+${indent} *
+${indent} * Used for MCP types like { [key: string]: object } index signatures.
+${indent} * Accepts both PHP arrays and objects as values, auto-converting arrays to objects.
+${indent} * This aligns with MCP spec where JSON objects can be PHP arrays or objects.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, object>
+${indent} * @phpstan-assert array<string, object> $value
+${indent} */
+${indent}protected static function asObjectMap($value): array
+${indent}{
+${indent}${indent}if (!is_array($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected array, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}
+${indent}${indent}$result = [];
+${indent}${indent}foreach ($value as $key => $v) {
+${indent}${indent}${indent}if (is_array($v)) {
+${indent}${indent}${indent}${indent}$result[$key] = (object) $v;
+${indent}${indent}${indent}} elseif (is_object($v)) {
+${indent}${indent}${indent}${indent}$result[$key] = $v;
+${indent}${indent}${indent}} else {
+${indent}${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}${indent}'Expected array or object for key "%s", got %s',
+${indent}${indent}${indent}${indent}${indent}(string) $key,
+${indent}${indent}${indent}${indent}${indent}gettype($v)
+${indent}${indent}${indent}${indent}));
+${indent}${indent}${indent}}
+${indent}${indent}}
+${indent}${indent}
+${indent}${indent}/** @var array<string, object> */
+${indent}${indent}return $result;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as object map or null.
+${indent} *
+${indent} * Used for optional MCP types like { [key: string]: object } | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return array<string, object>|null
+${indent} */
+${indent}protected static function asObjectMapOrNull($value): ?array
+${indent}{
+${indent}${indent}return $value === null ? null : self::asObjectMap($value);
+${indent}}
+
+${indent}/**
 ${indent} * Asserts a value is a scalar (string, int, float, or bool) for sprintf.
 ${indent} *
 ${indent} * @param mixed $value
@@ -597,6 +698,38 @@ ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
 ${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Asserts a value is a string or number (int/float) and returns it.
+${indent} *
+${indent} * Used for MCP types like ProgressToken that accept string | number.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|int|float
+${indent} */
+${indent}protected static function asStringOrNumber($value)
+${indent}{
+${indent}${indent}if (!is_string($value) && !is_int($value) && !is_float($value)) {
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected string or number, got %s',
+${indent}${indent}${indent}${indent}gettype($value)
+${indent}${indent}${indent}));
+${indent}${indent}}
+${indent}${indent}return $value;
+${indent}}
+
+${indent}/**
+${indent} * Returns a value as string or number (int/float), or null.
+${indent} *
+${indent} * Used for optional MCP types like ProgressToken that accept string | number | null.
+${indent} *
+${indent} * @param mixed $value
+${indent} * @return string|int|float|null
+${indent} */
+${indent}protected static function asStringOrNumberOrNull($value)
+${indent}{
+${indent}${indent}return $value === null ? null : self::asStringOrNumber($value);
 ${indent}}
 }
 `;

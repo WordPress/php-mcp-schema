@@ -9,7 +9,7 @@
 import type { GeneratorConfig, GenerationResult, GeneratedFile, GenerationStats, GenerationError, TsInterface, TsTypeAlias, UnionMembershipMap, UnionMembershipInfo, VersionTracker } from './types/index.js';
 import { fetchSchema, fetchSchemaFresh } from './fetcher/index.js';
 import { parseSchema } from './parser/index.js';
-import { DtoGenerator, EnumGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, DomainClassifier, createConstantsMap } from './generators/index.js';
+import { DtoGenerator, EnumGenerator, NumericEnumGenerator, ConstantsGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, TypeAliasWrapperGenerator, IntersectionTypeWrapperGenerator, DomainClassifier, createConstantsMap, SkillGenerator } from './generators/index.js';
 import { FileWriter, generateAbstractDto, generateAbstractEnum, generateValidatesRequiredFieldsTrait } from './writers/index.js';
 import { SyntheticDtoExtractor, updateInterfacesWithSyntheticTypes } from './extractors/index.js';
 import { buildVersionTracker, createEmptyVersionTracker } from './version-tracker/index.js';
@@ -47,7 +47,8 @@ export { fetchSchema, fetchSchemaFresh, clearCache } from './fetcher/index.js';
 export { parseSchema, parseSchemaFile, resolveInheritance, getCategoryTag } from './parser/index.js';
 
 // Re-export generators
-export { DtoGenerator, EnumGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, TypeMapper, DomainClassifier } from './generators/index.js';
+export { DtoGenerator, EnumGenerator, NumericEnumGenerator, ConstantsGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, TypeAliasWrapperGenerator, IntersectionTypeWrapperGenerator, TypeMapper, DomainClassifier, SchemaMapGenerator } from './generators/index.js';
+export type { TypeAliasWrapperInfo, IntersectionTypeWrapperInfo, SchemaMap, SchemaMapType, SchemaMapFactory, SchemaMapRpc, SchemaMapDomain, SchemaMapIndex } from './generators/index.js';
 
 // Re-export writers
 export { FileWriter, generateAbstractDto, generateAbstractEnum, generateValidatesRequiredFieldsTrait } from './writers/index.js';
@@ -334,6 +335,22 @@ export async function generate(
     type: 'dto', // Categorize as 'dto' since it's used by DTOs
   });
 
+  // Step 5.5: Generate McpConstants class from schema constants
+  // This includes protocol versions, JSON-RPC version, and error codes
+  if (ast.constants && ast.constants.length > 0) {
+    progress('Generating constants class...');
+    const constantsGenerator = new ConstantsGenerator(config);
+    files.push({
+      path: constantsGenerator.getOutputPath(),
+      content: constantsGenerator.generate(ast.constants),
+      type: 'enum', // Categorize as 'enum' since it's a constants class
+    });
+
+    if (config.verbose) {
+      progress(`Generated McpConstants with ${ast.constants.length} constants`);
+    }
+  }
+
   // Step 6: Generate DTOs from interfaces (including synthetic ones)
   // First pass: classify all non-synthetic interfaces to populate cache
   progress('Generating DTOs...');
@@ -395,6 +412,92 @@ export async function generate(
     }
   }
 
+  // Step 7.1: Generate numeric enums from TypeScript enum declarations
+  // These are actual TypeScript enums (like ErrorCode) with numeric values,
+  // different from string literal union types handled by EnumGenerator.
+  progress('Generating numeric enums...');
+  const numericEnumGenerator = new NumericEnumGenerator(config);
+  const numericEnums = ast.enums?.filter((e) => numericEnumGenerator.isNumericEnum(e)) ?? [];
+
+  if (config.verbose) {
+    progress(`Found ${numericEnums.length} numeric enums to generate`);
+  }
+
+  for (const tsEnum of numericEnums) {
+    try {
+      const content = numericEnumGenerator.generate(tsEnum);
+      const classification = numericEnumGenerator.classify(tsEnum);
+      const path = writer.getOutputPath(classification, 'Enum', tsEnum.name);
+      files.push({ path, content, type: 'enum' });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        type: tsEnum.name,
+        message: `Failed to generate numeric enum: ${message}`,
+        source: 'enum',
+      });
+    }
+  }
+
+  // Step 7.5: Generate type alias wrappers
+  // Type aliases like `type EmptyResult = Result` don't get their own DTOs, but when
+  // they're referenced in unions (e.g., `ServerResult = EmptyResult | InitializeResult | ...`),
+  // we need wrapper classes so they can implement the union interfaces.
+  // See: https://github.com/WordPress/php-mcp-schema/issues/XX (Missing EmptyResult type)
+  progress('Generating type alias wrappers...');
+  const typeAliasWrapperGenerator = new TypeAliasWrapperGenerator(config, allInterfaces, ast.typeAliases);
+  const aliasesNeedingWrappers = typeAliasWrapperGenerator.findAliasesNeedingWrappers(unionMembershipMap);
+
+  if (config.verbose) {
+    progress(`Found ${aliasesNeedingWrappers.length} type aliases needing wrapper classes`);
+  }
+
+  for (const aliasInfo of aliasesNeedingWrappers) {
+    try {
+      const content = typeAliasWrapperGenerator.generate(aliasInfo);
+      const path = typeAliasWrapperGenerator.getOutputPath(aliasInfo);
+      files.push({ path, content, type: 'dto' }); // Categorize as DTO since it extends a DTO
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        type: aliasInfo.aliasName,
+        message: `Failed to generate type alias wrapper: ${message}`,
+        source: 'typeAliasWrapper',
+      });
+    }
+  }
+
+  // Step 7.6: Generate intersection type wrappers
+  // Intersection types like `type GetTaskResult = Result & Task` combine properties
+  // from multiple interfaces. When they're referenced in unions
+  // (e.g., `ClientResult = EmptyResult | GetTaskResult | ...`), we need concrete
+  // classes that have all properties from the intersected types.
+  // PHP's single inheritance limitation is handled by:
+  // - Extending the most "generic" type (typically Result)
+  // - Merging properties from other intersected types into the class
+  progress('Generating intersection type wrappers...');
+  const intersectionTypeWrapperGenerator = new IntersectionTypeWrapperGenerator(config, allInterfaces, ast.typeAliases);
+  const intersectionsNeedingWrappers = intersectionTypeWrapperGenerator.findIntersectionsNeedingWrappers(unionMembershipMap);
+
+  if (config.verbose) {
+    progress(`Found ${intersectionsNeedingWrappers.length} intersection types needing wrapper classes`);
+  }
+
+  for (const intersectionInfo of intersectionsNeedingWrappers) {
+    try {
+      const content = intersectionTypeWrapperGenerator.generate(intersectionInfo);
+      const path = intersectionTypeWrapperGenerator.getOutputPath(intersectionInfo);
+      files.push({ path, content, type: 'dto' }); // Categorize as DTO since it extends a DTO
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        type: intersectionInfo.typeName,
+        message: `Failed to generate intersection type wrapper: ${message}`,
+        source: 'intersectionTypeWrapper',
+      });
+    }
+  }
+
   // Step 8: Generate builders (currently disabled)
   // TODO: Builder generation can be enabled in the future by setting generateBuilders to true.
   // The BuilderGenerator class is fully implemented and ready to use.
@@ -426,6 +529,42 @@ export async function generate(
   for (const contract of contracts) {
     const path = `Common/Contracts/${contract.name}.php`;
     files.push({ path, content: contract.content, type: 'interface' });
+  }
+
+  // Step 9.5: Generate skill files for Claude Code
+  // Skill files go to the project root skill/ directory, not inside src/
+  progress('Generating skill files...');
+  const skillGenerator = new SkillGenerator(
+    config,
+    allInterfaces,
+    ast.typeAliases,
+    ast.enums ?? [],
+    unionMembershipMap,
+    classifier,
+    intersectionsNeedingWrappers
+  );
+  const skillResult = skillGenerator.generateAll();
+
+  // Write skill files directly to project root (not via FileWriter which uses output.outputDir)
+  const { mkdir, writeFile, chmod } = await import('fs/promises');
+  const { dirname, join, resolve } = await import('path');
+
+  // Resolve skill directory relative to output dir's parent (project root)
+  const projectRoot = resolve(config.output.outputDir, '..');
+
+  for (const skillFile of skillResult.files) {
+    const fullPath = join(projectRoot, skillFile.path);
+    await mkdir(dirname(fullPath), { recursive: true });
+    await writeFile(fullPath, skillFile.content, 'utf-8');
+
+    // Make scripts executable
+    if (skillFile.type === 'script') {
+      await chmod(fullPath, 0o755);
+    }
+  }
+
+  if (config.verbose) {
+    progress(`Generated ${skillResult.files.length} skill files (${skillResult.stats.markdownFiles} markdown, ${skillResult.stats.jsonFiles} JSON, ${skillResult.stats.scriptFiles} scripts)`);
   }
 
   // Step 10: Validate class names (PSR-1 compliance)

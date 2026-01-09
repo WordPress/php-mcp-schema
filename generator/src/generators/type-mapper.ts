@@ -9,13 +9,13 @@ import type { PhpType, TsConstant } from '../types/index.js';
 /**
  * Map of constant names to their values, used for resolving typeof expressions.
  */
-export type ConstantsMap = ReadonlyMap<string, string>;
+export type ConstantsMap = ReadonlyMap<string, string | number>;
 
 /**
  * Creates a constants map from an array of TsConstant objects.
  */
 export function createConstantsMap(constants: readonly TsConstant[] | undefined): ConstantsMap {
-  const map = new Map<string, string>();
+  const map = new Map<string, string | number>();
   if (constants) {
     for (const c of constants) {
       map.set(c.name, c.value);
@@ -61,6 +61,7 @@ export class TypeMapper {
   private static readonly INTEGER_PATTERNS = [
     /^-?\d+$/, // Literal integers
     /.Id$/i, // Compound IDs like requestId, sessionId (NOT standalone "id" - JSON-RPC id is string|number)
+    /^code$/i, // JSON-RPC error code
     /Length$/i, // minLength, maxLength - character counts
     /Items$/i, // minItems, maxItems - array item counts
     /^size$/i, // file size in bytes
@@ -132,11 +133,17 @@ export class TypeMapper {
     if (this.isInlineObjectType(trimmed)) {
       // Check if it's an index signature { [key: string]: T }
       if (/^\{\s*\[/.test(trimmed)) {
+        const valueType = this.extractIndexSignatureValueType(trimmed);
+        const phpDocType = valueType === 'string' ? 'array<string, string>' :
+                          valueType === 'object' ? 'array<string, object>' :
+                          'array<string, mixed>';
         return {
           type: 'array',
           nullable: false,
           isArray: true,
-          phpDocType: 'array<string, mixed>',
+          phpDocType,
+          isIndexSignature: true,
+          indexSignatureValueType: valueType,
         };
       }
       // Regular inline object
@@ -347,6 +354,26 @@ export class TypeMapper {
       if (char === '}') depth--;
     }
     return depth === 0 && type.endsWith('}');
+  }
+
+  /**
+   * Extracts the value type from an index signature like { [key: string]: T }.
+   *
+   * @param type - The full index signature type string
+   * @returns The value type: 'string', 'object', or 'mixed'
+   */
+  private static extractIndexSignatureValueType(type: string): 'string' | 'object' | 'mixed' {
+    // Match { [key: string]: T } or { [key: string]: T; } and extract T
+    // Pattern: { [identifier: string]: valueType }
+    // The value type can be: string, unknown, object, or complex types
+    const match = type.match(/\[\s*\w+\s*:\s*\w+\s*\]\s*:\s*(\w+)/);
+    if (match?.[1]) {
+      const valueType = match[1].toLowerCase();
+      if (valueType === 'string') return 'string';
+      if (valueType === 'object') return 'object';
+    }
+    // Default to mixed for unknown, any, or complex value types
+    return 'mixed';
   }
 
   /**

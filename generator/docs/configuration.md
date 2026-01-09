@@ -90,7 +90,7 @@ node dist/cli/index.js configs
 
 Fetched schemas are cached in `.cache/schemas/`:
 
-```
+```text
 .cache/schemas/
 └── modelcontextprotocol_modelcontextprotocol_2025-11-25_schema.ts
 ```
@@ -100,3 +100,53 @@ Clear cache:
 ```bash
 node dist/cli/index.js clear-cache
 ```
+
+## Generated Outputs
+
+The generator always produces:
+
+| Output | Description |
+|--------|-------------|
+| **PHP DTOs** | Data transfer objects in `src/` |
+| **Constants Class** | `McpConstants.php` with protocol constants and error codes |
+| **Union Interfaces** | Marker interfaces for polymorphic types |
+| **Factory Classes** | Discriminator-based instantiation |
+| **Type Alias Wrappers** | Concrete classes for aliases referenced in unions |
+| **Intersection Wrappers** | Concrete classes for intersection types |
+| **Contracts** | Marker interfaces for type hierarchies |
+| **Skill Files** | Claude Code reference docs in `skill/` |
+
+## Skill Files
+
+Skill files are generated automatically to `skill/` (sibling to `src/`):
+
+```text
+skill/
+├── SKILL.md                   # Entry point for Claude Code
+├── reference/                 # Markdown documentation
+│   ├── overview.md
+│   ├── common.md
+│   ├── server.md
+│   ├── client.md
+│   ├── rpc-methods.md
+│   └── factories.md
+├── data/                      # JSON data for programmatic access
+│   ├── schema-index.json      # Lightweight discovery index (~2KB)
+│   ├── schema-common.json
+│   ├── schema-server.json
+│   └── schema-client.json
+└── scripts/                   # Search utilities
+    ├── search-types.sh        # Search types by name
+    ├── get-type.sh            # Get type details
+    └── find-rpc.sh            # Find RPC methods
+```
+
+## Version Tracking
+
+The generator automatically tracks schema history for `@since` annotations:
+
+1. Fetches historical schema versions up to the target version
+2. Compares definitions and properties across versions
+3. Annotates each definition/property with introduction version
+
+This happens automatically during generation (no configuration needed).

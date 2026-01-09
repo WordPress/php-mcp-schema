@@ -61,7 +61,8 @@ export interface TsTypeAlias {
  */
 export interface TsConstant {
   readonly name: string;
-  readonly value: string;
+  readonly value: string | number;
+  readonly valueType: 'string' | 'number';
   readonly description?: string;
 }
 
@@ -154,6 +155,18 @@ export interface PhpType {
    * Used for PHP 7.4 compatibility (e.g., `mixed` is PHP 8.0+).
    */
   readonly isUntyped?: boolean;
+  /**
+   * When true, this type represents an index signature like { [key: string]: T }.
+   * Used to select the appropriate validation helper in fromArray().
+   */
+  readonly isIndexSignature?: boolean;
+  /**
+   * The value type of an index signature.
+   * - 'string': { [key: string]: string } -> use asStringMap() helper
+   * - 'object': { [key: string]: object } -> use asArray() helper
+   * - 'mixed': { [key: string]: unknown } -> use asArray() helper
+   */
+  readonly indexSignatureValueType?: 'string' | 'object' | 'mixed';
 }
 
 /**
@@ -166,6 +179,12 @@ export interface PhpProperty {
   readonly isRequired: boolean;
   readonly defaultValue?: string;
   readonly constValue?: string;
+  /**
+   * Maximum number of items allowed in an array property.
+   * Extracted from JSDoc comments like "Must not exceed N items".
+   * Used to generate validation in fromArray().
+   */
+  readonly maxItems?: number;
 }
 
 /**
@@ -360,3 +379,24 @@ export interface VersionTracker {
   /** Check if a definition was modified after introduction */
   wasModified(definitionName: string): boolean;
 }
+
+// ============================================================================
+// Skill Types (Re-exported)
+// ============================================================================
+
+export type {
+  SkillConfig,
+  SkillSchemaIndex,
+  SkillSchemaSummary,
+  SkillRpcMethod,
+  SkillTypeInfo,
+  SkillFactoryInfo,
+  SkillDomainData,
+  SkillTypeTableEntry,
+  SkillSubdomainSection,
+  SkillRpcEntry,
+  SkillFactoryEntry,
+  SkillGeneratedFile,
+  SkillGenerationResult,
+  SkillGenerationStats,
+} from './skill-types.js';

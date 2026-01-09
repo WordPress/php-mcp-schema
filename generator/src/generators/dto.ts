@@ -224,12 +224,16 @@ export class DtoGenerator {
     // Check for const values (discriminator fields)
     const constValue = this.extractConstValue(p.type);
 
+    // Extract maxItems constraint from JSDoc description (e.g., "Must not exceed 100 items")
+    const maxItems = this.extractMaxItems(p.description);
+
     return {
       name: p.name,
       type: phpType,
       description: p.description,
       isRequired: !p.isOptional,
       constValue,
+      maxItems,
     } as PhpProperty;
   }
 
@@ -265,11 +269,32 @@ export class DtoGenerator {
   }
 
   /**
+   * Extracts maxItems constraint from JSDoc description.
+   * Looks for patterns like "Must not exceed N items" in the description.
+   *
+   * @param description - The property's JSDoc description
+   * @returns The max items number if found, undefined otherwise
+   */
+  private extractMaxItems(description?: string): number | undefined {
+    if (!description) {
+      return undefined;
+    }
+
+    // Match patterns like "Must not exceed 100 items" (case-insensitive)
+    const match = description.match(/must not exceed (\d+) items/i);
+    if (match?.[1]) {
+      return parseInt(match[1], 10);
+    }
+
+    return undefined;
+  }
+
+  /**
    * Gets the PHP namespace for a classification.
-   * DTOs are placed directly in the subdomain namespace (no Dto subfolder).
+   * DTOs are placed in the DTO subfolder namespace.
    */
   private getNamespace(classification: DomainClassification): string {
-    return `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}`;
+    return `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}\\DTO`;
   }
 
   /**
@@ -390,6 +415,14 @@ export class DtoGenerator {
     const discriminatorConstants = this.renderDiscriminatorConstants(unionMemberships, indent);
     if (discriminatorConstants.length > 0) {
       lines.push(...discriminatorConstants);
+      lines.push('');
+    }
+
+    // MaxItems constants for array properties with length limits
+    // Generated from JSDoc patterns like "Must not exceed N items"
+    const maxItemsConstants = this.renderMaxItemsConstants(meta.properties, indent);
+    if (maxItemsConstants.length > 0) {
+      lines.push(...maxItemsConstants);
       lines.push('');
     }
 
@@ -644,6 +677,79 @@ export class DtoGenerator {
     const lines: string[] = [];
     lines.push(`${indent}public const DISCRIMINATOR_FIELD = ${this.formatPhpValue(membershipWithDiscriminator.discriminatorField!)};`);
     lines.push(`${indent}public const DISCRIMINATOR_VALUE = ${this.formatPhpValue(membershipWithDiscriminator.discriminatorValue!)};`);
+    return lines;
+  }
+
+  /**
+   * Renders maxItems constants for array properties with length limits.
+   *
+   * Generates constants like MAX_VALUES = 100 for properties that have
+   * maxItems constraints extracted from JSDoc comments.
+   *
+   * @param properties - Properties to check for maxItems
+   * @param indent - Indentation string
+   * @returns Array of constant declaration lines
+   */
+  private renderMaxItemsConstants(properties: readonly PhpProperty[], indent: string): string[] {
+    const propsWithMaxItems = properties.filter((p) => p.maxItems !== undefined);
+
+    if (propsWithMaxItems.length === 0) {
+      return [];
+    }
+
+    const lines: string[] = [];
+    for (const prop of propsWithMaxItems) {
+      // Generate constant name: values -> MAX_VALUES, items -> MAX_ITEMS
+      const constName = `MAX_${this.toConstantName(prop.name)}`;
+      lines.push(`${indent}/** Maximum number of items allowed in ${prop.name} per MCP spec */`);
+      lines.push(`${indent}public const ${constName} = ${prop.maxItems};`);
+    }
+    return lines;
+  }
+
+  /**
+   * Renders maxItems validation code for fromArray().
+   *
+   * Generates validation that throws InvalidArgumentException when an array
+   * property exceeds its maxItems limit.
+   *
+   * @param properties - Properties with maxItems constraints
+   * @param indent - Indentation string
+   * @returns Array of validation code lines
+   */
+  private renderMaxItemsValidation(properties: readonly PhpProperty[], indent: string): string[] {
+    const lines: string[] = [];
+
+    for (const prop of properties) {
+      if (prop.maxItems === undefined) continue;
+
+      const { jsonKey } = this.getPropertyNames(prop.name);
+      const constName = `MAX_${this.toConstantName(prop.name)}`;
+
+      // For required properties, we know the field exists (assertRequired already passed)
+      // For optional properties, only validate if the field is present
+      // Use is_array() check to satisfy PHPStan (data values are mixed)
+      if (prop.isRequired) {
+        lines.push(`${indent}${indent}if (is_array($data['${jsonKey}']) && count($data['${jsonKey}']) > self::${constName}) {`);
+        lines.push(`${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(`);
+        lines.push(`${indent}${indent}${indent}${indent}'%s::${prop.name} must not exceed %d items, got %d',`);
+        lines.push(`${indent}${indent}${indent}${indent}static::class,`);
+        lines.push(`${indent}${indent}${indent}${indent}self::${constName},`);
+        lines.push(`${indent}${indent}${indent}${indent}count($data['${jsonKey}'])`);
+        lines.push(`${indent}${indent}${indent}));`);
+        lines.push(`${indent}${indent}}`);
+      } else {
+        lines.push(`${indent}${indent}if (isset($data['${jsonKey}']) && is_array($data['${jsonKey}']) && count($data['${jsonKey}']) > self::${constName}) {`);
+        lines.push(`${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(`);
+        lines.push(`${indent}${indent}${indent}${indent}'%s::${prop.name} must not exceed %d items, got %d',`);
+        lines.push(`${indent}${indent}${indent}${indent}static::class,`);
+        lines.push(`${indent}${indent}${indent}${indent}self::${constName},`);
+        lines.push(`${indent}${indent}${indent}${indent}count($data['${jsonKey}'])`);
+        lines.push(`${indent}${indent}${indent}));`);
+        lines.push(`${indent}${indent}}`);
+      }
+    }
+
     return lines;
   }
 
@@ -904,6 +1010,13 @@ export class DtoGenerator {
       lines.push('');
     }
 
+    // Validate maxItems constraints for array properties (from JSDoc "Must not exceed N items")
+    const propsWithMaxItems = sortedProps.filter((p) => p.maxItems !== undefined);
+    if (propsWithMaxItems.length > 0) {
+      lines.push(...this.renderMaxItemsValidation(propsWithMaxItems, indent));
+      lines.push('');
+    }
+
     // Generate constructor call with individual parameters
     // Each class overrides fromArray(), so `new self()` is correct for each class
     if (sortedProps.length === 0) {
@@ -1158,6 +1271,24 @@ export class DtoGenerator {
       };
     }
 
+    // Handle index signatures with string values: { [key: string]: string }
+    // These use asStringMap() for runtime validation that all values are strings
+    if (phpType.isIndexSignature && phpType.indexSignatureValueType === 'string') {
+      return {
+        expression: `self::asStringMap${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
+    // Handle index signatures with object values: { [key: string]: object }
+    // These use asObjectMap() for runtime validation that all values are objects
+    if (phpType.isIndexSignature && phpType.indexSignatureValueType === 'object') {
+      return {
+        expression: `self::asObjectMap${suffix}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
     // Check if it's an array of DTO objects
     if (phpType.isArray) {
       const itemType = phpType.arrayItemType ?? '';
@@ -1204,7 +1335,7 @@ export class DtoGenerator {
 
       // Array of primitives - use asArray() helper
       return {
-        expression: `self::asArray(${varExpr})`,
+        expression: `self::asArray${suffix}(${varExpr})`,
         needsVariable: false,
       };
     }
@@ -1230,6 +1361,15 @@ export class DtoGenerator {
     if (helperMethod) {
       return {
         expression: `self::${helperMethod}(${varExpr})`,
+        needsVariable: false,
+      };
+    }
+
+    // Handle string|number union type (ProgressToken pattern)
+    // This is an untyped PHP 7.4 field with phpDocType 'string|number'
+    if (phpType.isUntyped && phpType.phpDocType === 'string|number') {
+      return {
+        expression: `self::asStringOrNumber${suffix}(${varExpr})`,
         needsVariable: false,
       };
     }
@@ -1369,9 +1509,20 @@ export class DtoGenerator {
       }
     }
 
+    // Array types without a single arrayItemType can still be arrays of DTO unions, e.g.:
+    // array<Foo|Bar> where Foo and Bar are DTOs. At runtime, allow both DTO objects and already-serialized arrays.
+    if (phpType.isArray && !phpType.arrayItemType && phpType.phpDocType?.includes('\\WP\\McpSchema\\')) {
+      return `array_map(static fn($item) => (is_object($item) && method_exists($item, 'toArray')) ? $item->toArray() : $item, ${varExpr})`;
+    }
+
     // Check if it's a single DTO object (not a primitive)
     if (!phpType.isArray && !DtoGenerator.PRIMITIVE_TYPES.has(phpType.type)) {
       return `${varExpr}->toArray()`;
+    }
+
+    // Untyped (PHP 7.4) properties can represent DTO unions via PHPDoc. Serialize to arrays when runtime value is a DTO.
+    if (phpType.isUntyped && phpType.phpDocType?.includes('\\WP\\McpSchema\\')) {
+      return `(is_object(${varExpr}) && method_exists(${varExpr}, 'toArray')) ? ${varExpr}->toArray() : ${varExpr}`;
     }
 
     // Primitive type or array of primitives - return as-is

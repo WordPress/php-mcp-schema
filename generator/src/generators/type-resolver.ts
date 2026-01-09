@@ -257,7 +257,7 @@ export class TypeResolver {
     _contextTags?: readonly { tagName: string; text?: string }[]
   ): ResolvedType {
     const classification = this.classifier.classify(iface.name, iface.tags, iface.syntheticParent);
-    const namespace = `${this.baseNamespace}\\${classification.domain}\\${classification.subdomain}`;
+    const namespace = `${this.baseNamespace}\\${classification.domain}\\${classification.subdomain}\\DTO`;
 
     return {
       phpType: {
@@ -365,7 +365,7 @@ export class TypeResolver {
     const iface = this.interfaceMap.get(typeName);
     if (iface) {
       const classification = this.classifier.classify(typeName, iface.tags, iface.syntheticParent);
-      return `\\${this.baseNamespace}\\${classification.domain}\\${classification.subdomain}\\${typeName}`;
+      return `\\${this.baseNamespace}\\${classification.domain}\\${classification.subdomain}\\DTO\\${typeName}`;
     }
 
     // Check if it's a type alias that is a union (has generated interface)

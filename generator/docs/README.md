@@ -7,11 +7,15 @@ A TypeScript application that generates PHP 7.4 DTOs directly from the MCP TypeS
 The generator fetches the official MCP TypeScript schema from GitHub, parses it using ts-morph AST analysis, and produces production-quality PHP code including:
 
 - **DTOs** - Data Transfer Objects with `fromArray()`/`toArray()` methods
-- **Enums** - Class-based enums (PHP 7.4 compatible)
+- **Enums** - Class-based enums (PHP 7.4 compatible) from both string literal unions and TypeScript enums
+- **Constants** - Protocol constants class with error codes and version strings
 - **Union Interfaces** - Marker interfaces for polymorphic types
 - **Factories** - Discriminator-based instantiation for unions
+- **Type Alias Wrappers** - Concrete classes for type aliases referenced in unions
+- **Intersection Type Wrappers** - Concrete classes for intersection types (A & B)
 - **Builders** - Optional fluent builder pattern classes
 - **Contracts** - Marker interfaces for type hierarchies
+- **Skill Files** - Claude Code reference documentation and search tools
 
 ## Quick Start
 
@@ -78,20 +82,114 @@ The generator produces PHP files organized by MCP domain:
 ```
 src/
 ├── Common/
-│   ├── Protocol/          # Core protocol types
-│   ├── JsonRpc/           # JSON-RPC message types
-│   └── Content/           # Content block types
+│   ├── AbstractDataTransferObject.php
+│   ├── AbstractEnum.php
+│   ├── McpConstants.php       # Protocol constants & error codes
+│   ├── Traits/
+│   ├── Contracts/             # Marker interfaces
+│   ├── Protocol/              # Core protocol types
+│   ├── JsonRpc/               # JSON-RPC message types
+│   ├── Content/               # Content block types
+│   └── Tasks/                 # Shared task types
 ├── Server/
-│   ├── Tools/             # Tool definitions
-│   ├── Resources/         # Resource management
-│   ├── Prompts/           # Prompt templates
-│   └── Logging/           # Logging types
+│   ├── Tools/                 # Tool definitions
+│   ├── Resources/             # Resource management
+│   ├── Prompts/               # Prompt templates
+│   ├── Logging/               # Logging types
+│   ├── Lifecycle/             # Server lifecycle
+│   └── Core/                  # Server core types
 ├── Client/
-│   ├── Sampling/          # LLM sampling
-│   ├── Elicitation/       # User input elicitation
-│   ├── Roots/             # Root directory management
-│   └── Tasks/             # Background tasks
-└── Contracts/             # Shared interfaces
+│   ├── Sampling/              # LLM sampling
+│   ├── Elicitation/           # User input elicitation
+│   ├── Roots/                 # Root directory management
+│   ├── Tasks/                 # Background tasks
+│   └── Lifecycle/             # Client lifecycle
+└── Contracts/                 # Shared interfaces
+```
+
+Additionally, skill files are generated for Claude Code integration:
+
+```
+skill/
+├── SKILL.md                   # Entry point
+├── reference/                 # Markdown documentation
+│   ├── overview.md
+│   ├── common.md
+│   ├── server.md
+│   ├── client.md
+│   ├── rpc-methods.md
+│   └── factories.md
+├── data/                      # JSON data files
+│   ├── schema-index.json
+│   ├── schema-common.json
+│   ├── schema-server.json
+│   └── schema-client.json
+└── scripts/                   # Search utilities
+    ├── search-types.sh
+    ├── get-type.sh
+    └── find-rpc.sh
+```
+
+## Key Features
+
+### Version Tracking
+
+The generator tracks schema history and annotates generated code with `@since` tags:
+
+```php
+/**
+ * @since 2024-11-05
+ */
+class CallToolRequest extends Request
+{
+    /**
+     * @since 2025-03-26
+     */
+    protected ?array $arguments;
+}
+```
+
+### Type Alias Wrappers
+
+Type aliases like `type EmptyResult = Result` get wrapper classes when referenced in unions:
+
+```php
+class EmptyResult extends Result implements ServerResultInterface, ClientResultInterface
+{
+    // Inherits everything from Result
+}
+```
+
+### Intersection Type Wrappers
+
+Intersection types like `type GetTaskResult = Result & Task` become concrete classes:
+
+```php
+class GetTaskResult extends Result implements ClientResultInterface
+{
+    // Properties from Task are merged in
+    protected string $taskId;
+    protected string $status;
+    // ...
+}
+```
+
+### Protocol Constants
+
+Exported constants from the schema become a PHP constants class:
+
+```php
+class McpConstants
+{
+    public const LATEST_PROTOCOL_VERSION = '2025-11-25';
+    public const JSONRPC_VERSION = '2.0';
+    public const PARSE_ERROR = -32700;
+    public const INVALID_REQUEST = -32600;
+    // ...
+
+    public static function isValidErrorCode(int $code): bool { ... }
+    public static function getErrorCodeName(int $code): ?string { ... }
+}
 ```
 
 ## Documentation

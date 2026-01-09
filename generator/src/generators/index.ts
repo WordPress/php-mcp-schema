@@ -6,16 +6,34 @@
 
 export { DtoGenerator } from './dto.js';
 export { EnumGenerator } from './enum.js';
+export { NumericEnumGenerator } from './numeric-enum.js';
+export { ConstantsGenerator } from './constants.js';
 export { UnionGenerator } from './union.js';
 export { FactoryGenerator } from './factory.js';
 export { BuilderGenerator } from './builder.js';
 export { ContractGenerator } from './contract.js';
+export { TypeAliasWrapperGenerator } from './type-alias-wrapper.js';
+export type { TypeAliasWrapperInfo } from './type-alias-wrapper.js';
+export { IntersectionTypeWrapperGenerator } from './intersection-type-wrapper.js';
+export type { IntersectionTypeWrapperInfo } from './intersection-type-wrapper.js';
 export { TypeMapper, createConstantsMap } from './type-mapper.js';
+export { SchemaMapGenerator } from './schema-map.js';
+export type {
+  SchemaMap,
+  SchemaMapType,
+  SchemaMapFactory,
+  SchemaMapRpc,
+  SchemaMapDomain,
+  SchemaMapIndex,
+  SchemaMapProperty,
+} from './schema-map.js';
 export type { ConstantsMap } from './type-mapper.js';
 export { DomainClassifier } from './domain-classifier.js';
 export { TypeResolver } from './type-resolver.js';
 export type { ResolvedType } from './type-resolver.js';
 export type { ContractInfo, GeneratedContract } from './contract.js';
+export { SkillGenerator } from './skill-generator.js';
+export * from './skill-markdown.js';
 
 // Inheritance graph utilities
 export {

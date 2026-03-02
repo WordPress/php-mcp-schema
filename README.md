@@ -16,12 +16,11 @@ Requires PHP 7.4 or higher.
 
 ## Usage
 
-```php
-use WP\McpSchema\Server\Tools\Tool;
-use WP\McpSchema\Server\Tools\CallToolRequest;
-use WP\McpSchema\Common\Content\TextContent;
+### Creating a Tool Definition
 
-// Create a tool definition
+```php
+use WP\McpSchema\Server\Tools\DTO\Tool;
+
 $tool = Tool::fromArray([
     'name' => 'get_weather',
     'description' => 'Get current weather for a location',
@@ -33,6 +32,70 @@ $tool = Tool::fromArray([
         'required' => ['location'],
     ],
 ]);
+```
+
+### Serialization (toArray)
+
+Convert a DTO to a plain array for JSON encoding:
+
+```php
+use WP\McpSchema\Server\Tools\DTO\Tool;
+
+$tool = Tool::fromArray([
+    'name' => 'get_weather',
+    'description' => 'Get current weather for a location',
+    'inputSchema' => ['type' => 'object', 'properties' => []],
+]);
+
+$array = $tool->toArray();
+$json  = json_encode($array); // Ready to send over the wire
+```
+
+### Deserialization (fromArray)
+
+Decode incoming JSON into a fully typed DTO:
+
+```php
+use WP\McpSchema\Server\Tools\DTO\CallToolRequest;
+
+$json = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_weather","arguments":{"location":"Paris"}}}';
+$data = json_decode($json, true);
+
+$request   = CallToolRequest::fromArray($data);
+$tool_name = $request->getTypedParams()->getName(); // "get_weather"
+$arguments = $request->getTypedParams()->getArguments(); // ['location' => 'Paris']
+```
+
+### Factory / Union Types
+
+Use a factory to resolve polymorphic content blocks without knowing the concrete type up front:
+
+```php
+use WP\McpSchema\Common\Protocol\Factory\ContentBlockFactory;
+use WP\McpSchema\Common\Content\DTO\TextContent;
+
+$block = ContentBlockFactory::fromArray(['type' => 'text', 'text' => 'Hello, world!']);
+
+// $block implements ContentBlockInterface; cast when you need the concrete API
+if ($block instanceof TextContent) {
+    echo $block->getText(); // "Hello, world!"
+}
+```
+
+### JSON-RPC Messages
+
+Construct a generic JSON-RPC request for any MCP method:
+
+```php
+use WP\McpSchema\Common\JsonRpc\DTO\JSONRPCRequest;
+
+$request = JSONRPCRequest::fromArray([
+    'jsonrpc' => '2.0',
+    'id'      => 1,
+    'method'  => 'tools/list',
+]);
+
+$json = json_encode($request->toArray());
 ```
 
 ## Available Types

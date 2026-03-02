@@ -2,7 +2,7 @@
     "name": "wordpress/php-mcp-schema",
     "description": "PHP DTOs for the Model Context Protocol (MCP) specification",
     "type": "library",
-    "license": "MIT",
+    "license": "GPL-2.0-or-later",
     "keywords": [
         "mcp",
         "model-context-protocol",

@@ -64,7 +64,7 @@ See [generator/README.md](generator/README.md) for setup and usage instructions.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+GPL-2.0-or-later - see [LICENSE.md](LICENSE.md) for details.
 
 ## Links
 

@@ -5,6 +5,7 @@
 /.github                export-ignore
 /.idea                  export-ignore
 /generator              export-ignore
+/skill                  export-ignore
 
 # Files
 /.gitattributes         export-ignore

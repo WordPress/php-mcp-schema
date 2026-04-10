@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - Unreleased
+## [0.1.1] - 2026-04-10
+
+### Fixed
+
+- Exclude `skill/` directory from Composer dist archives. It contains dev-only helper scripts and reference docs that have no runtime purpose for package consumers and should not ship in the `vendor/` folder.
+- Exclude `CLAUDE.md` from Composer dist archives. It contains dev-only project instructions with no runtime purpose for package consumers.
+
+## [0.1.0] - 2026-03-02
 
 ### Added
 

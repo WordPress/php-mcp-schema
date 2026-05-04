@@ -446,7 +446,7 @@ export class DtoGenerator {
     // toArray method - for child classes, call parent::toArray() and merge own + narrowed properties
     // Both own and narrowed need to be serialized by the child class
     const propsToSerialize = [...(ownProperties ?? []), ...narrowedPhpProperties];
-    lines.push(...this.renderToArray(meta.properties, indent, propsToSerialize, isRootType));
+    lines.push(...this.renderToArray(meta.properties, indent, propsToSerialize, isRootType, interfaceName));
 
     // Getters (only for own properties)
     if (this.options.generateGetters && propertiesToDeclare.length > 0) {
@@ -1156,8 +1156,17 @@ export class DtoGenerator {
     properties: readonly PhpProperty[],
     indent: string,
     ownProperties: readonly PhpProperty[] = [],
-    isRootType: boolean = true
+    isRootType: boolean = true,
+    interfaceName?: string
   ): string[] {
+    /**
+     * Tool input/output JSON Schemas must always emit an object-typed
+     * `properties` key on the wire (e.g. `{}`), not omit it or emit `[]`.
+     * Strict JSON-Schema validators (OpenAI strict function-calling) reject
+     * tools whose root object schema is missing `properties`.
+     */
+    const forcePropertiesAsObject =
+      interfaceName === 'ToolInputSchema' || interfaceName === 'ToolOutputSchema';
     const lines: string[] = [];
 
     lines.push(`${indent}/**`);
@@ -1195,7 +1204,13 @@ export class DtoGenerator {
       // Determine serialization method based on type
       const serializationExpr = this.getSerializationExpression(prop.type, `$this->${phpName}`);
 
-      if (prop.type.nullable || !prop.isRequired) {
+      if (forcePropertiesAsObject && jsonKey === 'properties') {
+        lines.push(
+          `${indent}${indent}$result['${jsonKey}'] = !empty($this->${phpName})`
+        );
+        lines.push(`${indent}${indent}${indent}? ${serializationExpr}`);
+        lines.push(`${indent}${indent}${indent}: new \\stdClass();`);
+      } else if (prop.type.nullable || !prop.isRequired) {
         lines.push(`${indent}${indent}if ($this->${phpName} !== null) {`);
         lines.push(`${indent}${indent}${indent}$result['${jsonKey}'] = ${serializationExpr};`);
         lines.push(`${indent}${indent}}`);

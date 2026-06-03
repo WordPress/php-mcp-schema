@@ -185,6 +185,11 @@ export interface PhpProperty {
    * Used to generate validation in fromArray().
    */
   readonly maxItems?: number;
+  /**
+   * When true, empty values serialize as stdClass so json_encode() emits
+   * an object ({}) instead of an array ([]).
+   */
+  readonly serializeEmptyAsObject?: boolean;
 }
 
 /**

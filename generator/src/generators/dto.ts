@@ -119,15 +119,15 @@ export class DtoGenerator {
     const narrowedProperties = propClassification.narrowedProperties;
 
     // Resolve all property types and collect imports (for constructor/fromArray/toArray)
-    const allPhpProperties = allProperties.map((p) => this.resolveProperty(p, currentNamespace, imports));
+    const allPhpProperties = allProperties.map((p) => this.resolveProperty(p, currentNamespace, imports, iface.name));
 
     // Resolve own property types (for property declarations)
-    const ownPhpProperties = ownProperties.map((p) => this.resolveProperty(p, currentNamespace, imports));
+    const ownPhpProperties = ownProperties.map((p) => this.resolveProperty(p, currentNamespace, imports, iface.name));
 
     // Resolve narrowed property types (for property declarations and special handling)
     const narrowedPhpProperties = narrowedProperties.map((n) => ({
       narrowed: n,
-      phpProperty: this.resolveProperty(n.property, currentNamespace, imports),
+      phpProperty: this.resolveProperty(n.property, currentNamespace, imports, iface.name),
     }));
 
     const indent = this.getIndent();
@@ -154,7 +154,8 @@ export class DtoGenerator {
   private resolveProperty(
     p: { name: string; type: string; isOptional: boolean; description?: string },
     currentNamespace: string,
-    imports: Map<string, string>
+    imports: Map<string, string>,
+    interfaceName?: string
   ): PhpProperty {
     const resolved = this.typeResolver.resolve(p.type, p.name);
     let phpType = resolved.phpType;
@@ -234,7 +235,22 @@ export class DtoGenerator {
       isRequired: !p.isOptional,
       constValue,
       maxItems,
+      serializeEmptyAsObject: this.shouldSerializeEmptyAsObject(interfaceName, p.name),
     } as PhpProperty;
+  }
+
+  /**
+   * Tool input/output JSON Schemas must keep an object-typed properties key on
+   * the wire, even when no parameters are declared.
+   */
+  private shouldSerializeEmptyAsObject(
+    interfaceName: string | undefined,
+    propertyName: string
+  ): boolean {
+    return (
+      propertyName === 'properties' &&
+      (interfaceName === 'ToolInputSchema' || interfaceName === 'ToolOutputSchema')
+    );
   }
 
   /**
@@ -1195,7 +1211,13 @@ export class DtoGenerator {
       // Determine serialization method based on type
       const serializationExpr = this.getSerializationExpression(prop.type, `$this->${phpName}`);
 
-      if (prop.type.nullable || !prop.isRequired) {
+      if (prop.serializeEmptyAsObject) {
+        lines.push(
+          `${indent}${indent}$result['${jsonKey}'] = !empty($this->${phpName})`
+        );
+        lines.push(`${indent}${indent}${indent}? ${serializationExpr}`);
+        lines.push(`${indent}${indent}${indent}: new \\stdClass();`);
+      } else if (prop.type.nullable || !prop.isRequired) {
         lines.push(`${indent}${indent}if ($this->${phpName} !== null) {`);
         lines.push(`${indent}${indent}${indent}$result['${jsonKey}'] = ${serializationExpr};`);
         lines.push(`${indent}${indent}}`);

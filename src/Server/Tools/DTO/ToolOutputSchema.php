@@ -94,9 +94,9 @@ class ToolOutputSchema extends AbstractDataTransferObject
             $result['$schema'] = $this->schema;
         }
         $result['type'] = $this->type;
-        if ($this->properties !== null) {
-            $result['properties'] = $this->properties;
-        }
+        $result['properties'] = !empty($this->properties)
+            ? $this->properties
+            : new \stdClass();
         if ($this->required !== null) {
             $result['required'] = $this->required;
         }

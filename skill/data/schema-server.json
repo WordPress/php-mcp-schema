@@ -1117,7 +1117,8 @@
         "$schema": "string?",
         "type": "\"object\"",
         "properties": "{ [key: string]: object }?",
-        "required": "string[]?"
+        "required": "string[]?",
+        "additionalProperties": "{ [key: string]: unknown }?"
       },
       "usedBy": [
         "Tool"
@@ -1135,7 +1136,8 @@
         "$schema": "string?",
         "type": "\"object\"",
         "properties": "{ [key: string]: object }?",
-        "required": "string[]?"
+        "required": "string[]?",
+        "additionalProperties": "{ [key: string]: unknown }?"
       },
       "usedBy": [
         "Tool"

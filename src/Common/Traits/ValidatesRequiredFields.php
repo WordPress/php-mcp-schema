@@ -185,6 +185,22 @@ trait ValidatesRequiredFields
     }
 
     /**
+     * Returns the entries of $data whose keys the caller does not model.
+     *
+     * Used by types the MCP schema declares open (`[key: string]: unknown`),
+     * so that unrecognized fields survive a fromArray()/toArray() round trip
+     * instead of being silently discarded.
+     *
+     * @param array<string, mixed> $data
+     * @param array<int, string> $known
+     * @return array<string, mixed>
+     */
+    protected static function additionalFields(array $data, array $known): array
+    {
+        return array_diff_key($data, array_flip($known));
+    }
+
+    /**
      * Asserts a value is an object and returns it.
      *
      * Accepts both PHP arrays and objects, auto-converting arrays to objects.

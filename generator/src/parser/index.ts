@@ -7,6 +7,7 @@
 
 import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration, VariableDeclarationKind } from 'ts-morph';
 import type { AstOutput, TsInterface, TsTypeAlias, TsProperty, JsDocTag, TsEnum, TsEnumMember, TsConstant } from '../types/index.js';
+import { createOpenBagProperty } from '../types/index.js';
 
 /**
  * Parser options.
@@ -139,7 +140,7 @@ function extractEnums(sourceFile: SourceFile, options: ParserOptions): TsEnum[] 
  * instead of getType().getText() which returns resolved/imported types.
  */
 function extractProperties(iface: InterfaceDeclaration): TsProperty[] {
-  return iface.getProperties().map((prop) => {
+  const properties: TsProperty[] = iface.getProperties().map((prop) => {
     // Use getTypeNode() to get the source text, preserving type alias names
     const typeNode = prop.getTypeNode();
     const typeText = typeNode ? typeNode.getText() : prop.getType().getText();
@@ -152,6 +153,38 @@ function extractProperties(iface: InterfaceDeclaration): TsProperty[] {
       isReadonly: prop.isReadonly(),
     };
   });
+
+  const openBag = extractOpenBag(iface, properties.length);
+  if (openBag) {
+    properties.push(openBag);
+  }
+
+  return properties;
+}
+
+/**
+ * Builds the catch-all property for an interface declaring an index signature.
+ *
+ * `getProperties()` returns only PropertySignature members, so an index
+ * signature like `[key: string]: unknown` is invisible to it. Without this the
+ * schema's "extra keys are allowed here" is transcribed as a closed DTO and
+ * every unmodelled key is dropped on the way in.
+ *
+ * Interfaces that are nothing but an index signature (`{ [key: string]: T }`)
+ * are plain maps, not open objects — those are already modelled correctly as
+ * `array<string, T>` and must not grow a bag.
+ */
+function extractOpenBag(iface: InterfaceDeclaration, namedPropertyCount: number): TsProperty | null {
+  if (iface.getIndexSignatures().length === 0) {
+    return null;
+  }
+
+  const isPlainMap = namedPropertyCount === 0 && iface.getExtends().length === 0;
+  if (isPlainMap) {
+    return null;
+  }
+
+  return createOpenBagProperty();
 }
 
 /**

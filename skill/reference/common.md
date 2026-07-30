@@ -53,7 +53,7 @@
 | Request | Request for  operation | method: string, params?: { [key: stri... |
 | RequestIdInterface | A uniquely identifying ID for a request in JSON-RPC | - |
 | RequestParams | Common params for any request | _meta?: RequestParam... |
-| RequestParamsMeta | See [General fields: `_meta`](/specification/2025-11-25/b... | progressToken?: ProgressToken, additionalProperties?: { [key: stri... |
+| RequestParamsMeta | See [General fields: `_meta`](/specification/2025-11-25/b... | progressToken?: ProgressToken |
 
 ### Relationships
 
@@ -93,7 +93,7 @@
 | EmptyResult | A response that indicates success but carries no data | - |
 | GetTaskPayloadRequest | A request to retrieve the result of a completed task | method: "tasks/result", params: GetTaskPaylo... |
 | GetTaskPayloadRequestParams | Parameters for GetTaskPayloadRequest | taskId: string |
-| GetTaskPayloadResult | The response to a tasks/result request | additionalProperties?: { [key: stri... |
+| GetTaskPayloadResult | The response to a tasks/result request | - |
 | Icons | Base interface to add `icons` property | icons?: Icon[] |
 | InitializedNotification | This notification is sent from the client to the server a... | method: "notificatio..., params?: Notification... |
 | InitializeRequest | This request is sent from the client to the server when i... | method: "initialize", params: InitializeRe... |
@@ -106,7 +106,7 @@
 | ProgressNotification | An out-of-band notification used to inform the receiver o... | method: "notificatio..., params: ProgressNoti... |
 | ProgressNotificationParams | Parameters for a `notifications/progress` notification | progressToken: ProgressToken, progress: number, total?: number, +1 more |
 | ProgressTokenInterface | A progress token, used to associate progress notification... | - |
-| Result | Result from  operation | _meta?: { [key: stri..., additionalProperties?: { [key: stri... |
+| Result | Result from  operation | _meta?: { [key: stri... |
 | Role | The sender or recipient of messages and data in a convers... | USER: user, ASSISTANT: assistant |
 | SamplingMessageContentBlockInterface | Union type: TextContent \| ImageContent \| AudioContent \| T... | - |
 | ServerRequestInterface | Union type: PingRequest \| CreateMessageRequest \| ListRoot... | - |

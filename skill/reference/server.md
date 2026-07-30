@@ -138,9 +138,9 @@
 | Tool | Definition for a tool the client can call | description?: string, inputSchema: ToolInputSchema, execution?: ToolExecution, +3 more |
 | ToolAnnotations | Additional properties describing a Tool to clients | title?: string, readOnlyHint?: boolean, destructiveHint?: boolean, +2 more |
 | ToolExecution | Execution-related properties for a tool | taskSupport?: "forbidden" ... |
-| ToolInputSchema | A JSON Schema object defining the expected parameters for... | $schema?: string, type: "object", properties?: { [key: stri..., +2 more |
+| ToolInputSchema | A JSON Schema object defining the expected parameters for... | $schema?: string, type: "object", properties?: { [key: stri..., +1 more |
 | ToolListChangedNotification | An optional notification from the server to the client, i... | method: "notificatio..., params?: Notification... |
-| ToolOutputSchema | An optional JSON Schema object defining the structure of ... | $schema?: string, type: "object", properties?: { [key: stri..., +2 more |
+| ToolOutputSchema | An optional JSON Schema object defining the structure of ... | $schema?: string, type: "object", properties?: { [key: stri..., +1 more |
 
 ### Relationships
 

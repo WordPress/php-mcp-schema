@@ -623,10 +623,20 @@ export class SchemaMapGenerator {
     return types;
   }
 
+  /**
+   * Extracts the wire fields of an interface.
+   *
+   * The open bag is skipped: it is a PHP-side holder for keys the type does not
+   * model, never a field consumers can look for in the schema. Listing it would
+   * read as an `additionalProperties` key existing on the wire.
+   */
   private extractProperties(iface: TsInterface): Record<string, string> {
     const props: Record<string, string> = {};
 
     for (const prop of iface.properties) {
+      if (prop.isOpenBag) {
+        continue;
+      }
       props[prop.name] = this.simplifyType(prop.type) + (prop.isOptional ? '?' : '');
     }
 
@@ -771,7 +781,10 @@ export class SchemaMapGenerator {
       return undefined;
     }
 
+    // The open bag is shared by every open member but discriminates nothing,
+    // so it must not fall through to the commonFields[0] default below.
     const commonFields = first.properties
+      .filter((p) => !p.isOpenBag)
       .map((p) => p.name)
       .filter((name) =>
         memberInterfaces.every((m) => m.properties.some((p) => p.name === name))

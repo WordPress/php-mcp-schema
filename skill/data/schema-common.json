@@ -112,8 +112,7 @@
       "purpose": "Result from  operation",
       "implements": [],
       "properties": {
-        "_meta": "{ [key: string]: unknown }?",
-        "additionalProperties": "{ [key: string]: unknown }?"
+        "_meta": "{ [key: string]: unknown }?"
       },
       "usedBy": [
         "JSONRPCResultResponse",
@@ -785,9 +784,7 @@
         "ClientResultInterface",
         "ServerResultInterface"
       ],
-      "properties": {
-        "additionalProperties": "{ [key: string]: unknown }?"
-      },
+      "properties": {},
       "usedBy": [
         "ClientResultInterface",
         "ServerResultInterface"
@@ -1019,8 +1016,7 @@
       "purpose": "See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage",
       "implements": [],
       "properties": {
-        "progressToken": "ProgressToken?",
-        "additionalProperties": "{ [key: string]: unknown }?"
+        "progressToken": "ProgressToken?"
       },
       "usedBy": [
         "RequestParams"

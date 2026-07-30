@@ -99,7 +99,7 @@ class CallToolResult extends Result implements ServerResultInterface
         /** @var array<\WP\McpSchema\Common\Protocol\Union\ContentBlockInterface> $content */
         $content = array_map(
             static fn($item) => is_array($item)
-                ? ContentBlockFactory::fromArray($item)
+                ? ContentBlockFactory::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['content'])
         );

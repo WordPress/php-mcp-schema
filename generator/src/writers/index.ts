@@ -574,7 +574,18 @@ ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
 ${indent}${indent}/** @var array<int, string> */
-${indent}${indent}return array_values(array_map(static fn($item): string => (string) $item, $value));
+${indent}${indent}return array_values(array_map(static function ($item): string {
+${indent}${indent}${indent}if (is_scalar($item) || $item === null) {
+${indent}${indent}${indent}${indent}return (string) $item;
+${indent}${indent}${indent}}
+${indent}${indent}${indent}if (is_object($item) && method_exists($item, '__toString')) {
+${indent}${indent}${indent}${indent}return self::asString($item->__toString());
+${indent}${indent}${indent}}
+${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
+${indent}${indent}${indent}${indent}'Expected a value castable to string, got %s',
+${indent}${indent}${indent}${indent}gettype($item)
+${indent}${indent}${indent}));
+${indent}${indent}}, $value));
 ${indent}}
 
 ${indent}/**

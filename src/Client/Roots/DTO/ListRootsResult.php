@@ -60,7 +60,7 @@ class ListRootsResult extends Result implements ClientResultInterface
         /** @var array<\WP\McpSchema\Client\Roots\DTO\Root> $roots */
         $roots = array_map(
             static fn($item) => is_array($item)
-                ? Root::fromArray($item)
+                ? Root::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['roots'])
         );

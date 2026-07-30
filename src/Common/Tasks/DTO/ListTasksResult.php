@@ -62,7 +62,7 @@ class ListTasksResult extends PaginatedResult implements ClientResultInterface, 
         /** @var array<\WP\McpSchema\Client\Tasks\DTO\Task> $tasks */
         $tasks = array_map(
             static fn($item) => is_array($item)
-                ? Task::fromArray($item)
+                ? Task::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['tasks'])
         );

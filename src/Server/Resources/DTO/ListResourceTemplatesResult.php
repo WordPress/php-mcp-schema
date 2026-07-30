@@ -61,7 +61,7 @@ class ListResourceTemplatesResult extends PaginatedResult implements ServerResul
         /** @var array<\WP\McpSchema\Server\Resources\DTO\ResourceTemplate> $resourceTemplates */
         $resourceTemplates = array_map(
             static fn($item) => is_array($item)
-                ? ResourceTemplate::fromArray($item)
+                ? ResourceTemplate::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['resourceTemplates'])
         );

@@ -81,7 +81,7 @@ class SamplingMessage extends AbstractDataTransferObject
         /** @var array<\WP\McpSchema\Common\Protocol\Union\SamplingMessageContentBlockInterface|\WP\McpSchema\Common\Protocol\Union\SamplingMessageContentBlockInterface> $content */
         $content = array_map(
             static fn($item) => is_array($item)
-                ? SamplingMessageContentBlockFactory::fromArray($item)
+                ? SamplingMessageContentBlockFactory::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['content'])
         );

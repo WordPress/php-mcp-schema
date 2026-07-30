@@ -61,7 +61,7 @@ class ListResourcesResult extends PaginatedResult implements ServerResultInterfa
         /** @var array<\WP\McpSchema\Server\Resources\DTO\Resource> $resources */
         $resources = array_map(
             static fn($item) => is_array($item)
-                ? Resource::fromArray($item)
+                ? Resource::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['resources'])
         );

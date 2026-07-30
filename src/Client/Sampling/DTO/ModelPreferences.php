@@ -115,7 +115,7 @@ class ModelPreferences extends AbstractDataTransferObject
         $hints = isset($data['hints'])
             ? array_map(
                 static fn($item) => is_array($item)
-                    ? ModelHint::fromArray($item)
+                    ? ModelHint::fromArray(self::asArray($item))
                     : $item,
                 self::asArray($data['hints'])
             )

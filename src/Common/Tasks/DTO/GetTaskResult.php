@@ -33,6 +33,13 @@ use WP\McpSchema\Server\Lifecycle\Union\ServerResultInterface;
 class GetTaskResult extends Result implements ClientResultInterface, ServerResultInterface
 {
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
+     */
+    private const KNOWN_KEYS = ['_meta', 'taskId', 'status', 'statusMessage', 'createdAt', 'lastUpdatedAt', 'ttl', 'pollInterval'];
+
+    /**
      * The task identifier.
      *
      * @since 2025-11-25
@@ -106,9 +113,9 @@ class GetTaskResult extends Result implements ClientResultInterface, ServerResul
      * @param string $lastUpdatedAt @since 2025-11-25
      * @param int $ttl @since 2025-11-25
      * @param array<string, mixed>|null $_meta @since 2025-11-25
-     * @param array<string, mixed>|null $additionalProperties @since 2025-11-25
      * @param string|null $statusMessage @since 2025-11-25
      * @param int|null $pollInterval @since 2025-11-25
+     * @param array<string, mixed>|null $additionalProperties @since 2025-11-25
      */
     public function __construct(
         string $taskId,
@@ -117,9 +124,9 @@ class GetTaskResult extends Result implements ClientResultInterface, ServerResul
         string $lastUpdatedAt,
         int $ttl,
         ?array $_meta = null,
-        ?array $additionalProperties = null,
         ?string $statusMessage = null,
-        ?int $pollInterval = null
+        ?int $pollInterval = null,
+        ?array $additionalProperties = null
     ) {
         parent::__construct($_meta, $additionalProperties);
         $this->taskId = $taskId;
@@ -151,9 +158,9 @@ class GetTaskResult extends Result implements ClientResultInterface, ServerResul
             self::asString($data['lastUpdatedAt']),
             self::asInt($data['ttl']),
             self::asArrayOrNull($data['_meta'] ?? null),
-            self::asArrayOrNull($data['additionalProperties'] ?? null),
             self::asStringOrNull($data['statusMessage'] ?? null),
-            self::asIntOrNull($data['pollInterval'] ?? null)
+            self::asIntOrNull($data['pollInterval'] ?? null),
+            self::additionalFields($data, self::KNOWN_KEYS)
         );
     }
 

@@ -70,7 +70,7 @@ class ListPromptsResult extends PaginatedResult implements ServerResultInterface
         /** @var array<\WP\McpSchema\Server\Prompts\DTO\Prompt> $prompts */
         $prompts = array_map(
             static fn($item) => is_array($item)
-                ? Prompt::fromArray($item)
+                ? Prompt::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['prompts'])
         );

@@ -70,7 +70,7 @@ class ListToolsResult extends PaginatedResult implements ServerResultInterface
         /** @var array<\WP\McpSchema\Server\Tools\DTO\Tool> $tools */
         $tools = array_map(
             static fn($item) => is_array($item)
-                ? Tool::fromArray($item)
+                ? Tool::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['tools'])
         );

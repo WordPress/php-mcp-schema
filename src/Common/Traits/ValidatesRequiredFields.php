@@ -252,7 +252,18 @@ trait ValidatesRequiredFields
             ));
         }
         /** @var array<int, string> */
-        return array_values(array_map(static fn($item): string => (string) $item, $value));
+        return array_values(array_map(static function ($item): string {
+            if (is_scalar($item) || $item === null) {
+                return (string) $item;
+            }
+            if (is_object($item) && method_exists($item, '__toString')) {
+                return self::asString($item->__toString());
+            }
+            throw new \InvalidArgumentException(sprintf(
+                'Expected a value castable to string, got %s',
+                gettype($item)
+            ));
+        }, $value));
     }
 
     /**

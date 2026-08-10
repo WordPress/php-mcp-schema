@@ -80,7 +80,7 @@ class GetPromptResult extends Result implements ServerResultInterface
         /** @var array<\WP\McpSchema\Server\Prompts\DTO\PromptMessage> $messages */
         $messages = array_map(
             static fn($item) => is_array($item)
-                ? PromptMessage::fromArray($item)
+                ? PromptMessage::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['messages'])
         );

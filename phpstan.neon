@@ -1,5 +1,10 @@
 parameters:
     phpVersion: 70400
     level: max
+    # PHPDoc types on untyped PHP 7.4 properties describe the wire contract, not
+    # a guarantee about the runtime value. Serialization deliberately accepts an
+    # already-serialized array where the PHPDoc names a DTO union, so the checks
+    # guarding that are reachable even though the PHPDoc says otherwise.
+    treatPhpDocTypesAsCertain: false
     paths:
         - src

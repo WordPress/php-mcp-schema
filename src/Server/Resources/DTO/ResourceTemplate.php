@@ -147,7 +147,7 @@ class ResourceTemplate extends BaseMetadata
         $icons = isset($data['icons'])
             ? array_map(
                 static fn($item) => is_array($item)
-                    ? Icon::fromArray($item)
+                    ? Icon::fromArray(self::asArray($item))
                     : $item,
                 self::asArray($data['icons'])
             )

@@ -1133,7 +1133,7 @@ export class DtoGenerator {
               const dataExpr = deserExpr.varExpr ?? rawExpr;
               variableAssignments.push(`${indent}${indent}${varName} = array_map(`);
               variableAssignments.push(`${indent}${indent}${indent}static fn($item) => is_array($item)`);
-              variableAssignments.push(`${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray(self::asArray($item))`);
               variableAssignments.push(`${indent}${indent}${indent}${indent}: $item,`);
               variableAssignments.push(`${indent}${indent}${indent}self::asArray(${dataExpr})`);
               variableAssignments.push(`${indent}${indent});`);
@@ -1171,7 +1171,7 @@ export class DtoGenerator {
               const dataExpr = deserExpr.varExpr ?? rawExpr;
               variableAssignments.push(`${indent}${indent}${indent}? array_map(`);
               variableAssignments.push(`${indent}${indent}${indent}${indent}static fn($item) => is_array($item)`);
-              variableAssignments.push(`${indent}${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray($item)`);
+              variableAssignments.push(`${indent}${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray(self::asArray($item))`);
               variableAssignments.push(`${indent}${indent}${indent}${indent}${indent}: $item,`);
               variableAssignments.push(`${indent}${indent}${indent}${indent}self::asArray(${dataExpr})`);
               variableAssignments.push(`${indent}${indent}${indent})`);

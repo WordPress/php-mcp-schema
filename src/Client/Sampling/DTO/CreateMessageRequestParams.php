@@ -184,7 +184,7 @@ class CreateMessageRequestParams extends TaskAugmentedRequestParams
         /** @var array<\WP\McpSchema\Client\Sampling\DTO\SamplingMessage> $messages */
         $messages = array_map(
             static fn($item) => is_array($item)
-                ? SamplingMessage::fromArray($item)
+                ? SamplingMessage::fromArray(self::asArray($item))
                 : $item,
             self::asArray($data['messages'])
         );
@@ -219,7 +219,7 @@ class CreateMessageRequestParams extends TaskAugmentedRequestParams
         $tools = isset($data['tools'])
             ? array_map(
                 static fn($item) => is_array($item)
-                    ? Tool::fromArray($item)
+                    ? Tool::fromArray(self::asArray($item))
                     : $item,
                 self::asArray($data['tools'])
             )

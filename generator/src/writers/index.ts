@@ -533,11 +533,13 @@ ${indent} * instead of being silently discarded.
 ${indent} *
 ${indent} * @param array<string, mixed> $data
 ${indent} * @param array<int, string> $known
-${indent} * @return array<string, mixed>
+${indent} * @return array<string, mixed>|null
 ${indent} */
-${indent}protected static function additionalFields(array $data, array $known): array
+${indent}protected static function additionalFields(array $data, array $known): ?array
 ${indent}{
-${indent}${indent}return array_diff_key($data, array_flip($known));
+${indent}${indent}$additional = array_diff_key($data, array_flip($known));
+
+${indent}${indent}return $additional === [] ? null : $additional;
 ${indent}}
 
 ${indent}/**

@@ -193,11 +193,13 @@ trait ValidatesRequiredFields
      *
      * @param array<string, mixed> $data
      * @param array<int, string> $known
-     * @return array<string, mixed>
+     * @return array<string, mixed>|null
      */
-    protected static function additionalFields(array $data, array $known): array
+    protected static function additionalFields(array $data, array $known): ?array
     {
-        return array_diff_key($data, array_flip($known));
+        $additional = array_diff_key($data, array_flip($known));
+
+        return $additional === [] ? null : $additional;
     }
 
     /**

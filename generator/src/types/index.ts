@@ -19,9 +19,6 @@ export interface JsDocTag {
 }
 
 /**
- * Represents a property extracted from a TypeScript interface.
- */
-/**
  * Property name used for the catch-all bag on open types.
  *
  * Borrowed from JSON Schema's own vocabulary for "keys beyond those named".
@@ -48,6 +45,9 @@ export function createOpenBagProperty(): TsProperty {
   };
 }
 
+/**
+ * Represents a property extracted from a TypeScript interface.
+ */
 export interface TsProperty {
   readonly name: string;
   readonly type: string;

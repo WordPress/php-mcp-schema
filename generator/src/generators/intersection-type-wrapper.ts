@@ -50,6 +50,7 @@
  */
 
 import type { TsTypeAlias, TsInterface, TsProperty, GeneratorConfig, DomainClassification, UnionMembershipInfo } from '../types/index.js';
+import { OPEN_BAG_PROPERTY } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
 import { TypeMapper } from './type-mapper.js';
 import { formatPhpDocDescription } from './index.js';
@@ -398,9 +399,32 @@ export class IntersectionTypeWrapperGenerator {
     lines.push(`class ${info.typeName} extends ${info.baseType} implements ${implementsList}`);
     lines.push('{');
 
+    // The catch-all bag is inherited, so it is sourced from the base type: the
+    // class that declares the property is the one that merges it back on
+    // serialization. A bag on a merged type alone would have nowhere to live,
+    // as PHP gives us only one parent to delegate to.
+    const openBag = info.baseProperties.find((p) => p.isOpenBag);
+    const ownProperties = info.ownProperties.filter((p) => !p.isOpenBag);
+
+    // Key list backing the open bag. Recomputed here rather than inherited
+    // because this class models the merged types' keys too, and must subtract
+    // all of them before collecting the remainder.
+    if (openBag) {
+      const knownKeys = info.allProperties
+        .filter((p) => !p.isOpenBag)
+        .map((p) => this.getPropertyNames(p.name).jsonKey);
+      lines.push(`${indent}/**`);
+      lines.push(`${indent} * Wire keys this class models. Anything else is kept in $${OPEN_BAG_PROPERTY}.`);
+      lines.push(`${indent} *`);
+      lines.push(`${indent} * @var array<int, string>`);
+      lines.push(`${indent} */`);
+      lines.push(`${indent}private const KNOWN_KEYS = [${knownKeys.map((k) => `'${k}'`).join(', ')}];`);
+      lines.push('');
+    }
+
     // Properties from merged types
-    if (info.ownProperties.length > 0) {
-      for (const prop of info.ownProperties) {
+    if (ownProperties.length > 0) {
+      for (const prop of ownProperties) {
         const { phpName } = this.getPropertyNames(prop.name);
         const phpType = TypeMapper.mapType(prop.type, prop.name);
         const nullable = prop.isOptional || phpType.nullable;
@@ -426,15 +450,18 @@ export class IntersectionTypeWrapperGenerator {
     // Constructor
     lines.push(`${indent}/**`);
     // Document all properties in order: base required, merged required, base optional, merged optional
-    const allRequired = info.allProperties.filter((p) => !p.isOptional);
-    const allOptional = info.allProperties.filter((p) => p.isOptional);
+    // The open bag is excluded here and appended last, so that adding it to a
+    // type does not shift the position of any existing parameter.
+    const allRequired = info.allProperties.filter((p) => !p.isOptional && !p.isOpenBag);
+    const allOptional = info.allProperties.filter((p) => p.isOptional && !p.isOpenBag);
+    const bagParams = openBag ? [openBag] : [];
 
     for (const prop of allRequired) {
       const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type} $${phpName} @since ${this.config.schema.version}`);
     }
-    for (const prop of allOptional) {
+    for (const prop of [...allOptional, ...bagParams]) {
       const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       lines.push(`${indent} * @param ${phpType.phpDocType || phpType.type}|null $${phpName} @since ${this.config.schema.version}`);
@@ -449,7 +476,7 @@ export class IntersectionTypeWrapperGenerator {
       const typeHint = phpType.isUntyped ? '' : `${phpType.type} `;
       constructorParams.push(`${typeHint}$${phpName}`);
     }
-    for (const prop of allOptional) {
+    for (const prop of [...allOptional, ...bagParams]) {
       const { phpName } = this.getPropertyNames(prop.name);
       const phpType = TypeMapper.mapType(prop.type, prop.name);
       const typeHint = phpType.isUntyped ? '' : `?${phpType.type} `;
@@ -464,9 +491,10 @@ export class IntersectionTypeWrapperGenerator {
     lines.push(`${indent}) {`);
 
     // Call parent constructor with base properties
-    const baseRequired = info.baseProperties.filter((p) => !p.isOptional);
-    const baseOptional = info.baseProperties.filter((p) => p.isOptional);
-    const parentArgs = [...baseRequired, ...baseOptional].map((p) => {
+    // Mirrors the parent's own parameter order, where the bag also sorts last.
+    const baseRequired = info.baseProperties.filter((p) => !p.isOptional && !p.isOpenBag);
+    const baseOptional = info.baseProperties.filter((p) => p.isOptional && !p.isOpenBag);
+    const parentArgs = [...baseRequired, ...baseOptional, ...bagParams].map((p) => {
       const { phpName } = this.getPropertyNames(p.name);
       return `$${phpName}`;
     }).join(', ');
@@ -477,7 +505,7 @@ export class IntersectionTypeWrapperGenerator {
     }
 
     // Assign own properties
-    for (const prop of info.ownProperties) {
+    for (const prop of ownProperties) {
       const { phpName } = this.getPropertyNames(prop.name);
       lines.push(`${indent}${indent}$this->${phpName} = $${phpName};`);
     }
@@ -536,6 +564,12 @@ export class IntersectionTypeWrapperGenerator {
       }
     }
 
+    // The bag is not read from a key of its own: it is whatever $data holds
+    // beyond the keys this class models.
+    if (openBag) {
+      fromArrayArgs.push(`self::additionalFields($data, self::KNOWN_KEYS)`);
+    }
+
     // Add variable extractions if any
     if (varsWithAnnotations.length > 0) {
       lines.push(...varsWithAnnotations);
@@ -563,7 +597,7 @@ export class IntersectionTypeWrapperGenerator {
     lines.push('');
 
     // Add own properties to result
-    for (const prop of info.ownProperties) {
+    for (const prop of ownProperties) {
       const { phpName, jsonKey } = this.getPropertyNames(prop.name);
       if (prop.isOptional) {
         lines.push(`${indent}${indent}if ($this->${phpName} !== null) {`);
@@ -578,7 +612,7 @@ export class IntersectionTypeWrapperGenerator {
     lines.push(`${indent}}`);
 
     // Getters for own properties
-    for (const prop of info.ownProperties) {
+    for (const prop of ownProperties) {
       const { phpName } = this.getPropertyNames(prop.name);
       lines.push('');
       const phpType = TypeMapper.mapType(prop.type, prop.name);

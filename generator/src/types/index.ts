@@ -19,6 +19,33 @@ export interface JsDocTag {
 }
 
 /**
+ * Property name used for the catch-all bag on open types.
+ *
+ * Borrowed from JSON Schema's own vocabulary for "keys beyond those named".
+ * The bag never appears on the wire under this name — it merges into the
+ * serialized output — so it cannot collide with a real schema key.
+ */
+export const OPEN_BAG_PROPERTY = 'additionalProperties';
+
+/**
+ * Builds the catch-all property for an open type.
+ *
+ * Shared by both places an index signature can be lost: real interface
+ * declarations (parser) and inline object literals (synthetic extractor).
+ */
+export function createOpenBagProperty(): TsProperty {
+  return {
+    name: OPEN_BAG_PROPERTY,
+    type: '{ [key: string]: unknown }',
+    isOptional: true,
+    isOpenBag: true,
+    description:
+      'Keys carried on the wire that this type does not model. ' +
+      'Preserved verbatim so unrecognized fields survive a round trip.',
+  };
+}
+
+/**
  * Represents a property extracted from a TypeScript interface.
  */
 export interface TsProperty {
@@ -29,6 +56,12 @@ export interface TsProperty {
   readonly isReadonly?: boolean;
   /** Original inline type before synthetic extraction */
   readonly originalInlineType?: string;
+  /**
+   * When true, this property is not a real schema field but the catch-all bag
+   * for an open type, i.e. one declaring `[key: string]: unknown`. It collects
+   * every key the class does not model and re-emits them on serialization.
+   */
+  readonly isOpenBag?: boolean;
 }
 
 /**
@@ -190,6 +223,13 @@ export interface PhpProperty {
    * an object ({}) instead of an array ([]).
    */
   readonly serializeEmptyAsObject?: boolean;
+  /**
+   * When true, this property holds unrecognized keys for an open type rather
+   * than a field of its own. It is always the last constructor parameter, is
+   * absent from the wire-format array shape, and merges into toArray() output
+   * instead of being assigned to a key.
+   */
+  readonly isOpenBag?: boolean;
 }
 
 /**

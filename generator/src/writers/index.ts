@@ -525,6 +525,24 @@ ${indent}${indent}return $value === null ? null : self::asArray($value);
 ${indent}}
 
 ${indent}/**
+${indent} * Returns the entries of $data whose keys the caller does not model.
+${indent} *
+${indent} * Used by types the MCP schema declares open (\`[key: string]: unknown\`),
+${indent} * so that unrecognized fields survive a fromArray()/toArray() round trip
+${indent} * instead of being silently discarded.
+${indent} *
+${indent} * @param array<string, mixed> $data
+${indent} * @param array<int, string> $known
+${indent} * @return array<string, mixed>|null
+${indent} */
+${indent}protected static function additionalFields(array $data, array $known): ?array
+${indent}{
+${indent}${indent}$additional = array_diff_key($data, array_flip($known));
+
+${indent}${indent}return $additional === [] ? null : $additional;
+${indent}}
+
+${indent}/**
 ${indent} * Asserts a value is an object and returns it.
 ${indent} *
 ${indent} * Accepts both PHP arrays and objects, auto-converting arrays to objects.

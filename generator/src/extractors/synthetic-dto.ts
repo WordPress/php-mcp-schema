@@ -6,6 +6,7 @@
  */
 
 import type { TsInterface, TsProperty } from '../types/index.js';
+import { createOpenBagProperty } from '../types/index.js';
 
 /**
  * Extracted inline object type.
@@ -26,6 +27,26 @@ export interface SyntheticExtractionResult {
   readonly interfaces: TsInterface[];
   readonly propertyTypeMap: Map<string, string>; // "Parent.property" -> "SyntheticTypeName"
 }
+
+/**
+ * Types the schema treats as open without saying so in TypeScript.
+ *
+ * `schema.json` for 2025-11-25 describes `inputSchema` and `outputSchema`
+ * without `additionalProperties: false`, so extra JSON Schema keywords are
+ * valid on the wire today. `schema.ts` types them as plain inline objects,
+ * which is lossy: TypeScript does not reject extra properties at runtime, so
+ * nothing breaks upstream and the omission went unnoticed. Transcribed
+ * literally it becomes a closed PHP constructor that deletes them.
+ *
+ * The MCP draft closes the gap — both fields gain `[key: string]: unknown` and
+ * the doc comment names `$ref`, `$defs` and `$anchor` explicitly. Once the
+ * generator targets a revision carrying those index signatures, the normal
+ * detection path covers these two and this list can be deleted.
+ */
+const UNDECLARED_OPEN_TYPES: ReadonlySet<string> = new Set([
+  'ToolInputSchema',
+  'ToolOutputSchema',
+]);
 
 /**
  * Extracts synthetic DTOs from inline object types in interfaces.
@@ -97,6 +118,13 @@ export class SyntheticDtoExtractor {
 
     // Parse inline object properties
     const inlineProperties = this.parseInlineObjectProperties(type);
+
+    // Types the schema permits extra keys on without declaring an index
+    // signature still need a bag; detection alone would miss them.
+    const alreadyOpen = inlineProperties.some((p) => p.isOpenBag);
+    if (!alreadyOpen && UNDECLARED_OPEN_TYPES.has(syntheticName)) {
+      inlineProperties.push(createOpenBagProperty());
+    }
 
     // Create synthetic interface
     const syntheticInterface: TsInterface = {
@@ -215,14 +243,41 @@ export class SyntheticDtoExtractor {
     // Split by semicolons while respecting nested braces
     const propStrings = this.splitPropertyStrings(content);
 
+    let hasIndexSignature = false;
+
     for (const propStr of propStrings) {
+      // An index signature member means the schema allows keys beyond those
+      // named here. parsePropertyString() cannot match it, so without this it
+      // is dropped and the inline type is transcribed as closed.
+      if (this.isIndexSignatureMember(propStr.trim())) {
+        hasIndexSignature = true;
+        continue;
+      }
+
       const prop = this.parsePropertyString(propStr.trim());
       if (prop) {
         properties.push(prop);
       }
     }
 
+    // A member-less index signature is a plain map and is handled upstream by
+    // isIndexSignature(); reaching here with no named properties means the type
+    // is empty, and an empty object needs no bag.
+    if (hasIndexSignature && properties.length > 0) {
+      properties.push(createOpenBagProperty());
+    }
+
     return properties;
+  }
+
+  /**
+   * Checks whether a member of an inline object type is an index signature,
+   * e.g. `[key: string]: unknown`. Any leading JSDoc is stripped first.
+   */
+  private isIndexSignatureMember(propStr: string): boolean {
+    const withoutJsDoc = propStr.replace(/^\/\*\*[\s\S]*?\*\/\s*/, '');
+
+    return /^\[\s*\w+\s*:\s*(?:string|number)\s*\]\s*:/.test(withoutJsDoc);
   }
 
   /**

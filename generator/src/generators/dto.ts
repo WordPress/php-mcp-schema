@@ -5,6 +5,7 @@
  */
 
 import type { TsInterface, TsTypeAlias, PhpProperty, PhpClassMeta, GeneratorConfig, DomainClassification, UnionMembershipMap, PhpType, VersionTracker } from '../types/index.js';
+import { OPEN_BAG_PROPERTY } from '../types/index.js';
 import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { DomainClassifier } from './domain-classifier.js';
 import { TypeResolver } from './type-resolver.js';
@@ -152,7 +153,7 @@ export class DtoGenerator {
    * Resolves a TypeScript property to a PHP property.
    */
   private resolveProperty(
-    p: { name: string; type: string; isOptional: boolean; description?: string },
+    p: { name: string; type: string; isOptional: boolean; description?: string; isOpenBag?: boolean },
     currentNamespace: string,
     imports: Map<string, string>,
     interfaceName?: string
@@ -236,7 +237,37 @@ export class DtoGenerator {
       constValue,
       maxItems,
       serializeEmptyAsObject: this.shouldSerializeEmptyAsObject(interfaceName, p.name),
+      isOpenBag: p.isOpenBag,
     } as PhpProperty;
+  }
+
+  /**
+   * Orders constructor parameters: required, then optional, then the open bag.
+   *
+   * The bag must sort last unconditionally. Inherited properties otherwise land
+   * mid-signature (see CallToolResult, where `_meta` sits between `content` and
+   * `structuredContent`), so letting the bag take its natural position would
+   * shift every parameter after it and break positional callers.
+   */
+  private static sortConstructorParams(properties: readonly PhpProperty[]): PhpProperty[] {
+    const required = properties.filter((p) => p.isRequired && !p.isOpenBag);
+    const optional = properties.filter((p) => !p.isRequired && !p.isOpenBag);
+    const bag = properties.filter((p) => p.isOpenBag);
+
+    return [...required, ...optional, ...bag];
+  }
+
+  /**
+   * Wire keys a class models explicitly, in JSON form.
+   *
+   * Everything else found in the input array belongs to the open bag. Const
+   * properties are included: `type: 'object'` is a modelled key even though it
+   * never becomes a constructor parameter.
+   */
+  private knownWireKeys(properties: readonly PhpProperty[]): string[] {
+    return properties
+      .filter((p) => !p.isOpenBag)
+      .map((p) => this.getPropertyNames(p.name).jsonKey);
   }
 
   /**
@@ -442,6 +473,20 @@ export class DtoGenerator {
       lines.push('');
     }
 
+    // Key list backing the open bag. Emitted on every class carrying a bag —
+    // including subclasses that only inherit it — because each models a
+    // different set of keys and must subtract its own before collecting.
+    if (meta.properties.some((p) => p.isOpenBag)) {
+      const knownKeys = this.knownWireKeys(meta.properties);
+      lines.push(`${indent}/**`);
+      lines.push(`${indent} * Wire keys this class models. Anything else is kept in $${OPEN_BAG_PROPERTY}.`);
+      lines.push(`${indent} *`);
+      lines.push(`${indent} * @var array<int, string>`);
+      lines.push(`${indent} */`);
+      lines.push(`${indent}private const KNOWN_KEYS = [${knownKeys.map((k) => `'${k}'`).join(', ')}];`);
+      lines.push('');
+    }
+
     // Properties (only own properties, not inherited)
     if (propertiesToDeclare.length > 0) {
       lines.push(...this.renderProperties(propertiesToDeclare, indent, interfaceName));
@@ -575,7 +620,10 @@ export class DtoGenerator {
    * since fromArray() accepts either raw arrays (from JSON) or pre-instantiated objects.
    */
   private generateArrayShape(properties: readonly PhpProperty[]): string[] {
-    return properties.map((prop) => {
+    // The open bag is a PHP-side container, not a wire key — documenting it in
+    // the shape would advertise an `additionalProperties` field that no MCP
+    // message actually carries.
+    return properties.filter((p) => !p.isOpenBag).map((prop) => {
       const { jsonKey } = this.getPropertyNames(prop.name);
       let phpDocType = TypeMapper.getPhpDocType(prop.type);
 
@@ -852,10 +900,8 @@ export class DtoGenerator {
     const constProps = properties.filter((p) => p.constValue !== undefined);
     const nonConstProps = properties.filter((p) => p.constValue === undefined);
 
-    // Sort: required parameters first, optional parameters after
-    const requiredProps = nonConstProps.filter((p) => p.isRequired);
-    const optionalProps = nonConstProps.filter((p) => !p.isRequired);
-    const sortedProps = [...requiredProps, ...optionalProps];
+    // Sort: required parameters first, optional after, open bag always last
+    const sortedProps = DtoGenerator.sortConstructorParams(nonConstProps);
 
     // Identify own vs inherited properties (using property names for comparison)
     const ownPropertyNames = new Set(ownProperties.map((p) => p.name));
@@ -874,9 +920,12 @@ export class DtoGenerator {
         const constValue = this.extractConstValue(p.type);
         return constValue === undefined;
       });
-      const parentRequiredProps = parentNonConstProps.filter((p) => !p.isOptional);
-      const parentOptionalProps = parentNonConstProps.filter((p) => p.isOptional);
-      const parentSortedProps = [...parentRequiredProps, ...parentOptionalProps];
+      // Must mirror sortConstructorParams() exactly, including the open bag
+      // sorting last, or the arguments land in the wrong parent parameters.
+      const parentRequiredProps = parentNonConstProps.filter((p) => !p.isOptional && !p.isOpenBag);
+      const parentOptionalProps = parentNonConstProps.filter((p) => p.isOptional && !p.isOpenBag);
+      const parentBagProps = parentNonConstProps.filter((p) => p.isOpenBag);
+      const parentSortedProps = [...parentRequiredProps, ...parentOptionalProps, ...parentBagProps];
 
       // Build a set of const property names from the CHILD's properties
       // These are properties the child overrides with const values
@@ -993,10 +1042,9 @@ export class DtoGenerator {
     // Separate properties: const properties don't need constructor params
     const nonConstProps = properties.filter((p) => p.constValue === undefined);
 
-    // Sort: required parameters first, optional parameters after (same order as constructor)
-    const requiredProps = nonConstProps.filter((p) => p.isRequired);
-    const optionalProps = nonConstProps.filter((p) => !p.isRequired);
-    const sortedProps = [...requiredProps, ...optionalProps];
+    // Sort: same order as the constructor, open bag last
+    const requiredProps = nonConstProps.filter((p) => p.isRequired && !p.isOpenBag);
+    const sortedProps = DtoGenerator.sortConstructorParams(nonConstProps);
 
     // Generate multi-line array shape for @param (provides IDE autocomplete)
     // Note: @phpstan-param allows loose array type for internal nested hydration,
@@ -1046,6 +1094,13 @@ export class DtoGenerator {
       for (let i = 0; i < sortedProps.length; i++) {
         const prop = sortedProps[i]!;
         const { phpName, jsonKey } = this.getPropertyNames(prop.name);
+
+        // The open bag is not read from a key of its own — it is everything the
+        // class did not claim, which is only knowable against the full key list.
+        if (prop.isOpenBag) {
+          constructorArgs.push(`self::additionalFields($data, self::KNOWN_KEYS)`);
+          continue;
+        }
 
         // Get deserialization expression for nested DTO types
         const rawExpr = `$data['${jsonKey}']`;
@@ -1195,7 +1250,14 @@ export class DtoGenerator {
 
     // For root types, serialize ALL properties
     // For child types, only serialize OWN properties (parent handles inherited ones)
-    const propsToSerialize = isRootType ? properties : ownProperties;
+    const allPropsToSerialize = isRootType ? properties : ownProperties;
+
+    // The open bag merges into the result instead of occupying a key, so it is
+    // handled at the return statement rather than in the assignment loop. Only
+    // the class that declares it emits the merge; subclasses inherit the bag as
+    // a property and reach it through parent::toArray().
+    const openBag = allPropsToSerialize.find((p) => p.isOpenBag);
+    const propsToSerialize = allPropsToSerialize.filter((p) => !p.isOpenBag);
 
     for (const prop of propsToSerialize) {
       // For narrowed properties, use originalName for JSON key but renamed name for PHP property
@@ -1230,7 +1292,14 @@ export class DtoGenerator {
     if (propsToSerialize.length > 0) {
       lines.push('');
     }
-    lines.push(`${indent}${indent}return $result;`);
+    if (openBag) {
+      const { phpName } = this.getPropertyNames(openBag.name);
+      // Union, not array_merge: the left operand wins on collision, so a stale
+      // preserved key can never shadow a field this class models.
+      lines.push(`${indent}${indent}return $result + ($this->${phpName} ?? []);`);
+    } else {
+      lines.push(`${indent}${indent}return $result;`);
+    }
     lines.push(`${indent}}`);
 
     return lines;

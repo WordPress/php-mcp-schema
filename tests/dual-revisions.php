@@ -24,10 +24,25 @@ function fixture(string $relativePath): array
     return $decoded;
 }
 
+/** @param mixed $value @return mixed */
+function normalize_wire_value($value)
+{
+    if (!is_array($value)) {
+        return $value;
+    }
+
+    $isList = [] === $value || array_keys($value) === range(0, count($value) - 1);
+    if (!$isList) {
+        ksort($value);
+    }
+
+    return array_map('normalize_wire_value', $value);
+}
+
 /** @param mixed $expected @param mixed $actual */
 function assert_wire_equals($expected, $actual, string $message): void
 {
-    if ($expected != $actual) {
+    if (normalize_wire_value($expected) !== normalize_wire_value($actual)) {
         throw new RuntimeException(
             $message . "\nExpected: " . var_export($expected, true) .
             "\nActual: " . var_export($actual, true)

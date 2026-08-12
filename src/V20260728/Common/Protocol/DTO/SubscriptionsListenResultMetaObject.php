@@ -22,6 +22,13 @@ class SubscriptionsListenResultMetaObject extends ResultMetaObject
     use ValidatesRequiredFields;
 
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
+     */
+    private const KNOWN_KEYS = ['io.modelcontextprotocol/serverInfo', 'io.modelcontextprotocol/subscriptionId'];
+
+    /**
      * Identifies the subscription stream this response closes, so the client can
      * correlate it with the originating subscription — mirroring the same key on
      * the stream's notifications. The value is the JSON-RPC ID of the
@@ -37,12 +44,14 @@ class SubscriptionsListenResultMetaObject extends ResultMetaObject
     /**
      * @param string|number $subscriptionId @since 2026-07-28
      * @param \WP\McpSchema\V20260728\Common\Lifecycle\DTO\Implementation|null $serverInfo @since 2026-07-28
+     * @param array<string, mixed>|null $additionalProperties
      */
     public function __construct(
         $subscriptionId,
-        ?Implementation $serverInfo = null
+        ?Implementation $serverInfo = null,
+        ?array $additionalProperties = null
     ) {
-        parent::__construct($serverInfo);
+        parent::__construct($serverInfo, $additionalProperties);
         $this->subscriptionId = $subscriptionId;
     }
 
@@ -72,7 +81,8 @@ class SubscriptionsListenResultMetaObject extends ResultMetaObject
 
         return new self(
             $subscriptionId,
-            $serverInfo
+            $serverInfo,
+            self::additionalFields($data, self::KNOWN_KEYS)
         );
     }
 

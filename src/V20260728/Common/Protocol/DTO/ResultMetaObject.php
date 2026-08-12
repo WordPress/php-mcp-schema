@@ -22,6 +22,13 @@ class ResultMetaObject extends AbstractDataTransferObject
     use ValidatesRequiredFields;
 
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
+     */
+    private const KNOWN_KEYS = ['io.modelcontextprotocol/serverInfo'];
+
+    /**
      * Identifies the server software producing the response. Servers SHOULD
      * include this field on every response unless specifically configured not
      * to do so.
@@ -41,12 +48,22 @@ class ResultMetaObject extends AbstractDataTransferObject
     protected ?Implementation $serverInfo;
 
     /**
+     * Keys carried on the wire that this type does not model. Preserved verbatim so unrecognized fields survive a round trip.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $additionalProperties;
+
+    /**
      * @param \WP\McpSchema\V20260728\Common\Lifecycle\DTO\Implementation|null $serverInfo @since 2026-07-28
+     * @param array<string, mixed>|null $additionalProperties
      */
     public function __construct(
-        ?Implementation $serverInfo = null
+        ?Implementation $serverInfo = null,
+        ?array $additionalProperties = null
     ) {
         $this->serverInfo = $serverInfo;
+        $this->additionalProperties = $additionalProperties;
     }
 
     /**
@@ -68,7 +85,8 @@ class ResultMetaObject extends AbstractDataTransferObject
             : null;
 
         return new self(
-            $serverInfo
+            $serverInfo,
+            self::additionalFields($data, self::KNOWN_KEYS)
         );
     }
 
@@ -85,7 +103,7 @@ class ResultMetaObject extends AbstractDataTransferObject
             $result['io.modelcontextprotocol/serverInfo'] = $this->serverInfo->toArray();
         }
 
-        return $result;
+        return $result + ($this->additionalProperties ?? []);
     }
 
     /**
@@ -94,5 +112,13 @@ class ResultMetaObject extends AbstractDataTransferObject
     public function getServerInfo(): ?Implementation
     {
         return $this->serverInfo;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getAdditionalProperties(): ?array
+    {
+        return $this->additionalProperties;
     }
 }

@@ -23,6 +23,13 @@ class RequestMetaObject extends AbstractDataTransferObject
     use ValidatesRequiredFields;
 
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
+     */
+    private const KNOWN_KEYS = ['progressToken', 'io.modelcontextprotocol/protocolVersion', 'io.modelcontextprotocol/clientInfo', 'io.modelcontextprotocol/clientCapabilities', 'io.modelcontextprotocol/logLevel'];
+
+    /**
      * If specified, the caller is requesting out-of-band progress notifications for this request (as represented by {@link ProgressNotification | notifications/progress}). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
      *
      * @since 2026-07-28
@@ -93,24 +100,34 @@ class RequestMetaObject extends AbstractDataTransferObject
     protected ?string $logLevel;
 
     /**
+     * Keys carried on the wire that this type does not model. Preserved verbatim so unrecognized fields survive a round trip.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $additionalProperties;
+
+    /**
      * @param string $protocolVersion @since 2026-07-28
      * @param \WP\McpSchema\V20260728\Client\Lifecycle\DTO\ClientCapabilities $clientCapabilities @since 2026-07-28
      * @param string|number|null $progressToken @since 2026-07-28
      * @param \WP\McpSchema\V20260728\Common\Lifecycle\DTO\Implementation|null $clientInfo @since 2026-07-28
      * @param 'debug'|'info'|'notice'|'warning'|'error'|'critical'|'alert'|'emergency'|null $logLevel @since 2026-07-28
+     * @param array<string, mixed>|null $additionalProperties
      */
     public function __construct(
         string $protocolVersion,
         ClientCapabilities $clientCapabilities,
         $progressToken = null,
         ?Implementation $clientInfo = null,
-        ?string $logLevel = null
+        ?string $logLevel = null,
+        ?array $additionalProperties = null
     ) {
         $this->protocolVersion = $protocolVersion;
         $this->clientCapabilities = $clientCapabilities;
         $this->progressToken = $progressToken;
         $this->clientInfo = $clientInfo;
         $this->logLevel = $logLevel;
+        $this->additionalProperties = $additionalProperties;
     }
 
     /**
@@ -157,7 +174,8 @@ class RequestMetaObject extends AbstractDataTransferObject
             $clientCapabilities,
             $progressToken,
             $clientInfo,
-            $logLevel
+            $logLevel,
+            self::additionalFields($data, self::KNOWN_KEYS)
         );
     }
 
@@ -182,7 +200,7 @@ class RequestMetaObject extends AbstractDataTransferObject
             $result['io.modelcontextprotocol/logLevel'] = $this->logLevel;
         }
 
-        return $result;
+        return $result + ($this->additionalProperties ?? []);
     }
 
     /**
@@ -223,5 +241,13 @@ class RequestMetaObject extends AbstractDataTransferObject
     public function getLogLevel(): ?string
     {
         return $this->logLevel;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getAdditionalProperties(): ?array
+    {
+        return $this->additionalProperties;
     }
 }

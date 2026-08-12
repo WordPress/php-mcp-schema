@@ -186,7 +186,11 @@ function getPropertyWireName(prop: ReturnType<InterfaceDeclaration['getPropertie
  * `array<string, T>` and must not grow a bag.
  */
 function extractOpenBag(iface: InterfaceDeclaration, namedPropertyCount: number): TsProperty | null {
-  if (iface.getIndexSignatures().length === 0) {
+  // The string index may be declared directly or inherited through a type
+  // alias such as `MetaObject = Record<string, unknown>`. TypeScript exposes
+  // both through the resolved interface type even though the latter has no
+  // InterfaceDeclaration index-signature node of its own.
+  if (iface.getIndexSignatures().length === 0 && !iface.getType().getStringIndexType()) {
     return null;
   }
 

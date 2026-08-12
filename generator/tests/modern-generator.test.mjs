@@ -52,6 +52,26 @@ describe('modern revision generator regressions', () => {
     assert.doesNotMatch(php, /\$"io\.modelcontextprotocol\/protocolVersion"/);
   });
 
+  it('preserves open metadata inherited through a Record type alias', () => {
+    const source = `
+      export type MetaObject = Record<string, unknown>;
+
+      export interface RequestMetaObject extends MetaObject {
+        "io.modelcontextprotocol/protocolVersion": string;
+      }
+    `;
+    const ast = parseSchema(source);
+    const requestMeta = ast.interfaces.find(({ name }) => name === 'RequestMetaObject');
+    assert.ok(requestMeta);
+    assert.equal(requestMeta.properties.at(-1)?.isOpenBag, true);
+
+    const php = generateDto(source, 'RequestMetaObject');
+
+    assert.match(php, /protected \?array \$additionalProperties;/);
+    assert.match(php, /self::additionalFields\(\$data, self::KNOWN_KEYS\)/);
+    assert.match(php, /return \$result \+ \(\$this->additionalProperties \?\? \[\]\);/);
+  });
+
   it('rejects PHP member-name collisions deterministically', () => {
     assert.throws(
       () =>

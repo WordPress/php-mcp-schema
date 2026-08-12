@@ -21,6 +21,13 @@ class NotificationMetaObject extends AbstractDataTransferObject
     use ValidatesRequiredFields;
 
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
+     */
+    private const KNOWN_KEYS = ['io.modelcontextprotocol/subscriptionId'];
+
+    /**
      * Identifies the subscription stream a notification was delivered on. The
      * server MUST include this key on every notification delivered via a
      * {@link SubscriptionsListenRequest | subscriptions/listen} stream, so the
@@ -39,12 +46,22 @@ class NotificationMetaObject extends AbstractDataTransferObject
     protected $subscriptionId;
 
     /**
+     * Keys carried on the wire that this type does not model. Preserved verbatim so unrecognized fields survive a round trip.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $additionalProperties;
+
+    /**
      * @param string|number|null $subscriptionId @since 2026-07-28
+     * @param array<string, mixed>|null $additionalProperties
      */
     public function __construct(
-        $subscriptionId = null
+        $subscriptionId = null,
+        ?array $additionalProperties = null
     ) {
         $this->subscriptionId = $subscriptionId;
+        $this->additionalProperties = $additionalProperties;
     }
 
     /**
@@ -64,7 +81,8 @@ class NotificationMetaObject extends AbstractDataTransferObject
             : null;
 
         return new self(
-            $subscriptionId
+            $subscriptionId,
+            self::additionalFields($data, self::KNOWN_KEYS)
         );
     }
 
@@ -81,7 +99,7 @@ class NotificationMetaObject extends AbstractDataTransferObject
             $result['io.modelcontextprotocol/subscriptionId'] = $this->subscriptionId;
         }
 
-        return $result;
+        return $result + ($this->additionalProperties ?? []);
     }
 
     /**
@@ -90,5 +108,13 @@ class NotificationMetaObject extends AbstractDataTransferObject
     public function getSubscriptionId()
     {
         return $this->subscriptionId;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getAdditionalProperties(): ?array
+    {
+        return $this->additionalProperties;
     }
 }

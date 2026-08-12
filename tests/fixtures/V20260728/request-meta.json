@@ -12,5 +12,6 @@
       }
     }
   },
-  "io.modelcontextprotocol/logLevel": "warning"
+  "io.modelcontextprotocol/logLevel": "warning",
+  "example.extension/request-id": 42
 }

@@ -1,0 +1,16 @@
+{
+  "github_login": {
+    "action": "accept",
+    "content": {
+      "name": "octocat"
+    }
+  },
+  "workspace_roots": {
+    "roots": [
+      {
+        "uri": "file:///workspace",
+        "name": "Workspace"
+      }
+    ]
+  }
+}

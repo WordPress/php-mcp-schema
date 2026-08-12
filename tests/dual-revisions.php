@@ -6,7 +6,13 @@ use WP\McpSchema\V20251125\Common\Content\DTO\TextContent as LegacyTextContent;
 use WP\McpSchema\V20251125\Server\Tools\DTO\CallToolResult as LegacyCallToolResult;
 use WP\McpSchema\V20260728\Common\Content\DTO\TextContent as ModernTextContent;
 use WP\McpSchema\V20260728\Common\JsonRpc\DTO\RequestMetaObject;
+use WP\McpSchema\V20260728\Common\Protocol\DTO\InputRequests;
+use WP\McpSchema\V20260728\Common\Protocol\DTO\InputResponses;
 use WP\McpSchema\V20260728\Common\Protocol\DTO\ParseError;
+use WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequest;
+use WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitResult;
+use WP\McpSchema\V20260728\Client\Roots\DTO\ListRootsRequest;
+use WP\McpSchema\V20260728\Client\Roots\DTO\ListRootsResult;
 use WP\McpSchema\V20260728\Server\Tools\DTO\CallToolResult as ModernCallToolResult;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -53,6 +59,8 @@ function assert_wire_equals($expected, $actual, string $message): void
 $legacyWire = fixture('V20251125/tools-call-result.json');
 $modernWire = fixture('V20260728/tools-call-result.json');
 $requestMetaWire = fixture('V20260728/request-meta.json');
+$inputRequestsWire = fixture('V20260728/input-requests.json');
+$inputResponsesWire = fixture('V20260728/input-responses.json');
 
 $legacyResult = LegacyCallToolResult::fromArray($legacyWire);
 $modernResult = ModernCallToolResult::fromArray($modernWire);
@@ -61,11 +69,33 @@ $parseError = ParseError::fromArray([
     'code' => -32700,
     'message' => 'Invalid JSON',
 ]);
+$inputRequests = InputRequests::fromArray($inputRequestsWire);
+$inputResponses = InputResponses::fromArray($inputResponsesWire);
 
 assert_wire_equals($legacyWire, $legacyResult->toArray(), 'Legacy tools/call did not round trip exactly.');
 assert_wire_equals($modernWire, $modernResult->toArray(), 'Modern tools/call did not round trip exactly.');
 assert_wire_equals($requestMetaWire, $requestMeta->toArray(), 'Modern request metadata did not preserve exact wire keys.');
 assert_wire_equals(-32700, $parseError->toArray()['code'] ?? null, 'Numeric typeof constant became a string.');
+assert_wire_equals($inputRequestsWire, $inputRequests->toArray(), 'Dynamic input request IDs did not round trip.');
+assert_wire_equals($inputResponsesWire, $inputResponses->toArray(), 'Dynamic input response IDs did not round trip.');
+assert_wire_equals($inputRequestsWire, json_decode($inputRequests->toJson(), true, 512, JSON_THROW_ON_ERROR), 'Input requests JSON did not round trip.');
+assert_wire_equals($inputResponsesWire, json_decode($inputResponses->toJson(), true, 512, JSON_THROW_ON_ERROR), 'Input responses JSON did not round trip.');
+
+$inputRequestValues = $inputRequests->getAdditionalProperties();
+$inputResponseValues = $inputResponses->getAdditionalProperties();
+
+if (!($inputRequestValues['github_login'] ?? null) instanceof ElicitRequest) {
+    throw new RuntimeException('The first dynamic input request was not hydrated to ElicitRequest.');
+}
+if (!($inputRequestValues['workspace_roots'] ?? null) instanceof ListRootsRequest) {
+    throw new RuntimeException('The second dynamic input request was not hydrated to ListRootsRequest.');
+}
+if (!($inputResponseValues['github_login'] ?? null) instanceof ElicitResult) {
+    throw new RuntimeException('The first dynamic input response was not hydrated to ElicitResult.');
+}
+if (!($inputResponseValues['workspace_roots'] ?? null) instanceof ListRootsResult) {
+    throw new RuntimeException('The second dynamic input response was not hydrated to ListRootsResult.');
+}
 
 $legacyContent = $legacyResult->getContent()[0] ?? null;
 $modernContent = $modernResult->getContent()[0] ?? null;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace WP\McpSchema\V20260728\Common\Protocol\DTO;
 
 use WP\McpSchema\V20260728\Common\AbstractDataTransferObject;
+use WP\McpSchema\V20260728\Common\Protocol\Factory\InputResponseFactory;
+use WP\McpSchema\V20260728\Common\Protocol\Union\InputResponseInterface;
+use WP\McpSchema\V20260728\Common\Traits\ValidatesRequiredFields;
 
 /**
  * A map of client responses to server-initiated requests.
@@ -19,10 +22,29 @@ use WP\McpSchema\V20260728\Common\AbstractDataTransferObject;
  */
 class InputResponses extends AbstractDataTransferObject
 {
+    use ValidatesRequiredFields;
+
     /**
+     * Wire keys this class models. Anything else is kept in $additionalProperties.
+     *
+     * @var array<int, string>
      */
-    public function __construct()
-    {
+    private const KNOWN_KEYS = [];
+
+    /**
+     * Keys carried on the wire that this type does not model. Preserved verbatim so unrecognized fields survive a round trip.
+     *
+     * @var array<string, \WP\McpSchema\V20260728\Common\Protocol\Union\InputResponseInterface>
+     */
+    protected array $additionalProperties;
+
+    /**
+     * @param array<string, \WP\McpSchema\V20260728\Common\Protocol\Union\InputResponseInterface> $additionalProperties
+     */
+    public function __construct(
+        array $additionalProperties
+    ) {
+        $this->additionalProperties = $additionalProperties;
     }
 
     /**
@@ -35,7 +57,17 @@ class InputResponses extends AbstractDataTransferObject
      */
     public static function fromArray(array $data): self
     {
-        return new self();
+        /** @var array<string, \WP\McpSchema\V20260728\Common\Protocol\Union\InputResponseInterface> $additionalProperties */
+        $additionalProperties = array_map(
+            static fn($item) => is_array($item)
+                ? InputResponseFactory::fromArray($item)
+                : $item,
+            (self::additionalFields($data, self::KNOWN_KEYS) ?? [])
+        );
+
+        return new self(
+            $additionalProperties
+        );
     }
 
     /**
@@ -47,6 +79,14 @@ class InputResponses extends AbstractDataTransferObject
     {
         $result = [];
 
-        return $result;
+        return $result + array_map(static fn($item) => $item->toArray(), $this->additionalProperties);
+    }
+
+    /**
+     * @return array<string, \WP\McpSchema\V20260728\Common\Protocol\Union\InputResponseInterface>
+     */
+    public function getAdditionalProperties(): array
+    {
+        return $this->additionalProperties;
     }
 }

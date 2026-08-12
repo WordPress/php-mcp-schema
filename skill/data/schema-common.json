@@ -447,7 +447,9 @@
       "usedBy": [
         "InputRequiredResult"
       ],
-      "uses": []
+      "uses": [
+        "InputRequest"
+      ]
     },
     "InputResponses": {
       "kind": "class",
@@ -460,7 +462,9 @@
       "usedBy": [
         "InputResponseRequestParams"
       ],
-      "uses": []
+      "uses": [
+        "InputResponse"
+      ]
     },
     "InputRequiredResult": {
       "kind": "class",

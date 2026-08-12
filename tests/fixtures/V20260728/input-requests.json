@@ -1,0 +1,13 @@
+{
+  "github_login": {
+    "method": "elicitation/create",
+    "params": {
+      "mode": "url",
+      "message": "Please authenticate with GitHub",
+      "url": "https://github.com/login"
+    }
+  },
+  "workspace_roots": {
+    "method": "roots/list"
+  }
+}

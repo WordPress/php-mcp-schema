@@ -196,7 +196,11 @@ function extractOpenBag(iface: InterfaceDeclaration, namedPropertyCount: number)
 
   const isPlainMap = namedPropertyCount === 0 && iface.getExtends().length === 0;
   if (isPlainMap) {
-    return null;
+    const indexSignature = iface.getIndexSignatures()[0];
+    const valueTypeNode = indexSignature?.getReturnTypeNode();
+    const valueType = valueTypeNode ? valueTypeNode.getText() : indexSignature?.getReturnType().getText();
+
+    return createOpenBagProperty(valueType ?? 'unknown', true);
   }
 
   return createOpenBagProperty();

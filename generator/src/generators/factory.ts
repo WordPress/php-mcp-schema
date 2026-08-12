@@ -40,6 +40,12 @@ interface MemberRouting {
   readonly isUnion: boolean; // true if member is a union type alias (route to factory)
 }
 
+/** A direct union member and the required field that uniquely identifies it. */
+interface StructuralRouting {
+  readonly memberName: string;
+  readonly requiredField: string;
+}
+
 /**
  * Generates PHP factory classes for union types.
  */
@@ -87,17 +93,153 @@ export class FactoryGenerator {
     // Detect discriminator from flattened leaf interfaces
     const discriminator = this.detectDiscriminatorWithRouting(memberRouting);
 
-    // Skip factory generation if no discriminator found
-    // Factories without discriminators use unreliable try/catch fallback matching
-    // which is order-dependent and prone to false matches
-    // Note: Check for values OR disambiguations (not just values)
+    // Prefer explicit literal discriminators. When none exists, generate a
+    // structural factory only if every direct member has a unique required
+    // field. This is deterministic and rejects ambiguous shapes.
     if (!discriminator || (discriminator.values.size === 0 && discriminator.disambiguations.size === 0)) {
-      return null;
+      const isIndexedMapValue = this.interfaces.some((iface) =>
+        iface.properties.some(
+          (property) => property.isIndexMap && property.type === `${typeAlias.name}[]`
+        )
+      );
+      const structuralRouting = isIndexedMapValue
+        ? this.detectStructuralRouting(memberRouting)
+        : null;
+      return structuralRouting
+        ? this.renderStructuralFactory(typeAlias.name, structuralRouting, classification, typeAlias.description, this.getIndent())
+        : null;
     }
 
     const indent = this.getIndent();
 
     return this.renderFactoryWithRouting(typeAlias.name, memberRouting, classification, typeAlias.description, discriminator, indent);
+  }
+
+  /**
+   * Finds a unique required field for every direct interface member.
+   *
+   * A structural factory is safe only when every member can be identified
+   * independently. Nested unions and fallback matching remain unsupported.
+   */
+  private detectStructuralRouting(routing: MemberRouting[]): StructuralRouting[] | null {
+    if (routing.length < 2 || routing.some((member) => member.isUnion)) {
+      return null;
+    }
+
+    const result: StructuralRouting[] = [];
+    for (const member of routing) {
+      const iface = this.interfaces.find((candidate) => candidate.name === member.name);
+      if (!iface) {
+        return null;
+      }
+
+      const requiredFields = iface.properties.filter(
+        (property) => !property.isOptional && !property.isOpenBag
+      );
+      const uniqueField = requiredFields.find((property) =>
+        routing.every((otherMember) => {
+          if (otherMember.name === member.name) {
+            return true;
+          }
+
+          const otherInterface = this.interfaces.find(
+            (candidate) => candidate.name === otherMember.name
+          );
+          return !otherInterface?.properties.some(
+            (otherProperty) => otherProperty.name === property.name
+          );
+        })
+      );
+
+      if (!uniqueField) {
+        return null;
+      }
+
+      result.push({ memberName: member.name, requiredField: uniqueField.name });
+    }
+
+    return result;
+  }
+
+  /** Renders a union factory backed by mutually exclusive required fields. */
+  private renderStructuralFactory(
+    name: string,
+    routing: StructuralRouting[],
+    classification: DomainClassification,
+    description: string | undefined,
+    indent: string
+  ): string {
+    const lines: string[] = [];
+    const namespace = this.getNamespace(classification);
+    const interfaceName = `${name}Interface`;
+    const unionNamespace = `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}\\Union`;
+
+    lines.push('<?php');
+    lines.push('');
+    lines.push('declare(strict_types=1);');
+    lines.push('');
+    lines.push(`namespace ${namespace};`);
+    lines.push('');
+    lines.push(`use ${unionNamespace}\\${interfaceName};`);
+    for (const route of routing) {
+      const member = this.interfaces.find((iface) => iface.name === route.memberName);
+      if (!member) {
+        continue;
+      }
+      const memberClassification = this.classifier.classify(member.name, member.tags);
+      lines.push(`use ${this.config.output.namespace}\\${memberClassification.domain}\\${memberClassification.subdomain}\\DTO\\${member.name};`);
+    }
+    lines.push('');
+    lines.push('/**');
+    lines.push(` * Factory for creating ${name} union type instances from exact object shapes.`);
+    if (description) {
+      lines.push(' *');
+      lines.push(...formatPhpDocDescription(description));
+    }
+    lines.push(' *');
+    lines.push(` * @mcp-domain ${classification.domain}`);
+    lines.push(` * @mcp-subdomain ${classification.subdomain}`);
+    lines.push(` * @mcp-version ${this.config.schema.version}`);
+    lines.push(' */');
+    lines.push(`final class ${name}Factory`);
+    lines.push('{');
+    lines.push(`${indent}/**`);
+    lines.push(`${indent} * Creates an instance from an array.`);
+    lines.push(`${indent} *`);
+    lines.push(`${indent} * @param array<string, mixed> $data`);
+    lines.push(`${indent} * @return ${interfaceName}`);
+    lines.push(`${indent} * @throws \\InvalidArgumentException When the object shape is unknown or ambiguous.`);
+    lines.push(`${indent} */`);
+    lines.push(`${indent}public static function fromArray(array $data): ${interfaceName}`);
+    lines.push(`${indent}{`);
+    lines.push(`${indent}${indent}/** @var array<class-string<${interfaceName}>> $matches */`);
+    lines.push(`${indent}${indent}$matches = [];`);
+    lines.push('');
+    for (const route of routing) {
+      lines.push(`${indent}${indent}if (array_key_exists('${route.requiredField}', $data)) {`);
+      lines.push(`${indent}${indent}${indent}$matches[] = ${route.memberName}::class;`);
+      lines.push(`${indent}${indent}}`);
+    }
+    lines.push('');
+    lines.push(`${indent}${indent}if (count($matches) !== 1) {`);
+    lines.push(`${indent}${indent}${indent}throw new \\InvalidArgumentException(`);
+    lines.push(`${indent}${indent}${indent}${indent}'Unable to determine ${name} type from object shape.'`);
+    lines.push(`${indent}${indent}${indent});`);
+    lines.push(`${indent}${indent}}`);
+    lines.push('');
+    lines.push(`${indent}${indent}switch ($matches[0]) {`);
+    for (const route of routing) {
+      lines.push(`${indent}${indent}${indent}case ${route.memberName}::class:`);
+      lines.push(`${indent}${indent}${indent}${indent}return ${route.memberName}::fromArray($data);`);
+    }
+    lines.push(`${indent}${indent}}`);
+    lines.push('');
+    lines.push(`${indent}${indent}throw new \\LogicException('Matched union member has no hydration route.');`);
+    lines.push(`${indent}}`);
+    lines.push('}');
+    lines.push('');
+
+    return lines.join('\n');
   }
 
   /**

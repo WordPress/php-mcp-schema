@@ -33,12 +33,13 @@ export const OPEN_BAG_PROPERTY = 'additionalProperties';
  * Shared by both places an index signature can be lost: real interface
  * declarations (parser) and inline object literals (synthetic extractor).
  */
-export function createOpenBagProperty(): TsProperty {
+export function createOpenBagProperty(valueType: string = 'unknown', isIndexMap: boolean = false): TsProperty {
   return {
     name: OPEN_BAG_PROPERTY,
-    type: '{ [key: string]: unknown }',
-    isOptional: true,
+    type: isIndexMap ? `${valueType}[]` : '{ [key: string]: unknown }',
+    isOptional: !isIndexMap,
     isOpenBag: true,
+    isIndexMap,
     description:
       'Keys carried on the wire that this type does not model. ' +
       'Preserved verbatim so unrecognized fields survive a round trip.',
@@ -63,6 +64,8 @@ export interface TsProperty {
    * every key the class does not model and re-emits them on serialization.
    */
   readonly isOpenBag?: boolean;
+  /** True when the entire interface is a string-keyed map of typed values. */
+  readonly isIndexMap?: boolean;
 }
 
 /**
@@ -232,6 +235,8 @@ export interface PhpProperty {
    * instead of being assigned to a key.
    */
   readonly isOpenBag?: boolean;
+  /** True when this catch-all property represents the entire string-keyed DTO map. */
+  readonly isIndexMap?: boolean;
 }
 
 /**

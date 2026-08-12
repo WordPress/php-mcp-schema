@@ -160,7 +160,7 @@ export class DtoGenerator {
    * Resolves a TypeScript property to a PHP property.
    */
   private resolveProperty(
-    p: { name: string; type: string; isOptional: boolean; description?: string; tags?: readonly JsDocTag[]; isOpenBag?: boolean },
+    p: { name: string; type: string; isOptional: boolean; description?: string; tags?: readonly JsDocTag[]; isOpenBag?: boolean; isIndexMap?: boolean },
     currentNamespace: string,
     imports: Map<string, string>,
     interfaceName?: string
@@ -224,10 +224,18 @@ export class DtoGenerator {
     if (resolved.namespace && resolved.className) {
       const fqnWithPrefix = `\\${resolved.namespace}\\${resolved.className}`;
       if (phpType.isArray) {
-        phpType = { ...phpType, phpDocType: `array<${fqnWithPrefix}>` };
+        phpType = {
+          ...phpType,
+          phpDocType: p.isIndexMap
+            ? `array<string, ${fqnWithPrefix}>`
+            : `array<${fqnWithPrefix}>`,
+        };
       } else {
         phpType = { ...phpType, phpDocType: fqnWithPrefix };
       }
+    } else if (p.isIndexMap && phpType.isArray) {
+      const itemPhpDocType = phpType.phpDocType?.match(/^array<(.+)>$/)?.[1] ?? phpType.arrayItemType ?? 'mixed';
+      phpType = { ...phpType, phpDocType: `array<string, ${itemPhpDocType}>` };
     }
 
     // Check for const values (discriminator fields)
@@ -246,6 +254,7 @@ export class DtoGenerator {
       maxItems,
       serializeEmptyAsObject: this.shouldSerializeEmptyAsObject(interfaceName, p.name),
       isOpenBag: p.isOpenBag,
+      isIndexMap: p.isIndexMap,
     } as PhpProperty;
   }
 
@@ -1118,7 +1127,30 @@ export class DtoGenerator {
         // The open bag is not read from a key of its own — it is everything the
         // class did not claim, which is only knowable against the full key list.
         if (prop.isOpenBag) {
-          constructorArgs.push(`self::additionalFields($data, self::KNOWN_KEYS)`);
+          const additionalFieldsExpr = 'self::additionalFields($data, self::KNOWN_KEYS)';
+          if (!prop.isIndexMap) {
+            constructorArgs.push(additionalFieldsExpr);
+            continue;
+          }
+
+          const dataExpr = `(${additionalFieldsExpr} ?? [])`;
+          const deserExpr = this.getDeserializationExpression(prop.type, dataExpr, indent, false, prop.name);
+          const varName = `$${phpName}`;
+          const phpDocType = TypeMapper.getPhpDocType(prop.type);
+          variableAssignments.push(`${indent}${indent}/** @var ${phpDocType} ${varName} */`);
+
+          if (deserExpr.expression === 'MULTILINE_REQUIRED_DTO_ARRAY' && deserExpr.dtoHydrator) {
+            variableAssignments.push(`${indent}${indent}${varName} = array_map(`);
+            variableAssignments.push(`${indent}${indent}${indent}static fn($item) => is_array($item)`);
+            variableAssignments.push(`${indent}${indent}${indent}${indent}? ${deserExpr.dtoHydrator}::fromArray($item)`);
+            variableAssignments.push(`${indent}${indent}${indent}${indent}: $item,`);
+            variableAssignments.push(`${indent}${indent}${indent}${dataExpr}`);
+            variableAssignments.push(`${indent}${indent});`);
+          } else {
+            variableAssignments.push(`${indent}${indent}${varName} = ${deserExpr.expression};`);
+          }
+          variableAssignments.push('');
+          constructorArgs.push(varName);
           continue;
         }
 
@@ -1314,9 +1346,11 @@ export class DtoGenerator {
     }
     if (openBag) {
       const { phpName } = this.getPropertyNames(openBag.name);
+      const bagValue = openBag.isRequired ? `$this->${phpName}` : `($this->${phpName} ?? [])`;
+      const serializationExpr = this.getSerializationExpression(openBag.type, bagValue);
       // Union, not array_merge: the left operand wins on collision, so a stale
       // preserved key can never shadow a field this class models.
-      lines.push(`${indent}${indent}return $result + ($this->${phpName} ?? []);`);
+      lines.push(`${indent}${indent}return $result + ${serializationExpr};`);
     } else {
       lines.push(`${indent}${indent}return $result;`);
     }

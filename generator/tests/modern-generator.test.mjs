@@ -6,6 +6,7 @@ import {
   createEmptyVersionTracker,
   DtoGenerator,
   EnumGenerator,
+  FactoryGenerator,
   getVersionsUpTo,
   parseSchema,
   UnionGenerator,
@@ -70,6 +71,78 @@ describe('modern revision generator regressions', () => {
     assert.match(php, /protected \?array \$additionalProperties;/);
     assert.match(php, /self::additionalFields\(\$data, self::KNOWN_KEYS\)/);
     assert.match(php, /return \$result \+ \(\$this->additionalProperties \?\? \[\]\);/);
+  });
+
+  it('generates typed top-level indexed maps without dropping dynamic keys', () => {
+    const source = `
+      export interface FirstRequest {
+        method: "first";
+        firstValue: string;
+      }
+
+      export interface SecondRequest {
+        method: "second";
+        secondValue: string;
+      }
+
+      export type InputRequest = FirstRequest | SecondRequest;
+
+      export interface InputRequests {
+        [requestId: string]: InputRequest;
+      }
+    `;
+    const ast = parseSchema(source);
+    const inputRequests = ast.interfaces.find(({ name }) => name === 'InputRequests');
+    assert.ok(inputRequests);
+    assert.equal(inputRequests.properties.length, 1);
+    assert.equal(inputRequests.properties[0]?.isOpenBag, true);
+    assert.equal(inputRequests.properties[0]?.isIndexMap, true);
+    assert.equal(inputRequests.properties[0]?.type, 'InputRequest[]');
+
+    const php = generateDto(source, 'InputRequests');
+
+    assert.match(
+      php,
+      /@var array<string, \\WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\InputRequestInterface>/
+    );
+    assert.match(php, /InputRequestFactory::fromArray\(\$item\)/);
+    assert.match(php, /\(self::additionalFields\(\$data, self::KNOWN_KEYS\) \?\? \[\]\)/);
+    assert.match(php, /array_map\(static fn\(\$item\) => \$item->toArray\(\), \$this->additionalProperties\)/);
+  });
+
+  it('generates deterministic structural hydration for typed indexed-map values', () => {
+    const ast = parseSchema(`
+      export interface FirstResponse {
+        firstValue: string;
+      }
+
+      export interface SecondResponse {
+        secondValue: string;
+      }
+
+      export type InputResponse = FirstResponse | SecondResponse;
+
+      export interface InputResponses {
+        [requestId: string]: InputResponse;
+      }
+    `);
+    const inputResponse = ast.typeAliases.find(({ name }) => name === 'InputResponse');
+    assert.ok(inputResponse);
+
+    const php = new FactoryGenerator(config, ast.interfaces, ast.typeAliases).generate(
+      inputResponse,
+      ['FirstResponse', 'SecondResponse']
+    );
+
+    assert.ok(php);
+    assert.match(php, /array_key_exists\('firstValue', \$data\)/);
+    assert.match(php, /\$matches\[\] = FirstResponse::class;/);
+    assert.match(php, /array_key_exists\('secondValue', \$data\)/);
+    assert.match(php, /\$matches\[\] = SecondResponse::class;/);
+    assert.match(php, /count\(\$matches\) !== 1/);
+    assert.match(php, /case FirstResponse::class:\s+return FirstResponse::fromArray\(\$data\);/);
+    assert.match(php, /case SecondResponse::class:\s+return SecondResponse::fromArray\(\$data\);/);
+    assert.match(php, /Unable to determine InputResponse type from object shape/);
   });
 
   it('rejects PHP member-name collisions deterministically', () => {

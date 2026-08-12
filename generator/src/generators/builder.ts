@@ -288,7 +288,7 @@ export class BuilderGenerator {
 
   /**
    * Gets the PHP namespace for a classification (Builder namespace).
-   * Note: Version is used in directory structure but NOT in namespace (PHP namespaces can't start with digits)
+   * The configured namespace already contains a legal V-prefixed revision segment.
    */
   private getNamespace(classification: DomainClassification): string {
     return `${this.config.output.namespace}\\${classification.domain}\\${classification.subdomain}\\Builder`;

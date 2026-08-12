@@ -11,8 +11,8 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "generate": "rm -rf ../src && node dist/cli/index.js generate",
-    "generate:check": "bash -c 'rm -rf ../src && node dist/cli/index.js generate \"$@\" && cd .. && composer analyse' --",
+    "generate": "node dist/cli/index.js generate",
+    "generate:check": "bash -c 'node dist/cli/index.js generate \"$@\" && cd .. && composer analyse' --",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",

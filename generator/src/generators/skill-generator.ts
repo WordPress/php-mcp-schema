@@ -167,7 +167,7 @@ export class SkillGenerator {
     lines.push('');
 
     // Title
-    lines.push('# MCP PHP Schema Reference');
+    lines.push(`# MCP PHP Schema Reference (${this.config.schema.version})`);
     lines.push('');
 
     // Quick Navigation

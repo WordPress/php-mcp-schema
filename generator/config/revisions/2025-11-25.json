@@ -1,0 +1,9 @@
+{
+  "schema": {
+    "version": "2025-11-25"
+  },
+  "skill": {
+    "enabled": false,
+    "outputDir": "../skill"
+  }
+}

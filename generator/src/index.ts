@@ -38,7 +38,7 @@ export type {
 } from './types/index.js';
 
 // Re-export config utilities
-export { createConfig, validateConfig, DEFAULT_SCHEMA_SOURCE, DEFAULT_PHP_OUTPUT } from './config/index.js';
+export { createConfig, validateConfig, DEFAULT_SCHEMA_SOURCE, DEFAULT_PHP_OUTPUT, DEFAULT_SKILL_OUTPUT, getRevisionSegment, loadShippingRevisionConfigs } from './config/index.js';
 
 // Re-export fetcher utilities
 export { fetchSchema, fetchSchemaFresh, clearCache } from './fetcher/index.js';
@@ -316,7 +316,11 @@ export async function generate(
   const builderGenerator = new BuilderGenerator(config, allInterfaces, ast.typeAliases, classifier, versionTracker, constantsMap);
   const writer = new FileWriter(config);
 
-  // Step 4: Create directory structure
+  // Step 4: Clear only this revision tree, then create its directory structure.
+  progress('Clearing revision output...');
+  await writer.clearOutput();
+
+  // Step 4.5: Create directory structure
   progress('Creating directory structure...');
   await writer.createDirectoryStructure();
 
@@ -534,40 +538,38 @@ export async function generate(
     files.push({ path, content: contract.content, type: 'interface' });
   }
 
-  // Step 9.5: Generate skill files for Claude Code
-  // Skill files go to the project root skill/ directory, not inside src/
-  progress('Generating skill files...');
-  const skillGenerator = new SkillGenerator(
-    config,
-    allInterfaces,
-    ast.typeAliases,
-    ast.enums ?? [],
-    unionMembershipMap,
-    classifier,
-    intersectionsNeedingWrappers
-  );
-  const skillResult = skillGenerator.generateAll();
+  // Step 9.5: Generate skill files only for the revision that explicitly owns them.
+  if (config.skill.enabled && !config.dryRun) {
+    progress('Generating skill files...');
+    const skillGenerator = new SkillGenerator(
+      config,
+      allInterfaces,
+      ast.typeAliases,
+      ast.enums ?? [],
+      unionMembershipMap,
+      classifier,
+      intersectionsNeedingWrappers,
+      '.'
+    );
+    const skillResult = skillGenerator.generateAll();
 
-  // Write skill files directly to project root (not via FileWriter which uses output.outputDir)
-  const { mkdir, writeFile, chmod } = await import('fs/promises');
-  const { dirname, join, resolve } = await import('path');
+    const { mkdir, writeFile, chmod } = await import('fs/promises');
+    const { dirname, join, resolve } = await import('path');
+    const skillOutputDir = resolve(config.skill.outputDir);
 
-  // Resolve skill directory relative to output dir's parent (project root)
-  const projectRoot = resolve(config.output.outputDir, '..');
+    for (const skillFile of skillResult.files) {
+      const fullPath = join(skillOutputDir, skillFile.path);
+      await mkdir(dirname(fullPath), { recursive: true });
+      await writeFile(fullPath, skillFile.content, 'utf-8');
 
-  for (const skillFile of skillResult.files) {
-    const fullPath = join(projectRoot, skillFile.path);
-    await mkdir(dirname(fullPath), { recursive: true });
-    await writeFile(fullPath, skillFile.content, 'utf-8');
-
-    // Make scripts executable
-    if (skillFile.type === 'script') {
-      await chmod(fullPath, 0o755);
+      if (skillFile.type === 'script') {
+        await chmod(fullPath, 0o755);
+      }
     }
-  }
 
-  if (config.verbose) {
-    progress(`Generated ${skillResult.files.length} skill files (${skillResult.stats.markdownFiles} markdown, ${skillResult.stats.jsonFiles} JSON, ${skillResult.stats.scriptFiles} scripts)`);
+    if (config.verbose) {
+      progress(`Generated ${skillResult.files.length} skill files for ${config.schema.version} (${skillResult.stats.markdownFiles} markdown, ${skillResult.stats.jsonFiles} JSON, ${skillResult.stats.scriptFiles} scripts)`);
+    }
   }
 
   // Step 10: Validate class names (PSR-1 compliance)

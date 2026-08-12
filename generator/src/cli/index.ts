@@ -8,8 +8,9 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { generate, GenerateOptions } from '../index.js';
-import { createConfig, DEFAULT_SCHEMA_SOURCE, DEFAULT_PHP_OUTPUT, loadConfigFromFile, listConfigVersions } from '../config/index.js';
+import { generate } from '../index.js';
+import type { GenerateOptions } from '../index.js';
+import { createConfig, DEFAULT_SCHEMA_SOURCE, loadConfigFromFile, listConfigVersions, loadShippingRevisionConfigs } from '../config/index.js';
 import { clearCache } from '../fetcher/index.js';
 
 const program = new Command();
@@ -23,7 +24,7 @@ program
 program
   .command('generate')
   .description('Generate PHP DTOs from MCP schema')
-  .requiredOption('-c, --config <file>', 'Configuration file (required)')
+  .option('-c, --config <file>', 'Generate one revision from a configuration file')
   .option('-o, --output <dir>', 'Output directory (overrides config)')
   .option('-n, --namespace <ns>', 'PHP namespace (overrides config)')
   .option('--dry-run', 'Show what would be generated without writing files')
@@ -33,56 +34,56 @@ program
     const spinner = ora('Initializing...').start();
 
     try {
-      const configFile = options['config'] as string;
+      const configFile = options['config'] as string | undefined;
+      if (!configFile && (options['output'] || options['namespace'])) {
+        throw new Error('--output and --namespace require --config for an isolated revision');
+      }
 
-      // Load config from file
-      spinner.text = `Loading config from ${configFile}...`;
-      const baseConfig = loadConfigFromFile(configFile);
+      spinner.text = configFile
+        ? `Loading config from ${configFile}...`
+        : 'Loading shipping revision configs...';
+      const baseConfigs = configFile
+        ? [loadConfigFromFile(configFile)]
+        : loadShippingRevisionConfigs();
 
-      // CLI options override config file values
-      const schemaConfig = { ...baseConfig.schema };
+      for (const baseConfig of baseConfigs) {
+        const outputConfig = { ...baseConfig.output };
+        if (options['output']) outputConfig.outputDir = options['output'] as string;
+        if (options['namespace']) outputConfig.namespace = options['namespace'] as string;
 
-      const outputConfig = { ...baseConfig.output };
-      if (options['output']) outputConfig.outputDir = options['output'] as string;
-      if (options['namespace']) outputConfig.namespace = options['namespace'] as string;
+        const config = createConfig({
+          schema: { ...baseConfig.schema },
+          output: outputConfig,
+          skill: { ...baseConfig.skill },
+          verbose: Boolean(options['verbose']) || baseConfig.verbose,
+          dryRun: Boolean(options['dryRun']) || baseConfig.dryRun,
+        });
 
-      const config = createConfig({
-        schema: schemaConfig,
-        output: outputConfig,
-        verbose: (options['verbose'] as boolean) ?? baseConfig.verbose,
-        dryRun: (options['dryRun'] as boolean) ?? baseConfig.dryRun,
-      });
+        const generateOptions: GenerateOptions = {
+          fresh: options['fresh'] as boolean,
+        };
 
-      const generateOptions: GenerateOptions = {
-        fresh: options['fresh'] as boolean,
-      };
+        spinner.text = `Generating ${config.schema.version}...`;
+        const result = await generate(config, generateOptions);
 
-      spinner.text = 'Fetching schema...';
-      const result = await generate(config, generateOptions);
-
-      spinner.succeed('Generation complete!');
-
-      console.log('');
-      console.log(chalk.bold('Summary:'));
-      console.log(`  ${chalk.green('✓')} DTOs: ${result.stats.dtos}`);
-      console.log(`  ${chalk.green('✓')} Enums: ${result.stats.enums}`);
-      console.log(`  ${chalk.green('✓')} Unions: ${result.stats.unions}`);
-      console.log(`  ${chalk.green('✓')} Factories: ${result.stats.factories}`);
-      console.log(`  ${chalk.green('✓')} Builders: ${result.stats.builders}`);
-      console.log(`  ${chalk.blue('⏱')} Duration: ${result.stats.duration}ms`);
-
-      if (result.errors.length > 0) {
         console.log('');
-        console.log(chalk.yellow('Warnings:'));
-        for (const error of result.errors) {
-          console.log(`  ${chalk.yellow('!')} ${error.message}`);
+        console.log(chalk.bold(`Summary for ${config.schema.version}:`));
+        console.log(`  ${chalk.green('✓')} DTOs: ${result.stats.dtos}`);
+        console.log(`  ${chalk.green('✓')} Enums: ${result.stats.enums}`);
+        console.log(`  ${chalk.green('✓')} Unions: ${result.stats.unions}`);
+        console.log(`  ${chalk.green('✓')} Factories: ${result.stats.factories}`);
+        console.log(`  ${chalk.green('✓')} Builders: ${result.stats.builders}`);
+        console.log(`  ${chalk.blue('⏱')} Duration: ${result.stats.duration}ms`);
+
+        if (result.errors.length > 0) {
+          console.log(chalk.yellow('Warnings:'));
+          for (const error of result.errors) {
+            console.log(`  ${chalk.yellow('!')} ${error.message}`);
+          }
         }
       }
 
-      if (config.dryRun) {
-        console.log('');
-        console.log(chalk.cyan('(dry-run mode - no files were written)'));
-      }
+      spinner.succeed(`Generation complete for ${baseConfigs.length} revision(s)!`);
     } catch (error) {
       spinner.fail('Generation failed');
       const message = error instanceof Error ? error.message : String(error);
@@ -121,8 +122,8 @@ program
     console.log(chalk.bold('Default Configuration:'));
     console.log(`  Schema Repository: ${DEFAULT_SCHEMA_SOURCE.repository}`);
     console.log(`  Schema Branch: ${DEFAULT_SCHEMA_SOURCE.branch}`);
-    console.log(`  Output Directory: ${DEFAULT_PHP_OUTPUT.outputDir}`);
-    console.log(`  PHP Namespace: ${DEFAULT_PHP_OUTPUT.namespace}`);
+    console.log('  Output Directory: ../src/V<YYYYMMDD>');
+    console.log('  PHP Namespace: WP\\McpSchema\\V<YYYYMMDD>');
     console.log(`  Target PHP: 7.4 (for maximum compatibility)`);
     console.log('');
 
@@ -135,7 +136,7 @@ program
       console.log('');
     }
 
-    console.log(chalk.yellow('Note: --config is required. Schema version must be set in config file.'));
+    console.log(chalk.yellow('Note: generate without --config builds every shipping revision.'));
     console.log('');
     console.log('For more information, see: https://github.com/WordPress/php-mcp-schema');
   });

@@ -1,0 +1,9 @@
+{
+  "schema": {
+    "version": "2026-07-28"
+  },
+  "skill": {
+    "enabled": true,
+    "outputDir": "../skill"
+  }
+}

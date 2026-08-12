@@ -5,8 +5,9 @@
  */
 
 import { mkdir, writeFile, rm, access, constants } from 'fs/promises';
-import { dirname, join } from 'path';
+import { basename, dirname, join, resolve } from 'path';
 import type { GeneratedFile, GeneratorConfig, DomainClassification } from '../types/index.js';
+import { getRevisionSegment } from '../config/index.js';
 
 /**
  * Write result for a single file.
@@ -111,14 +112,31 @@ export class FileWriter {
     }
 
     const outputDir = this.config.output.outputDir;
+    const resolvedOutputDir = resolve(outputDir);
+    const expectedTree = getRevisionSegment(this.config.schema.version);
+
+    if (basename(resolvedOutputDir) !== expectedTree) {
+      throw new Error(
+        `Refusing to clear output directory ${resolvedOutputDir}; expected a ${expectedTree} revision tree`
+      );
+    }
 
     try {
       // Check if directory exists before removing
-      await access(outputDir, constants.F_OK);
-      await rm(outputDir, { recursive: true, force: true });
-    } catch {
-      // Directory doesn't exist, nothing to clear
+      await access(resolvedOutputDir, constants.F_OK);
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        Reflect.get(error, 'code') === 'ENOENT'
+      ) {
+        return;
+      }
+      throw error;
     }
+
+    // Do not use force: cleanup failures are generation failures.
+    await rm(resolvedOutputDir, { recursive: true });
   }
 
   /**
@@ -141,7 +159,7 @@ export class FileWriter {
  * Generates the AbstractDataTransferObject base class.
  */
 export function generateAbstractDto(config: GeneratorConfig): string {
-  // Version is used in directory structure but NOT in namespace (PHP namespaces can't start with digits)
+  // The configured namespace already contains a legal V-prefixed revision segment.
   const namespace = `${config.output.namespace}\\Common`;
   const indent = config.output.indentation === 'tabs' ? '\t' : ' '.repeat(config.output.indentSize);
 
@@ -203,7 +221,7 @@ ${indent}}
  * Generates the AbstractEnum base class for PHP 7.4.
  */
 export function generateAbstractEnum(config: GeneratorConfig): string {
-  // Version is used in directory structure but NOT in namespace (PHP namespaces can't start with digits)
+  // The configured namespace already contains a legal V-prefixed revision segment.
   const namespace = `${config.output.namespace}\\Common`;
   const indent = config.output.indentation === 'tabs' ? '\t' : ' '.repeat(config.output.indentSize);
 

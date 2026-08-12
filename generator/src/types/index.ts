@@ -381,11 +381,20 @@ export interface PhpOutputConfig {
 }
 
 /**
+ * Generated skill output configuration.
+ */
+export interface SkillOutputConfig {
+  readonly enabled: boolean;
+  readonly outputDir: string;
+}
+
+/**
  * Main generator configuration.
  */
 export interface GeneratorConfig {
   readonly schema: SchemaSource;
   readonly output: PhpOutputConfig;
+  readonly skill: SkillOutputConfig;
   readonly verbose: boolean;
   readonly dryRun: boolean;
 }

@@ -1,12 +1,12 @@
 {
     "name": "wordpress/php-mcp-schema",
-    "description": "PHP DTOs for the Model Context Protocol (MCP) specification",
+    "description": "Descriptor-backed PHP records for explicit Model Context Protocol revisions",
     "type": "library",
     "license": "GPL-2.0-or-later",
     "keywords": [
         "mcp",
         "model-context-protocol",
-        "dto",
+        "record",
         "schema",
         "php"
     ],
@@ -33,6 +33,13 @@
     },
     "scripts": {
         "analyse": "phpstan analyse",
-        "phpstan": "@analyse"
+        "benchmark": "php benchmarks/generic-record.php",
+        "phpstan": "@analyse",
+        "demo": "php examples/generic-record.php",
+        "test": "php tests/generic-record.php",
+        "check": [
+            "@test",
+            "@analyse"
+        ]
     }
 }

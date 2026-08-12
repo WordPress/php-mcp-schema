@@ -1,17 +1,15 @@
 {
   "name": "@wordpress/php-mcp-schema-generator",
   "version": "1.0.0",
-  "description": "Generate PHP 7.4 DTOs from MCP TypeScript schema definitions",
+  "description": "Generate a descriptor-backed PHP 7.4 record model from MCP TypeScript schemas",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "bin": {
-    "mcp-php-generator": "dist/cli/index.js"
-  },
+  "main": "dist/record-model/compiler.js",
+  "types": "dist/record-model/compiler.d.ts",
   "scripts": {
     "build": "tsc",
-    "generate": "rm -rf ../src && node dist/cli/index.js generate",
-    "generate:check": "bash -c 'rm -rf ../src && node dist/cli/index.js generate \"$@\" && cd .. && composer analyse' --",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "generate": "node dist/record-model/cli.js",
+    "generate:check": "npm run generate && cd .. && composer check",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -46,14 +44,9 @@
     "LICENSE"
   ],
   "dependencies": {
-    "ts-morph": "^24.0.0",
-    "commander": "^12.1.0",
-    "chalk": "^5.3.0",
-    "ora": "^8.1.0",
-    "fs-extra": "^11.2.0"
+    "ts-morph": "^24.0.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",

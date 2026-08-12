@@ -1,0 +1,17 @@
+{
+  "progressToken": 7,
+  "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+  "io.modelcontextprotocol/clientInfo": {
+    "name": "fixture-client",
+    "version": "1.0"
+  },
+  "io.modelcontextprotocol/clientCapabilities": {
+    "extensions": {
+      "example.extension/settings": {
+        "mode": "test"
+      }
+    }
+  },
+  "io.modelcontextprotocol/logLevel": "warning",
+  "example.extension/request-id": 42
+}

@@ -1,0 +1,40 @@
+name: Generator
+
+on:
+  pull_request:
+    branches:
+      - trunk
+  push:
+    branches:
+      - trunk
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: generator/package-lock.json
+
+      - run: npm ci
+        working-directory: generator
+
+      - run: npm run lint
+        working-directory: generator
+
+      - run: npm test
+        working-directory: generator
+
+      - run: npm run generate
+        working-directory: generator
+
+      - name: Verify generated PHP is current
+        run: git diff --exit-code -- src

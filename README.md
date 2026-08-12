@@ -1,135 +1,144 @@
-# PHP MCP Schema
+# PHP MCP Schema — descriptor-backed record experiment
 
-A PHP representation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) schema types.
+This branch is a ground-up experiment in representing multiple Model Context Protocol revisions with one immutable generic record runtime. It replaces the generated concrete DTO class trees; it is not a backward-compatible release candidate.
 
-This package provides Data Transfer Objects (DTOs), Enums, and Unions that mirror the official MCP TypeScript schema.
-It is **not** an SDK, client, or server implementation;
-just the type definitions for building your own MCP-compatible applications in PHP.
+The package currently ships MCP `2025-11-25` and `2026-07-28` as explicit catalogs. The generator compiles 300 revision-bound logical types into 225 structurally unique descriptors and 12 PHP source files.
 
-## Installation
+## Using a revision
 
-```bash
-composer require wordpress/php-mcp-schema
-```
-
-Requires PHP 7.4 or higher.
-
-## Usage
-
-### Creating a Tool Definition
+Select a revision explicitly, look up a logical MCP type, and hydrate its wire array:
 
 ```php
-use WP\McpSchema\Server\Tools\DTO\Tool;
+use WP\McpSchema\Revision;
+use WP\McpSchema\Schemas;
 
-$tool = Tool::fromArray([
-    'name' => 'get_weather',
-    'description' => 'Get current weather for a location',
-    'inputSchema' => [
-        'type' => 'object',
-        'properties' => [
-            'location' => ['type' => 'string', 'description' => 'City name'],
-        ],
-        'required' => ['location'],
+$schema = Schemas::revision(Revision::V20260728);
+$result = $schema->type('CallToolResult')->fromArray([
+    'resultType' => 'complete',
+    'content' => [
+        ['type' => 'text', 'text' => 'Sunny'],
     ],
 ]);
+
+$result->revision(); // '2026-07-28'
+$result->typeName(); // 'CallToolResult'
+$result->get('resultType'); // 'complete'
+$result->has('isError'); // false: omitted, not present-null
+$result->toArray(); // exact wire array
+json_encode($result, JSON_THROW_ON_ERROR); // JSON wire object
 ```
 
-### Serialization (toArray)
+There is no ambient “current revision.” Records and every nested record retain the revision that hydrated them.
 
-Convert a DTO to a plain array for JSON encoding:
+Run `composer demo` to print both revisions flowing through the same runtime with separate identities and wire output.
+
+## Discoverable typed catalogs
+
+Generated catalog methods provide top-level wire and hydrated field shapes to PHPStan:
 
 ```php
-use WP\McpSchema\Server\Tools\DTO\Tool;
+$result = Schemas::v20260728()
+    ->callToolResult()
+    ->fromArray($wire);
 
-$tool = Tool::fromArray([
-    'name' => 'get_weather',
-    'description' => 'Get current weather for a location',
-    'inputSchema' => ['type' => 'object', 'properties' => []],
+$content = $result->get('content');
+// PHPStan: array<int, Record<array<string, mixed>, array<string, mixed>>>
+```
+
+`Type<TWire, TFields>` uses separate generic shapes because the accepted wire value and hydrated value are not identical. `content` enters as a list of arrays but is exposed as a list of nested `Record` instances. `Record<TWire, TFields>::toArray()` returns `TWire`, while `get()` reads from `TFields`.
+
+String lookup remains available for dynamic consumers, but returns broad `array<string, mixed>` types. It exposes only record-compatible logical types; scalar aliases remain internal descriptor references. Prefer the catalog method when the logical type is known in code.
+
+## Exact wire behavior
+
+The shared runtime validates and decodes:
+
+- required fields separately from optional fields;
+- explicit `null` separately from omission;
+- string, number, boolean, and numeric or string literals;
+- lists, tuples, indexed maps, inline objects, unions, intersections, and `Omit` inheritance;
+- discriminator unions such as `ContentBlock`, `InputRequest`, and `InputResponse`;
+- open records that preserve and re-emit extension keys;
+- closed records that reject unrecognized keys.
+
+Nested schema objects and maps hydrate to `Record` instances. Values declared as `unknown` remain unchanged.
+
+### Empty JSON objects and lists
+
+PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
+
+```php
+$object = $type->fromArray([
+    'resultType' => 'complete',
+    'content' => [],
+    'structuredContent' => new stdClass(),
 ]);
 
-$array = $tool->toArray();
-$json  = json_encode($array); // Ready to send over the wire
-```
-
-### Deserialization (fromArray)
-
-Decode incoming JSON into a fully typed DTO:
-
-```php
-use WP\McpSchema\Server\Tools\DTO\CallToolRequest;
-
-$json = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_weather","arguments":{"location":"Paris"}}}';
-$data = json_decode($json, true);
-
-$request   = CallToolRequest::fromArray($data);
-$tool_name = $request->getTypedParams()->getName(); // "get_weather"
-$arguments = $request->getTypedParams()->getArguments(); // ['location' => 'Paris']
-```
-
-### Factory / Union Types
-
-Use a factory to resolve polymorphic content blocks without knowing the concrete type up front:
-
-```php
-use WP\McpSchema\Common\Protocol\Factory\ContentBlockFactory;
-use WP\McpSchema\Common\Content\DTO\TextContent;
-
-$block = ContentBlockFactory::fromArray(['type' => 'text', 'text' => 'Hello, world!']);
-
-// $block implements ContentBlockInterface; cast when you need the concrete API
-if ($block instanceof TextContent) {
-    echo $block->getText(); // "Hello, world!"
-}
-```
-
-### JSON-RPC Messages
-
-Construct a generic JSON-RPC request for any MCP method:
-
-```php
-use WP\McpSchema\Common\JsonRpc\DTO\JSONRPCRequest;
-
-$request = JSONRPCRequest::fromArray([
-    'jsonrpc' => '2.0',
-    'id'      => 1,
-    'method'  => 'tools/list',
+$list = $type->fromArray([
+    'resultType' => 'complete',
+    'content' => [],
+    'structuredContent' => [],
 ]);
-
-$json = json_encode($request->toArray());
 ```
 
-## Available Types
+`toArray()` necessarily normalizes `stdClass` to an array. JSON serialization uses the retained descriptor-backed record boundaries and preserves object/list identity.
 
-### Server Types (`WP\McpSchema\Server\`)
+## Architecture
 
-- **Tools** - `Tool`, `CallToolRequest`, `CallToolResult`, `ListToolsRequest`, `ListToolsResult`
-- **Resources** - `Resource`, `ResourceTemplate`, `ReadResourceRequest`, `ReadResourceResult`
-- **Prompts** - `Prompt`, `PromptMessage`, `GetPromptRequest`, `GetPromptResult`
-- **Logging** - `LoggingMessageNotification`, `SetLevelRequest`
+The generated package has four layers:
 
-### Client Types (`WP\McpSchema\Client\`)
+1. `Revision` and `Schemas` select an immutable revision catalog.
+2. Generated catalogs map logical names to content hashes and add typed accessors.
+3. `DescriptorPool` stores each locally unique descriptor once across revisions.
+4. One recursive runtime validates, hydrates, and serializes every descriptor.
 
-- **Sampling** - `CreateMessageRequest`, `CreateMessageResult`, `SamplingMessage`
-- **Elicitation** - `ElicitRequest`, `ElicitResult`
-- **Roots** - `ListRootsRequest`, `ListRootsResult`, `Root`
+A descriptor hash identifies a local structural definition. References inside it remain logical type names and resolve through the selected revision manifest. The revision fingerprint hashes the complete logical-name-to-descriptor binding, so any definition change changes the revision fingerprint even when referring descriptors are shared.
 
-### Common Types (`WP\McpSchema\Common\`)
+The generated descriptor pool and revision schemas are cached in-process. There is no mutable global registry and no cross-revision cache key. Composer or Jetpack package-copy selection still determines which package implementation owns the shared `WP\McpSchema` class names; this model does not make two different package releases with the same namespace independently loadable.
 
-- **Protocol** - `InitializeRequest`, `InitializeResult`, `PingRequest`
-- **Content** - `TextContent`, `ImageContent`, `AudioContent`
-- **JSON-RPC** - `JSONRPCRequest`, `JSONRPCNotification`, `JSONRPCResultResponse`, `JSONRPCErrorResponse`
+The package still owns schema validation, hydration, and serialization only. Protocol negotiation, sessions, retries, revision translation, and downgrade policy remain consumer responsibilities.
 
-## Generator
+## Compatibility consequences
 
-The PHP code in `src/` is auto-generated from the official MCP TypeScript schema. The generator is located in the `generator/` directory and is not included in the Composer package.
+Adopting this model as the package API would require a major release. It removes:
 
-See [generator/README.md](generator/README.md) for setup and usage instructions.
+- public DTO constructors and typed getters;
+- concrete revision-specific DTO classes and union interfaces;
+- DTO `instanceof` checks and reflection over concrete properties;
+- static `SomeDto::fromArray()` entry points.
 
-## License
+Consumers gain a much smaller runtime surface, explicit revision identity, descriptor introspection, exact runtime validation, and catalog-assisted array shapes. They lose native concrete-class ergonomics. This branch intentionally tests that tradeoff rather than hiding it behind compatibility shims.
 
-GPL-2.0-or-later - see [LICENSE.md](LICENSE.md) for details.
+## Development
 
-## Links
+Generate the package from both official TypeScript schemas:
 
-- [Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)
-- [MCP GitHub Repository](https://github.com/modelcontextprotocol/modelcontextprotocol)
+```bash
+cd generator
+npm install
+npm run build
+npm run generate
+```
+
+Run the executable wire checks and PHPStan contract checks:
+
+```bash
+composer check
+cd generator && npm test
+```
+
+Measure catalog memory and repeated hydrate/serialize throughput locally:
+
+```bash
+composer benchmark
+# Optional iteration count:
+composer benchmark -- 50000
+```
+
+The benchmark reports observations for the current PHP runtime and machine. It intentionally has no pass/fail performance threshold; use its output to compare revisions of this experiment under the same environment.
+
+`src/` is generated. Change the compiler or PHP templates under `generator/`, then regenerate; never edit generated PHP directly.
+
+## Scope
+
+This is a throwaway architecture prototype on `try/descriptor-backed-generic-record-model`. It exists to answer whether a generic record/catalog API can preserve exact revision wire contracts with acceptable PHPStan ergonomics. It is not published and does not preserve the current package API.

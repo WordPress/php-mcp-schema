@@ -3,3 +3,7 @@ parameters:
     level: max
     paths:
         - src
+        - tests/phpstan
+    excludePaths:
+        analyse:
+            - src/Generated/DescriptorPool.php

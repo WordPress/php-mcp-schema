@@ -1,60 +1,27 @@
-# MCP PHP Schema Generator
+# Descriptor record generator
 
-TypeScript generator that creates PHP DTOs from the official MCP TypeScript schema.
+The generator fetches the official MCP `2025-11-25` and `2026-07-28` TypeScript schemas, compiles their type syntax into canonical descriptors, deduplicates identical descriptors by SHA-256, and replaces `../src` with the generic PHP runtime and revision catalogs.
 
-## Setup
+`../src` is a destructive generated-output boundary. The writer verifies that the resolved destination is exactly the repository's `src/` directory before replacing it.
+
+## Commands
 
 ```bash
 npm install
 npm run build
+npm run generate
+npm test
 ```
 
-## Running the Generator
+`npm run generate:check` regenerates the package, then runs the PHP wire checks and PHPStan analysis from the repository root.
 
-The generator requires a configuration file that specifies the schema version. Config files are located in `config/`.
+Downloaded immutable schema revisions are cached under `.cache/schemas/`. Remove that ignored cache to force a new download.
 
-**Available versions:**
-- `2024-11-05.json` - Initial MCP release
-- `2025-03-26.json`
-- `2025-06-18.json`
-- `2025-11-25.json` - Latest
+Each shipping source schema has a pinned SHA-256 digest in the compiler. Generation fails instead of silently accepting changed content at the same upstream revision URL.
 
-**Generate PHP schema:**
+## Source layout
 
-```bash
-npx mcp-php-generator generate -c config/2025-11-25.json
-```
-
-**Generate and run PHPStan validation:**
-
-```bash
-npm run generate:check -- -c config/2025-11-25.json
-```
-
-## CLI Options
-
-```bash
-npx mcp-php-generator generate --help
-
-Options:
-  -c, --config <file>      Configuration file (required)
-  -o, --output <dir>       Output directory (overrides config)
-  -n, --namespace <ns>     PHP namespace (overrides config)
-  -p, --php-version <ver>  PHP version (overrides config)
-  --builders               Generate builder classes
-  --no-factories           Disable factory generation
-  --dry-run                Show what would be generated without writing files
-  --fresh                  Force fresh fetch from GitHub (ignore cache)
-  --verbose                Enable verbose output
-```
-
-## Other Commands
-
-```bash
-npm run build                        # Compile TypeScript
-npm run lint                         # Run ESLint
-npm run format                       # Run Prettier
-npx mcp-php-generator info           # Show generator info
-npx mcp-php-generator configs        # List available config files
-npx mcp-php-generator clear-cache    # Clear schema cache
-```
+- `src/record-model/compiler.ts` compiles TypeScript AST nodes into descriptor data.
+- `src/record-model/php-renderer.ts` writes the content-addressed pool, typed catalogs, and entry point.
+- `templates/` owns the shared PHP 7.4 runtime and public contracts.
+- `tests/record-model.test.mjs` verifies determinism, deduplication, reference closure, and representative catalog coverage.

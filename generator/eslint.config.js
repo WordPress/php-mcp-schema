@@ -9,6 +9,10 @@ export default [
     files: ['src/**/*.ts'],
     languageOptions: {
       parser: tsparser,
+      globals: {
+        fetch: 'readonly',
+        process: 'readonly',
+      },
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',

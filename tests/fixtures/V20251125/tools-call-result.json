@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "trace": "legacy"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "sunny"
+    }
+  ],
+  "structuredContent": {
+    "temperature": 21
+  },
+  "isError": false,
+  "example.extension/kept": true
+}

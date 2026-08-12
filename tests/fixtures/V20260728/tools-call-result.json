@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "io.modelcontextprotocol/serverInfo": {
+      "name": "fixture-server",
+      "version": "1.0"
+    }
+  },
+  "resultType": "complete",
+  "content": [
+    {
+      "type": "text",
+      "text": "sunny"
+    }
+  ],
+  "structuredContent": "primitive values are valid in this revision",
+  "isError": false,
+  "example.extension/kept": true
+}

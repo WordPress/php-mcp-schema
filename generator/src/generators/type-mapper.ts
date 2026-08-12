@@ -113,11 +113,12 @@ export class TypeMapper {
 
       if (constValue !== undefined) {
         // We have the actual constant value from the schema
+        const isNumber = typeof constValue === 'number';
         return {
-          type: 'string',
+          type: isNumber ? 'int' : 'string',
           nullable: false,
           isArray: false,
-          phpDocType: `'${constValue}'`, // Use the actual constant value as literal type
+          phpDocType: isNumber ? String(constValue) : `'${constValue}'`,
         };
       }
 

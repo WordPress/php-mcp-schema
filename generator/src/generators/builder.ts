@@ -9,7 +9,8 @@ import { DomainClassifier } from './domain-classifier.js';
 import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { TypeResolver } from './type-resolver.js';
 import { resolveInheritance } from '../parser/index.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
+import { assertNoPhpPropertyNameCollisions, getPhpPropertyName } from './property-names.js';
 
 /**
  * Generates PHP builder classes for DTOs.
@@ -43,6 +44,11 @@ export class BuilderGenerator {
     const classification = this.classifier.classify(iface.name, iface.tags, iface.syntheticParent);
     const properties = resolveInheritance(iface.name, this.interfaces);
     const indent = this.getIndent();
+
+    assertNoPhpPropertyNameCollisions(
+      iface.name,
+      properties.filter((property) => !property.isOpenBag).map((property) => property.name)
+    );
 
     return this.renderBuilder(iface, properties, classification, indent);
   }
@@ -133,6 +139,12 @@ export class BuilderGenerator {
       lines.push(' *');
     }
 
+    const deprecatedTag = getDeprecatedPhpDocTag(iface.tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
+      lines.push(' *');
+    }
+
     lines.push(` * @mcp-domain ${classification.domain}`);
     lines.push(` * @mcp-subdomain ${classification.subdomain}`);
     lines.push(` * @mcp-version ${this.config.schema.version}`);
@@ -154,6 +166,11 @@ export class BuilderGenerator {
       const propVersionInfo = this.versionTracker?.getPropertyVersion(iface.name, prop.name);
       if (propVersionInfo) {
         lines.push(`${indent} * @since ${propVersionInfo.introducedIn}`);
+        lines.push(`${indent} *`);
+      }
+      const deprecatedTag = getDeprecatedPhpDocTag(prop.tags);
+      if (deprecatedTag) {
+        lines.push(`${indent} * ${deprecatedTag}`);
         lines.push(`${indent} *`);
       }
       // Builder properties are always nullable (initialized to null)
@@ -290,13 +307,9 @@ export class BuilderGenerator {
    * Handles special prefixes like _ and $ to create valid PHP method names.
    */
   private getSetterName(propName: string): string {
-    let name = propName;
+    let name = getPhpPropertyName(propName);
     // Handle special property names like _meta -> meta
     if (name.startsWith('_')) {
-      name = name.substring(1);
-    }
-    // Handle JSON Schema properties like $schema -> schema
-    if (name.startsWith('$')) {
       name = name.substring(1);
     }
     return name;
@@ -307,10 +320,6 @@ export class BuilderGenerator {
    * Handles special characters like $ which would create invalid variable names.
    */
   private sanitizePropertyName(name: string): string {
-    // Remove leading $ to avoid $$name (variable variables) in PHP
-    if (name.startsWith('$')) {
-      return name.substring(1);
-    }
-    return name;
+    return getPhpPropertyName(name);
   }
 }

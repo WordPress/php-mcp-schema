@@ -53,6 +53,7 @@ export interface TsProperty {
   readonly type: string;
   readonly isOptional: boolean;
   readonly description?: string;
+  readonly tags?: readonly JsDocTag[];
   readonly isReadonly?: boolean;
   /** Original inline type before synthetic extraction */
   readonly originalInlineType?: string;
@@ -209,6 +210,7 @@ export interface PhpProperty {
   readonly name: string;
   readonly type: PhpType;
   readonly description?: string;
+  readonly tags?: readonly JsDocTag[];
   readonly isRequired: boolean;
   readonly defaultValue?: string;
   readonly constValue?: string;
@@ -241,6 +243,7 @@ export interface PhpClassMeta {
   readonly domain: McpDomain;
   readonly subdomain: McpSubdomain;
   readonly description?: string;
+  readonly tags?: readonly JsDocTag[];
   readonly properties: readonly PhpProperty[];
   readonly extends?: string;
   readonly implements?: readonly string[];

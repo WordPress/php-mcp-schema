@@ -22,6 +22,23 @@ describe('current type and constant generation', () => {
     });
   });
 
+  it('resolves a numeric typeof constant as an integer literal', () => {
+    const constants = createConstantsMap([
+      {
+        name: 'PARSE_ERROR',
+        value: -32700,
+        valueType: 'number',
+      },
+    ]);
+
+    assert.deepEqual(TypeMapper.mapType('typeof PARSE_ERROR', 'code', constants), {
+      type: 'int',
+      nullable: false,
+      isArray: false,
+      phpDocType: '-32700',
+    });
+  });
+
   it('emits numeric constants without string quoting', () => {
     const generator = new ConstantsGenerator(createConfig({ schema: { version: '2025-11-25' } }));
     const php = generator.generate([

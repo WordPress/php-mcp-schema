@@ -5,7 +5,7 @@
  * type aliases, and metadata.
  */
 
-import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration, VariableDeclarationKind } from 'ts-morph';
+import { Project, SourceFile, InterfaceDeclaration, TypeAliasDeclaration, EnumDeclaration, VariableDeclarationKind, Node } from 'ts-morph';
 import type { AstOutput, TsInterface, TsTypeAlias, TsProperty, JsDocTag, TsEnum, TsEnumMember, TsConstant } from '../types/index.js';
 import { createOpenBagProperty } from '../types/index.js';
 
@@ -146,10 +146,11 @@ function extractProperties(iface: InterfaceDeclaration): TsProperty[] {
     const typeText = typeNode ? typeNode.getText() : prop.getType().getText();
 
     return {
-      name: prop.getName(),
+      name: getPropertyWireName(prop),
       type: typeText,
       isOptional: prop.hasQuestionToken(),
       description: getPropertyDescription(prop),
+      tags: extractPropertyJsDocTags(prop),
       isReadonly: prop.isReadonly(),
     };
   });
@@ -160,6 +161,16 @@ function extractProperties(iface: InterfaceDeclaration): TsProperty[] {
   }
 
   return properties;
+}
+
+/** Returns the exact runtime key for a property, without TypeScript source quotes. */
+function getPropertyWireName(prop: ReturnType<InterfaceDeclaration['getProperties']>[0]): string {
+  const nameNode = prop.getNameNode();
+  if (Node.isStringLiteral(nameNode) || Node.isNoSubstitutionTemplateLiteral(nameNode)) {
+    return nameNode.getLiteralValue();
+  }
+
+  return prop.getName();
 }
 
 /**
@@ -197,9 +208,10 @@ function extractJsDocTags(
 
   for (const jsDoc of node.getJsDocs()) {
     for (const tag of jsDoc.getTags()) {
+      const comment = tag.getComment();
       tags.push({
         tagName: tag.getTagName(),
-        text: tag.getComment()?.toString(),
+        text: typeof comment === 'string' ? comment : comment?.map((part) => part?.getText() ?? '').join(''),
       });
     }
   }
@@ -232,6 +244,23 @@ function getPropertyDescription(prop: ReturnType<InterfaceDeclaration['getProper
   }
 
   return jsDocs[0]?.getDescription()?.trim() || undefined;
+}
+
+/** Extracts JSDoc tags attached to a property signature. */
+function extractPropertyJsDocTags(prop: ReturnType<InterfaceDeclaration['getProperties']>[0]): JsDocTag[] {
+  const tags: JsDocTag[] = [];
+
+  for (const jsDoc of prop.getJsDocs()) {
+    for (const tag of jsDoc.getTags()) {
+      const comment = tag.getComment();
+      tags.push({
+        tagName: tag.getTagName(),
+        text: typeof comment === 'string' ? comment : comment?.map((part) => part?.getText() ?? '').join(''),
+      });
+    }
+  }
+
+  return tags;
 }
 
 /**

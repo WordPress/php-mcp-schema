@@ -53,7 +53,8 @@ import type { TsTypeAlias, TsInterface, TsProperty, GeneratorConfig, DomainClass
 import { OPEN_BAG_PROPERTY } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
 import { TypeMapper } from './type-mapper.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
+import { getPhpPropertyName } from './property-names.js';
 
 // Note: TypeMapper.mapType is a static method, so we call it directly as TypeMapper.mapType()
 
@@ -389,6 +390,11 @@ export class IntersectionTypeWrapperGenerator {
     lines.push(' *');
     lines.push(` * @since ${this.config.schema.version}`);
     lines.push(' *');
+    const deprecatedTag = getDeprecatedPhpDocTag(info.typeAlias.tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
+      lines.push(' *');
+    }
     lines.push(` * @mcp-domain ${classification.domain}`);
     lines.push(` * @mcp-subdomain ${classification.subdomain}`);
     lines.push(` * @mcp-version ${this.config.schema.version}`);
@@ -680,15 +686,8 @@ export class IntersectionTypeWrapperGenerator {
    * - JSON key: `$schema` (preserve original for serialization)
    */
   private getPropertyNames(originalName: string): { phpName: string; jsonKey: string } {
-    // If name starts with $, strip it for PHP but keep it for JSON serialization
-    if (originalName.startsWith('$')) {
-      return {
-        phpName: originalName.slice(1),
-        jsonKey: originalName,
-      };
-    }
     return {
-      phpName: originalName,
+      phpName: getPhpPropertyName(originalName),
       jsonKey: originalName,
     };
   }

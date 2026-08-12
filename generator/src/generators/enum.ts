@@ -6,7 +6,7 @@
 
 import type { TsTypeAlias, GeneratorConfig, DomainClassification } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
 
 /**
  * Generates PHP enum classes (class-based for PHP 7.4 compatibility).
@@ -59,7 +59,7 @@ export class EnumGenerator {
     const values = this.extractValues(typeAlias);
     const indent = this.getIndent();
 
-    return this.renderEnum(typeAlias.name, values, classification, typeAlias.description, indent);
+    return this.renderEnum(typeAlias.name, values, classification, typeAlias.description, typeAlias.tags, indent);
   }
 
   /**
@@ -80,6 +80,7 @@ export class EnumGenerator {
     values: string[],
     classification: DomainClassification,
     description: string | undefined,
+    tags: TsTypeAlias['tags'],
     indent: string
   ): string {
     const lines: string[] = [];
@@ -103,6 +104,11 @@ export class EnumGenerator {
     lines.push('/**');
     if (description) {
       lines.push(...formatPhpDocDescription(description));
+      lines.push(' *');
+    }
+    const deprecatedTag = getDeprecatedPhpDocTag(tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
       lines.push(' *');
     }
     lines.push(` * @mcp-domain ${classification.domain}`);

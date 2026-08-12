@@ -4,7 +4,7 @@
  * Generates PHP 7.4 Data Transfer Object classes from TypeScript interfaces.
  */
 
-import type { TsInterface, TsTypeAlias, PhpProperty, PhpClassMeta, GeneratorConfig, DomainClassification, UnionMembershipMap, PhpType, VersionTracker } from '../types/index.js';
+import type { TsInterface, TsTypeAlias, PhpProperty, PhpClassMeta, GeneratorConfig, DomainClassification, UnionMembershipMap, PhpType, VersionTracker, JsDocTag } from '../types/index.js';
 import { OPEN_BAG_PROPERTY } from '../types/index.js';
 import { TypeMapper, ConstantsMap } from './type-mapper.js';
 import { DomainClassifier } from './domain-classifier.js';
@@ -18,7 +18,8 @@ import {
   type InheritanceGraph,
   type NarrowedProperty,
 } from './inheritance-graph.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
+import { assertNoPhpPropertyNameCollisions, getPhpPropertyName } from './property-names.js';
 
 /**
  * DTO generation options.
@@ -119,6 +120,11 @@ export class DtoGenerator {
     const ownProperties = propClassification.ownProperties;
     const narrowedProperties = propClassification.narrowedProperties;
 
+    assertNoPhpPropertyNameCollisions(
+      iface.name,
+      allProperties.filter((property) => !property.isOpenBag).map((property) => property.name)
+    );
+
     // Resolve all property types and collect imports (for constructor/fromArray/toArray)
     const allPhpProperties = allProperties.map((p) => this.resolveProperty(p, currentNamespace, imports, iface.name));
 
@@ -139,6 +145,7 @@ export class DtoGenerator {
       domain: classification.domain,
       subdomain: classification.subdomain,
       description: iface.description,
+      tags: iface.tags,
       properties: allPhpProperties, // All for constructor/fromArray/toArray
       extends: extendsClass,
       implements: implementsList.length > 0 ? implementsList : undefined,
@@ -153,7 +160,7 @@ export class DtoGenerator {
    * Resolves a TypeScript property to a PHP property.
    */
   private resolveProperty(
-    p: { name: string; type: string; isOptional: boolean; description?: string; isOpenBag?: boolean },
+    p: { name: string; type: string; isOptional: boolean; description?: string; tags?: readonly JsDocTag[]; isOpenBag?: boolean },
     currentNamespace: string,
     imports: Map<string, string>,
     interfaceName?: string
@@ -233,6 +240,7 @@ export class DtoGenerator {
       name: p.name,
       type: phpType,
       description: p.description,
+      tags: p.tags,
       isRequired: !p.isOptional,
       constValue,
       maxItems,
@@ -598,6 +606,12 @@ export class DtoGenerator {
       lines.push(' *');
     }
 
+    const deprecatedTag = getDeprecatedPhpDocTag(meta.tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
+      lines.push(' *');
+    }
+
     lines.push(` * @mcp-domain ${meta.domain}`);
     lines.push(` * @mcp-subdomain ${meta.subdomain}`);
     lines.push(` * @mcp-version ${this.config.schema.version}`);
@@ -849,6 +863,11 @@ export class DtoGenerator {
         lines.push(`${indent} * @since ${propVersionInfo.introducedIn}`);
         lines.push(`${indent} *`);
       }
+      const deprecatedTag = getDeprecatedPhpDocTag(prop.tags);
+      if (deprecatedTag) {
+        lines.push(`${indent} * ${deprecatedTag}`);
+        lines.push(`${indent} *`);
+      }
       lines.push(`${indent} * @var ${phpDocType}`);
       lines.push(`${indent} */`);
 
@@ -943,9 +962,10 @@ export class DtoGenerator {
           return `self::${constName}`;
         }
         if (narrowedPropertyNames.has(p.name)) {
-          // This property has a narrowed type - pass null to parent
-          // The child will assign its typed value directly
-          return 'null';
+          // Optional parent placeholders can remain empty when the child's PHP
+          // representation is incompatible (for example DTO versus array).
+          // Required narrowed values must reach non-nullable parent storage.
+          return p.isOptional ? 'null' : `$${phpName}`;
         }
         return `$${phpName}`;
       });
@@ -1726,15 +1746,8 @@ export class DtoGenerator {
    * Returns both the PHP property name and the original JSON key.
    */
   private getPropertyNames(originalName: string): { phpName: string; jsonKey: string } {
-    // If name starts with $, strip it for PHP but keep it for JSON serialization
-    if (originalName.startsWith('$')) {
-      return {
-        phpName: originalName.slice(1),
-        jsonKey: originalName,
-      };
-    }
     return {
-      phpName: originalName,
+      phpName: getPhpPropertyName(originalName),
       jsonKey: originalName,
     };
   }

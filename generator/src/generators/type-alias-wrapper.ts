@@ -41,7 +41,7 @@
 
 import type { TsTypeAlias, TsInterface, GeneratorConfig, DomainClassification, UnionMembershipInfo } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
 
 /**
  * Information about a type alias that needs a wrapper class.
@@ -251,6 +251,11 @@ export class TypeAliasWrapperGenerator {
       lines.push(` * - {@see ${union.unionName}Interface}`);
     }
     lines.push(' *');
+    const deprecatedTag = getDeprecatedPhpDocTag(info.typeAlias.tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
+      lines.push(' *');
+    }
     lines.push(` * @mcp-domain ${classification.domain}`);
     lines.push(` * @mcp-subdomain ${classification.subdomain}`);
     lines.push(` * @mcp-version ${this.config.schema.version}`);

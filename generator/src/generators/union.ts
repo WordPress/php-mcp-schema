@@ -6,7 +6,7 @@
 
 import type { TsTypeAlias, GeneratorConfig, DomainClassification } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
 
 /**
  * Generates PHP interfaces for union types.
@@ -113,7 +113,7 @@ export class UnionGenerator {
     // Get parent unions that this union should extend
     const parentUnions = this.parentUnionMap.get(typeAlias.name) ?? [];
 
-    return this.renderInterface(typeAlias.name, members, classification, typeAlias.description, indent, parentUnions);
+    return this.renderInterface(typeAlias.name, members, classification, typeAlias.description, typeAlias.tags, indent, parentUnions);
   }
 
   /**
@@ -134,6 +134,7 @@ export class UnionGenerator {
     members: string[],
     classification: DomainClassification,
     description: string | undefined,
+    tags: TsTypeAlias['tags'],
     indent: string,
     parentUnions: string[] = []
   ): string {
@@ -168,6 +169,11 @@ export class UnionGenerator {
     lines.push('/**');
     if (description) {
       lines.push(...formatPhpDocDescription(description));
+      lines.push(' *');
+    }
+    const deprecatedTag = getDeprecatedPhpDocTag(tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
       lines.push(' *');
     }
     lines.push(' * Union type members:');

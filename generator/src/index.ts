@@ -12,7 +12,7 @@ import { parseSchema } from './parser/index.js';
 import { DtoGenerator, EnumGenerator, NumericEnumGenerator, ConstantsGenerator, UnionGenerator, FactoryGenerator, BuilderGenerator, ContractGenerator, TypeAliasWrapperGenerator, IntersectionTypeWrapperGenerator, DomainClassifier, createConstantsMap, SkillGenerator } from './generators/index.js';
 import { FileWriter, generateAbstractDto, generateAbstractEnum, generateValidatesRequiredFieldsTrait } from './writers/index.js';
 import { SyntheticDtoExtractor, updateInterfacesWithSyntheticTypes } from './extractors/index.js';
-import { buildVersionTracker, createEmptyVersionTracker } from './version-tracker/index.js';
+import { buildVersionTracker, createEmptyVersionTracker, UnknownSchemaVersionError } from './version-tracker/index.js';
 
 // Re-export types for external use
 export type {
@@ -57,7 +57,7 @@ export { FileWriter, generateAbstractDto, generateAbstractEnum, generateValidate
 export { SyntheticDtoExtractor, updateInterfacesWithSyntheticTypes } from './extractors/index.js';
 
 // Re-export version tracker
-export { buildVersionTracker, createEmptyVersionTracker, loadSchemaVersions, getVersionsUpTo } from './version-tracker/index.js';
+export { buildVersionTracker, createEmptyVersionTracker, loadSchemaVersions, getVersionsUpTo, UnknownSchemaVersionError } from './version-tracker/index.js';
 export type { BuildVersionTrackerOptions } from './version-tracker/index.js';
 
 /**
@@ -302,6 +302,9 @@ export async function generate(
       onProgress: config.verbose ? progress : undefined,
     });
   } catch (error) {
+    if (error instanceof UnknownSchemaVersionError) {
+      throw error;
+    }
     // If version tracking fails (e.g., network error), continue without it
     const errorMessage = error instanceof Error ? error.message : String(error);
     progress(`Warning: Version tracking unavailable (${errorMessage}). Continuing without version annotations.`);

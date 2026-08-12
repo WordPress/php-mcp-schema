@@ -173,11 +173,18 @@ export function getVersionsUpTo(allVersions: readonly string[], targetVersion: s
   const targetIndex = allVersions.indexOf(targetVersion);
 
   if (targetIndex === -1) {
-    // Target version not found - return all versions (graceful fallback)
-    return allVersions;
+    throw new UnknownSchemaVersionError(targetVersion);
   }
 
   return allVersions.slice(0, targetIndex + 1);
+}
+
+/** Raised when generation targets a revision absent from versions.json. */
+export class UnknownSchemaVersionError extends Error {
+  constructor(targetVersion: string) {
+    super(`Schema revision ${targetVersion} is absent from configured version history`);
+    this.name = 'UnknownSchemaVersionError';
+  }
 }
 
 /**

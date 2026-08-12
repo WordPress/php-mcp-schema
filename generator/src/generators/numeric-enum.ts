@@ -7,7 +7,7 @@
 
 import type { TsEnum, GeneratorConfig, DomainClassification } from '../types/index.js';
 import { DomainClassifier } from './domain-classifier.js';
-import { formatPhpDocDescription } from './index.js';
+import { formatPhpDocDescription, getDeprecatedPhpDocTag } from './index.js';
 
 /**
  * Generates PHP constant classes from TypeScript numeric enums.
@@ -84,6 +84,11 @@ export class NumericEnumGenerator {
     }
     lines.push(` * @since ${this.config.schema.version}`);
     lines.push(' *');
+    const deprecatedTag = getDeprecatedPhpDocTag(tsEnum.tags);
+    if (deprecatedTag) {
+      lines.push(` * ${deprecatedTag}`);
+      lines.push(' *');
+    }
     lines.push(` * @mcp-domain ${classification.domain}`);
     lines.push(` * @mcp-subdomain ${classification.subdomain}`);
     lines.push(` * @mcp-version ${this.config.schema.version}`);

@@ -4,6 +4,8 @@
  * Generates PHP code (DTOs, Enums, Unions, Factories, Builders, Contracts) from TypeScript AST.
  */
 
+import type { JsDocTag } from '../types/index.js';
+
 export { DtoGenerator } from './dto.js';
 export { EnumGenerator } from './enum.js';
 export { NumericEnumGenerator } from './numeric-enum.js';
@@ -17,6 +19,7 @@ export type { TypeAliasWrapperInfo } from './type-alias-wrapper.js';
 export { IntersectionTypeWrapperGenerator } from './intersection-type-wrapper.js';
 export type { IntersectionTypeWrapperInfo } from './intersection-type-wrapper.js';
 export { TypeMapper, createConstantsMap } from './type-mapper.js';
+export { getPhpPropertyName, assertNoPhpPropertyNameCollisions } from './property-names.js';
 export { SchemaMapGenerator } from './schema-map.js';
 export type {
   SchemaMap,
@@ -81,4 +84,17 @@ export function formatPhpDocDescription(description: string, indent: string = ''
   }
 
   return lines;
+}
+
+/** Formats a schema @deprecated tag as a single PHPDoc tag line. */
+export function getDeprecatedPhpDocTag(
+  tags: readonly JsDocTag[] | undefined
+): string | undefined {
+  const deprecated = tags?.find((tag) => tag.tagName === 'deprecated');
+  if (!deprecated) {
+    return undefined;
+  }
+
+  const description = deprecated.text?.replace(/\s+/g, ' ').trim();
+  return description ? `@deprecated ${description}` : '@deprecated';
 }

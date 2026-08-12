@@ -32,3 +32,5 @@ jobs:
       - run: composer validate --strict
 
       - run: composer analyse
+
+      - run: composer test

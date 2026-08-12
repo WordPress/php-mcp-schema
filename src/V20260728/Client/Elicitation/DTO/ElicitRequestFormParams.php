@@ -1,0 +1,138 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WP\McpSchema\V20260728\Client\Elicitation\DTO;
+
+use WP\McpSchema\V20260728\Client\Elicitation\Union\ElicitRequestParamsInterface;
+use WP\McpSchema\V20260728\Common\AbstractDataTransferObject;
+use WP\McpSchema\V20260728\Common\Traits\ValidatesRequiredFields;
+
+/**
+ * The parameters for a request to elicit non-sensitive information from the user via a form in the client.
+ *
+ * @since 2025-11-25
+ * @last-updated 2026-07-28 (removed properties: _meta, task)
+ *
+ * @mcp-domain Client
+ * @mcp-subdomain Elicitation
+ * @mcp-version 2026-07-28
+ */
+class ElicitRequestFormParams extends AbstractDataTransferObject implements ElicitRequestParamsInterface
+{
+    use ValidatesRequiredFields;
+
+    public const MODE = 'form';
+
+    public const DISCRIMINATOR_FIELD = 'mode';
+    public const DISCRIMINATOR_VALUE = 'form';
+
+    /**
+     * The elicitation mode.
+     *
+     * @since 2025-11-25
+     *
+     * @var 'form'|null
+     */
+    protected ?string $mode;
+
+    /**
+     * The message to present to the user describing what information is being requested.
+     *
+     * @since 2025-11-25
+     *
+     * @var string
+     */
+    protected string $message;
+
+    /**
+     * A restricted subset of JSON Schema.
+     * Only top-level properties are allowed, without nesting.
+     *
+     * @since 2025-11-25
+     *
+     * @var \WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequestFormParamsRequestedSchema
+     */
+    protected ElicitRequestFormParamsRequestedSchema $requestedSchema;
+
+    /**
+     * @param string $message @since 2025-11-25
+     * @param \WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequestFormParamsRequestedSchema $requestedSchema @since 2025-11-25
+     */
+    public function __construct(
+        string $message,
+        ElicitRequestFormParamsRequestedSchema $requestedSchema
+    ) {
+        $this->mode = self::MODE;
+        $this->message = $message;
+        $this->requestedSchema = $requestedSchema;
+    }
+
+    /**
+     * Creates an instance from an array.
+     *
+     * @param array{
+     *     mode?: 'form'|null,
+     *     message: string,
+     *     requestedSchema: array<string, mixed>|\WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequestFormParamsRequestedSchema
+     * } $data
+     * @phpstan-param array<string, mixed> $data
+     * @return self
+     */
+    public static function fromArray(array $data): self
+    {
+        self::assertRequired($data, ['message', 'requestedSchema']);
+
+        /** @var \WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequestFormParamsRequestedSchema $requestedSchema */
+        $requestedSchema = is_array($data['requestedSchema'])
+            ? ElicitRequestFormParamsRequestedSchema::fromArray(self::asArray($data['requestedSchema']))
+            : $data['requestedSchema'];
+
+        return new self(
+            self::asString($data['message']),
+            $requestedSchema
+        );
+    }
+
+    /**
+     * Converts the instance to an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $result = [];
+
+        if ($this->mode !== null) {
+            $result['mode'] = $this->mode;
+        }
+        $result['message'] = $this->message;
+        $result['requestedSchema'] = $this->requestedSchema->toArray();
+
+        return $result;
+    }
+
+    /**
+     * @return 'form'|null
+     */
+    public function getMode(): ?string
+    {
+        return $this->mode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    /**
+     * @return \WP\McpSchema\V20260728\Client\Elicitation\DTO\ElicitRequestFormParamsRequestedSchema
+     */
+    public function getRequestedSchema(): ElicitRequestFormParamsRequestedSchema
+    {
+        return $this->requestedSchema;
+    }
+}

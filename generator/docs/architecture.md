@@ -43,7 +43,9 @@ generator/
 │   │   └── index.ts          # File writing & base classes
 │   └── version-tracker/
 │       └── index.ts          # Schema version tracking
-├── config/                   # Version-specific configs
+├── config/
+│   ├── revisions/           # Shipping revision configs
+│   └── versions.json        # Complete annotation history
 └── dist/                     # Compiled output
 ```
 
@@ -148,8 +150,8 @@ generator/
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                   OUTPUT: PHP files in src/                     │
-│                   OUTPUT: Skill files in skill/                 │
+│              OUTPUT: PHP files in src/V<YYYYMMDD>/              │
+│       OUTPUT: Skill files in the configured explicit path       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -300,38 +302,23 @@ Tracks schema history for version annotations:
 
 File output with organization:
 
-- DTOs: `Domain/Subdomain/ClassName.php`
-- Others: `Domain/Subdomain/Type/ClassName.php`
+- DTOs: `src/V<YYYYMMDD>/Domain/Subdomain/DTO/ClassName.php`
+- Others: `src/V<YYYYMMDD>/Domain/Subdomain/Type/ClassName.php`
 - Generates base classes (`AbstractDataTransferObject`, `AbstractEnum`, `ValidatesRequiredFields` trait)
+- Clears only the exact revision tree selected by the configuration
 
 ## Generated Output Structure
 
 ```
 src/
-├── Common/
-│   ├── AbstractDataTransferObject.php
-│   ├── AbstractEnum.php
-│   ├── McpConstants.php           # Protocol constants
-│   ├── Traits/
-│   │   └── ValidatesRequiredFields.php
-│   ├── Contracts/                 # Marker interfaces
-│   ├── Protocol/                  # Core protocol types
-│   ├── JsonRpc/                   # JSON-RPC message types
-│   ├── Content/                   # Content block types
-│   └── Tasks/                     # Shared task types
-├── Server/
-│   ├── Tools/                     # Tool definitions
-│   ├── Resources/                 # Resource management
-│   ├── Prompts/                   # Prompt templates
-│   ├── Logging/                   # Logging types
-│   ├── Lifecycle/                 # Server lifecycle
-│   └── Core/                      # Server core types
-└── Client/
-    ├── Sampling/                  # LLM sampling
-    ├── Elicitation/               # User input elicitation
-    ├── Roots/                     # Root directory management
-    ├── Tasks/                     # Task execution
-    └── Lifecycle/                 # Client lifecycle
+├── V20251125/
+│   ├── Common/
+│   ├── Server/
+│   └── Client/
+└── V20260728/
+    ├── Common/
+    ├── Server/
+    └── Client/
 
 skill/
 ├── SKILL.md                       # Entry point for Claude Code

@@ -6,7 +6,7 @@ Thank you for your interest in contributing! Please [open an issue](https://gith
 
 ## Architecture Overview
 
-`src/` contains PHP DTOs that are **auto-generated** from the official [MCP TypeScript schema](https://github.com/modelcontextprotocol/modelcontextprotocol). The generator lives in `generator/` and is excluded from the Composer package.
+`src/V20251125/` and `src/V20260728/` contain PHP DTOs that are **auto-generated** from the corresponding official [MCP TypeScript schemas](https://github.com/modelcontextprotocol/modelcontextprotocol). The generator lives in `generator/` and is excluded from the Composer package.
 
 > **Warning: Never edit files in `src/` directly.**
 > Any manual changes will be overwritten the next time the generator runs.
@@ -32,7 +32,7 @@ npm install
 # 4. Build the TypeScript
 npm run build
 
-# 5. Regenerate PHP files into src/
+# 5. Regenerate every shipping revision into its src/V<YYYYMMDD>/ tree
 npm run generate
 
 # 6. Validate from the repo root
@@ -40,7 +40,7 @@ cd ..
 composer analyse
 ```
 
-The `npm run generate:check` convenience script (run from `generator/`) combines steps 5 and 6 in one command.
+The `npm run generate:check` convenience script (run from `generator/`) combines steps 5 and 6 in one command. For isolated development, pass a shipping config explicitly, for example `node dist/cli/index.js generate -c config/revisions/2026-07-28.json`.
 
 ---
 
@@ -58,6 +58,9 @@ composer analyse
 
 # Validate composer.json
 composer validate --strict
+
+# Exact-wire and same-process dual-revision checks
+composer test
 ```
 
 Both commands run from the repo root.

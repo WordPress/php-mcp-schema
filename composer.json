@@ -33,6 +33,7 @@
     },
     "scripts": {
         "analyse": "phpstan analyse",
-        "phpstan": "@analyse"
+        "phpstan": "@analyse",
+        "test": "php tests/dual-revisions.php"
     }
 }

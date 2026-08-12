@@ -1,7 +1,7 @@
 # MCP PHP Schema Overview
 
-Version: 2025-11-25
-Namespace: `WP\McpSchema`
+Version: 2026-07-28
+Namespace: `WP\McpSchema\V20260728`
 
 ## Architecture
 

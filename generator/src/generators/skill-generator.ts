@@ -169,6 +169,10 @@ export class SkillGenerator {
     // Title
     lines.push(`# MCP PHP Schema Reference (${this.config.schema.version})`);
     lines.push('');
+    lines.push(`This generated reference describes the ${this.config.schema.version} DTO tree.`);
+    lines.push('The package also ships the legacy `V20251125` tree for dual-revision consumers.');
+    lines.push('Every PHP import must include its `V<YYYYMMDD>` revision segment.');
+    lines.push('');
 
     // Quick Navigation
     lines.push('## Quick Navigation');

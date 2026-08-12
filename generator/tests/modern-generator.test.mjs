@@ -85,6 +85,8 @@ describe('modern revision generator regressions', () => {
       'ParseError'
     );
 
+    assert.match(php, /\/\*\* @var -32700 \$code \*\//);
+    assert.match(php, /\$code = self::asInt\(\$data\['code'\]\);/);
     assert.match(php, /parent::__construct\(\$code, \$message\);/);
     assert.doesNotMatch(php, /parent::__construct\(null,/);
   });

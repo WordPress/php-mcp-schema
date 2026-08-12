@@ -26,24 +26,21 @@ npm install
 # Build the generator
 npm run build
 
-# Generate PHP schema (uses latest config)
+# Generate every shipping revision
 npm run generate
 
 # Or run directly with a specific config
-node dist/cli/index.js generate -c config/2025-11-25.json
+node dist/cli/index.js generate -c config/revisions/2026-07-28.json
 ```
 
 ## CLI Commands
 
 ```bash
 # Generate PHP files from schema
-generate -c <config-file> [options]
-  -c, --config <file>     Config file path (required)
+generate [options]
+  -c, --config <file>     Generate one revision from a config file
   -o, --output <dir>      Override output directory
   -n, --namespace <ns>    Override PHP namespace
-  -p, --php-version <v>   PHP version (7.4-8.3)
-  --builders              Enable builder generation
-  --no-factories          Disable factory generation
   --dry-run               Preview without writing files
   --fresh                 Force fetch from GitHub (ignore cache)
   --verbose               Show detailed progress
@@ -60,15 +57,16 @@ configs
 
 ## Configuration
 
-Configuration files are stored in `config/` as JSON:
+Shipping configuration files are stored in `config/revisions/` as JSON:
 
 ```json
 {
   "schema": {
-    "version": "2025-11-25"
+    "version": "2026-07-28"
   },
-  "output": {
-    "generateBuilders": false
+  "skill": {
+    "enabled": true,
+    "outputDir": "../skill"
   }
 }
 ```
@@ -81,33 +79,37 @@ The generator produces PHP files organized by MCP domain:
 
 ```
 src/
-├── Common/
-│   ├── AbstractDataTransferObject.php
-│   ├── AbstractEnum.php
-│   ├── McpConstants.php       # Protocol constants & error codes
-│   ├── Traits/
-│   ├── Contracts/             # Marker interfaces
-│   ├── Protocol/              # Core protocol types
-│   ├── JsonRpc/               # JSON-RPC message types
-│   ├── Content/               # Content block types
-│   └── Tasks/                 # Shared task types
-├── Server/
-│   ├── Tools/                 # Tool definitions
-│   ├── Resources/             # Resource management
-│   ├── Prompts/               # Prompt templates
-│   ├── Logging/               # Logging types
-│   ├── Lifecycle/             # Server lifecycle
-│   └── Core/                  # Server core types
-├── Client/
-│   ├── Sampling/              # LLM sampling
-│   ├── Elicitation/           # User input elicitation
-│   ├── Roots/                 # Root directory management
-│   ├── Tasks/                 # Background tasks
-│   └── Lifecycle/             # Client lifecycle
-└── Contracts/                 # Shared interfaces
+├── V20251125/
+│   ├── Common/
+│   ├── Server/
+│   └── Client/
+└── V20260728/
+    ├── Common/
+    │   ├── AbstractDataTransferObject.php
+    │   ├── AbstractEnum.php
+    │   ├── McpConstants.php   # Protocol constants & error codes
+    │   ├── Traits/
+    │   ├── Contracts/         # Marker interfaces
+    │   ├── Protocol/          # Core protocol types
+    │   ├── JsonRpc/           # JSON-RPC message types
+    │   ├── Content/           # Content block types
+    │   └── Tasks/             # Shared task types
+    ├── Server/
+    │   ├── Tools/             # Tool definitions
+    │   ├── Resources/         # Resource management
+    │   ├── Prompts/           # Prompt templates
+    │   ├── Logging/           # Logging types
+    │   ├── Lifecycle/         # Server lifecycle
+    │   └── Core/              # Server core types
+    └── Client/
+        ├── Sampling/          # LLM sampling
+        ├── Elicitation/       # User input elicitation
+        ├── Roots/             # Root directory management
+        ├── Tasks/             # Background tasks
+        └── Lifecycle/         # Client lifecycle
 ```
 
-Additionally, skill files are generated for Claude Code integration:
+The `2026-07-28` shipping config also generates the revision-labelled skill reference:
 
 ```
 skill/

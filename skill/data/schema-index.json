@@ -1,16 +1,15 @@
 {
-  "version": "2025-11-25",
-  "namespace": "WP\\McpSchema",
+  "version": "2026-07-28",
+  "namespace": "WP\\McpSchema\\V20260728",
   "summary": {
-    "types": 164,
+    "types": 166,
     "domains": 3,
-    "subdomains": 17,
-    "rpcMethods": 20,
-    "factories": 11
+    "subdomains": 15,
+    "rpcMethods": 13,
+    "factories": 10
   },
   "domains": {
     "Common": [
-      "Tasks",
       "JsonRpc",
       "Protocol",
       "Core",
@@ -19,7 +18,6 @@
     ],
     "Client": [
       "Lifecycle",
-      "Tasks",
       "Sampling",
       "Roots",
       "Elicitation"
@@ -35,12 +33,8 @@
   },
   "rpcMethods": [
     {
-      "method": "initialize",
+      "method": "server/discover",
       "direction": "client→server"
-    },
-    {
-      "method": "ping",
-      "direction": "bidirectional"
     },
     {
       "method": "resources/list",
@@ -55,11 +49,7 @@
       "direction": "client→server"
     },
     {
-      "method": "resources/subscribe",
-      "direction": "client→server"
-    },
-    {
-      "method": "resources/unsubscribe",
+      "method": "subscriptions/listen",
       "direction": "client→server"
     },
     {
@@ -79,28 +69,8 @@
       "direction": "client→server"
     },
     {
-      "method": "tasks/get",
-      "direction": "bidirectional"
-    },
-    {
-      "method": "tasks/result",
-      "direction": "bidirectional"
-    },
-    {
-      "method": "tasks/cancel",
-      "direction": "bidirectional"
-    },
-    {
-      "method": "tasks/list",
-      "direction": "bidirectional"
-    },
-    {
-      "method": "logging/setLevel",
-      "direction": "client→server"
-    },
-    {
       "method": "sampling/createMessage",
-      "direction": "server→client"
+      "direction": "client→server"
     },
     {
       "method": "completion/complete",
@@ -108,20 +78,18 @@
     },
     {
       "method": "roots/list",
-      "direction": "server→client"
+      "direction": "client→server"
     },
     {
       "method": "elicitation/create",
-      "direction": "server→client"
+      "direction": "client→server"
     }
   ],
   "entryPoints": {
-    "Common/Tasks": "tasks/get",
-    "Common/Protocol": "initialize",
+    "Common/Protocol": "server/discover",
     "Server/Resources": "resources/list",
     "Server/Prompts": "prompts/list",
     "Server/Tools": "tools/list",
-    "Server/Logging": "logging/setLevel",
     "Client/Sampling": "sampling/createMessage",
     "Server/Core": "completion/complete",
     "Client/Roots": "roots/list",

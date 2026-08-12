@@ -386,7 +386,7 @@ ${indent}${indent}$missing = array_filter(
 ${indent}${indent}${indent}$requiredFields,
 ${indent}${indent}${indent}static fn(string $field): bool => !array_key_exists($field, $data)
 ${indent}${indent});
-${indent}${indent}
+
 ${indent}${indent}if (count($missing) > 0) {
 ${indent}${indent}${indent}throw new \\InvalidArgumentException(sprintf(
 ${indent}${indent}${indent}${indent}'%s: missing required field(s): %s',
@@ -686,7 +686,7 @@ ${indent}${indent}${indent}${indent}'Expected array, got %s',
 ${indent}${indent}${indent}${indent}gettype($value)
 ${indent}${indent}${indent}));
 ${indent}${indent}}
-${indent}${indent}
+
 ${indent}${indent}$result = [];
 ${indent}${indent}foreach ($value as $key => $v) {
 ${indent}${indent}${indent}if (is_array($v)) {
@@ -701,7 +701,7 @@ ${indent}${indent}${indent}${indent}${indent}gettype($v)
 ${indent}${indent}${indent}${indent}));
 ${indent}${indent}${indent}}
 ${indent}${indent}}
-${indent}${indent}
+
 ${indent}${indent}/** @var array<string, object> */
 ${indent}${indent}return $result;
 ${indent}}

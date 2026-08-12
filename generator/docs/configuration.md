@@ -2,18 +2,16 @@
 
 ## Config File Format
 
-Configuration files are JSON stored in `config/`:
+Shipping configuration files are JSON stored in `config/revisions/`:
 
 ```json
 {
   "schema": {
-    "version": "2025-11-25"
+    "version": "2026-07-28"
   },
-  "output": {
-    "outputDir": "../src",
-    "namespace": "WP\\McpSchema",
-    "indentation": "spaces",
-    "indentSize": 4
+  "skill": {
+    "enabled": true,
+    "outputDir": "../skill"
   }
 }
 ```
@@ -30,8 +28,8 @@ The schema is always fetched from the official MCP GitHub repository (`modelcont
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `outputDir` | `string` | `"../src"` | Output directory (relative to generator/) |
-| `namespace` | `string` | `"WP\\McpSchema"` | Base PHP namespace |
+| `outputDir` | `string` | `"../src/V<YYYYMMDD>"` | Revision tree derived from `schema.version` |
+| `namespace` | `string` | `"WP\\McpSchema\\V<YYYYMMDD>"` | Revision namespace derived from `schema.version` |
 | `indentation` | `"spaces"` \| `"tabs"` | `"spaces"` | Indentation style |
 | `indentSize` | `number` | `4` | Spaces per indent (1-8) |
 
@@ -42,11 +40,11 @@ The schema is always fetched from the official MCP GitHub repository (`modelcont
 CLI options override config file values:
 
 ```bash
-# Override output directory
-node dist/cli/index.js generate -c config/2025-11-25.json -o /custom/path
+# Relocate one revision tree; the final directory must keep its derived name
+node dist/cli/index.js generate -c config/revisions/2025-11-25.json -o /custom/path/V20251125
 
 # Override namespace
-node dist/cli/index.js generate -c config/2025-11-25.json -n "My\\Namespace"
+node dist/cli/index.js generate -c config/revisions/2025-11-25.json -n "My\\Namespace\\V20251125"
 ```
 
 ## Generation Options
@@ -61,7 +59,7 @@ These are runtime options, not persisted in config:
 
 ## Minimal Config
 
-Only `schema.version` is required; all other options use defaults:
+Only `schema.version` is required for an isolated config; shipping configs must also declare whether they own skill output:
 
 ```json
 {
@@ -71,14 +69,14 @@ Only `schema.version` is required; all other options use defaults:
 }
 ```
 
-## Version-Specific Configs
+## Shipping Revisions and Version History
 
-The `config/` directory contains version-specific configurations:
+`config/revisions/` contains the two trees included in the package:
 
-- `2024-11-05.json` - MCP 2024-11-05
-- `2025-03-26.json` - MCP 2025-03-26
-- `2025-06-18.json` - MCP 2025-06-18
-- `2025-11-25.json` - MCP 2025-11-25 (latest)
+- `2025-11-25.json`
+- `2026-07-28.json` (owns the generated root skill reference)
+
+`config/versions.json` retains the complete revision history used for `@since` annotations; history entries do not automatically become shipping trees.
 
 List available versions:
 
@@ -107,18 +105,18 @@ The generator always produces:
 
 | Output | Description |
 |--------|-------------|
-| **PHP DTOs** | Data transfer objects in `src/` |
+| **PHP DTOs** | Data transfer objects in `src/V<YYYYMMDD>/` |
 | **Constants Class** | `McpConstants.php` with protocol constants and error codes |
 | **Union Interfaces** | Marker interfaces for polymorphic types |
 | **Factory Classes** | Discriminator-based instantiation |
 | **Type Alias Wrappers** | Concrete classes for aliases referenced in unions |
 | **Intersection Wrappers** | Concrete classes for intersection types |
 | **Contracts** | Marker interfaces for type hierarchies |
-| **Skill Files** | Claude Code reference docs in `skill/` |
+| **Skill Files** | Revision-labelled reference docs in the configured explicit destination |
 
 ## Skill Files
 
-Skill files are generated automatically to `skill/` (sibling to `src/`):
+The shipping revision with `skill.enabled: true` generates files to its explicit `skill.outputDir`:
 
 ```text
 skill/

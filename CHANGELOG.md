@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Exact MCP `2025-11-25` and `2026-07-28` DTO trees under `WP\McpSchema\V20251125\` and `WP\McpSchema\V20260728\`, including modern per-request metadata, `resultType`, MRTR result types, deprecation annotations, and numeric JSON-RPC error constants.
+- Exact-wire fixtures and same-process co-loading checks for both revisions.
+
+### Changed
+
+- **Breaking:** all imports must include a revision namespace segment. Existing 0.1.x consumers should migrate `WP\McpSchema\...` imports to `WP\McpSchema\V20251125\...` before adopting the modern tree.
+- The generator now builds every shipping revision by default, cleans only the matching revision tree, validates shipping configs against revision history, and generates the root skill reference deliberately from `2026-07-28`.
+
+### Removed
+
+- The ambiguous unqualified `WP\McpSchema\...` DTO tree.
+
 ## [0.1.3] - 2026-08-10
 
 ### Fixed

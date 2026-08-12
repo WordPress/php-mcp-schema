@@ -1561,6 +1561,12 @@ export class DtoGenerator {
       return true;
     }
 
+    // Integer literals are narrower than the int returned by asInt().
+    // Preserve the literal PHPDoc type before passing the value to constructors.
+    if (phpType.type === 'int' && /^-?\d+(\|-?\d+)*$/.test(phpType.phpDocType)) {
+      return true;
+    }
+
     // Untyped (mixed in PHP 7.4) with complex union phpDocType
     // e.g., "string|number" for JSON-RPC id
     if (phpType.isUntyped && phpType.phpDocType.includes('|')) {

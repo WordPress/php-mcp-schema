@@ -235,7 +235,7 @@ Exported constants from the schema become a dedicated class:
 
 ```typescript
 // TypeScript
-export const LATEST_PROTOCOL_VERSION = "2025-11-25";
+export const LATEST_PROTOCOL_VERSION = "2026-07-28";
 export const JSONRPC_VERSION = "2.0";
 export const PARSE_ERROR = -32700;
 ```
@@ -243,7 +243,7 @@ export const PARSE_ERROR = -32700;
 ```php
 final class McpConstants
 {
-    public const LATEST_PROTOCOL_VERSION = '2025-11-25';
+    public const LATEST_PROTOCOL_VERSION = '2026-07-28';
     public const JSONRPC_VERSION = '2.0';
     public const PARSE_ERROR = -32700;
 

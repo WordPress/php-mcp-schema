@@ -1,59 +1,99 @@
 {
-  "version": "2025-11-25",
+  "version": "2026-07-28",
   "domain": "Common",
   "types": {
-    "TaskAugmentedRequestParams": {
+    "RequestMetaObject": {
       "kind": "class",
       "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\TaskAugmentedRequestParams",
-      "purpose": "Common params for any task-augmented request",
-      "extends": "RequestParams",
+      "subdomain": "JsonRpc",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\RequestMetaObject",
+      "purpose": "Extends {@link MetaObject} with additional request-specific fields",
+      "extends": "MetaObject",
       "implements": [],
       "properties": {
-        "task": "TaskMetadata?"
+        "progressToken": "ProgressToken?",
+        "io.modelcontextprotocol/protocolVersion": "string",
+        "io.modelcontextprotocol/clientInfo": "Implementation?",
+        "io.modelcontextprotocol/clientCapabilities": "ClientCapabilities",
+        "io.modelcontextprotocol/logLevel": "LoggingLevel?"
       },
       "usedBy": [
-        "CallToolRequestParams",
-        "CreateMessageRequestParams",
-        "ElicitRequestFormParams",
-        "ElicitRequestURLParams"
+        "RequestParams"
       ],
       "uses": [
-        "RequestParams",
-        "TaskMetadata"
+        "MetaObject",
+        "ProgressToken",
+        "Implementation",
+        "ClientCapabilities",
+        "LoggingLevel"
+      ]
+    },
+    "NotificationMetaObject": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "JsonRpc",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\NotificationMetaObject",
+      "purpose": "Extends {@link MetaObject} with additional notification-specific fields",
+      "extends": "MetaObject",
+      "implements": [],
+      "properties": {
+        "io.modelcontextprotocol/subscriptionId": "RequestId?"
+      },
+      "usedBy": [
+        "NotificationParams"
+      ],
+      "uses": [
+        "MetaObject",
+        "RequestId"
+      ]
+    },
+    "ResultMetaObject": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\ResultMetaObject",
+      "purpose": "Extends {@link MetaObject} with additional result-specific fields",
+      "extends": "MetaObject",
+      "implements": [],
+      "properties": {
+        "io.modelcontextprotocol/serverInfo": "Implementation?"
+      },
+      "usedBy": [
+        "Result",
+        "SubscriptionsListenResultMetaObject"
+      ],
+      "uses": [
+        "MetaObject",
+        "Implementation"
       ]
     },
     "RequestParams": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\RequestParams",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\RequestParams",
       "purpose": "Common params for any request",
       "implements": [],
       "properties": {
-        "_meta": "RequestParamsMeta | undefined?"
+        "_meta": "RequestMetaObject"
       },
       "usedBy": [
-        "TaskAugmentedRequestParams",
-        "InitializeRequestParams",
-        "PingRequest",
+        "InputResponseRequestParams",
+        "DiscoverRequest",
         "PaginatedRequestParams",
         "ResourceRequestParams",
-        "GetPromptRequestParams",
-        "SetLevelRequestParams",
-        "CompleteRequestParams",
-        "ListRootsRequest"
+        "SubscriptionsListenRequestParams",
+        "CompleteRequestParams"
       ],
       "uses": [
-        "RequestParamsMeta"
+        "RequestMetaObject"
       ]
     },
     "Request": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Request",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\Request",
       "purpose": "Request for  operation",
       "implements": [],
       "properties": {
@@ -69,30 +109,31 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\NotificationParams",
-      "purpose": "Parameters for Notification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\NotificationParams",
+      "purpose": "Common params for any notification",
       "implements": [],
       "properties": {
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "NotificationMetaObject?"
       },
       "usedBy": [
         "CancelledNotificationParams",
-        "InitializedNotification",
         "ProgressNotificationParams",
         "ResourceListChangedNotification",
+        "SubscriptionsAcknowledgedNotificationParams",
         "ResourceUpdatedNotificationParams",
         "PromptListChangedNotification",
         "ToolListChangedNotification",
-        "LoggingMessageNotificationParams",
-        "RootsListChangedNotification"
+        "LoggingMessageNotificationParams"
       ],
-      "uses": []
+      "uses": [
+        "NotificationMetaObject"
+      ]
     },
     "Notification": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Notification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\Notification",
       "purpose": "Notification for  events",
       "implements": [],
       "properties": {
@@ -108,36 +149,34 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Result",
-      "purpose": "Result from  operation",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\Result",
+      "purpose": "Common result fields",
       "implements": [],
       "properties": {
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "ResultMetaObject?",
+        "resultType": "ResultType"
       },
       "usedBy": [
         "JSONRPCResultResponse",
-        "InitializeResult",
+        "InputRequiredResult",
         "PaginatedResult",
-        "ReadResourceResult",
+        "CacheableResult",
+        "SubscriptionsListenResult",
         "GetPromptResult",
         "CallToolResult",
-        "CreateTaskResult",
-        "GetTaskPayloadResult",
-        "CreateMessageResult",
         "CompleteResult",
-        "ListRootsResult",
-        "ElicitResult",
-        "EmptyResult",
-        "GetTaskResult",
-        "CancelTaskResult"
+        "EmptyResult"
       ],
-      "uses": []
+      "uses": [
+        "ResultMetaObject",
+        "ResultType"
+      ]
     },
     "Error": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\Error",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\Error",
       "purpose": "Error data structure",
       "implements": [],
       "properties": {
@@ -146,7 +185,12 @@
         "data": "unknown?"
       },
       "usedBy": [
-        "JSONRPCErrorResponse"
+        "JSONRPCErrorResponse",
+        "ParseError",
+        "InvalidRequestError",
+        "MethodNotFoundError",
+        "InvalidParamsError",
+        "InternalError"
       ],
       "uses": []
     },
@@ -154,7 +198,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCRequest",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\JSONRPCRequest",
       "purpose": "A request that expects a response",
       "extends": "Request",
       "implements": [
@@ -165,22 +209,13 @@
         "id": "RequestId"
       },
       "usedBy": [
-        "InitializeRequest",
-        "PingRequest",
+        "DiscoverRequest",
         "PaginatedRequest",
         "ReadResourceRequest",
-        "SubscribeRequest",
-        "UnsubscribeRequest",
+        "SubscriptionsListenRequest",
         "GetPromptRequest",
         "CallToolRequest",
-        "GetTaskRequest",
-        "GetTaskPayloadRequest",
-        "CancelTaskRequest",
-        "SetLevelRequest",
-        "CreateMessageRequest",
         "CompleteRequest",
-        "ListRootsRequest",
-        "ElicitRequest",
         "JSONRPCMessageInterface"
       ],
       "uses": [
@@ -192,7 +227,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCNotification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\JSONRPCNotification",
       "purpose": "A notification which does not expect a response",
       "extends": "Notification",
       "implements": [
@@ -203,16 +238,13 @@
       },
       "usedBy": [
         "CancelledNotification",
-        "InitializedNotification",
         "ProgressNotification",
         "ResourceListChangedNotification",
+        "SubscriptionsAcknowledgedNotification",
         "ResourceUpdatedNotification",
         "PromptListChangedNotification",
         "ToolListChangedNotification",
-        "TaskStatusNotification",
         "LoggingMessageNotification",
-        "RootsListChangedNotification",
-        "ElicitationCompleteNotification",
         "JSONRPCMessageInterface"
       ],
       "uses": [
@@ -223,7 +255,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCResultResponse",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\JSONRPCResultResponse",
       "purpose": "A successful (non-error) response to a request",
       "implements": [
         "JSONRPCResponseInterface"
@@ -234,6 +266,16 @@
         "result": "Result"
       },
       "usedBy": [
+        "DiscoverResultResponse",
+        "ListResourcesResultResponse",
+        "ListResourceTemplatesResultResponse",
+        "ReadResourceResultResponse",
+        "SubscriptionsListenResultResponse",
+        "ListPromptsResultResponse",
+        "GetPromptResultResponse",
+        "ListToolsResultResponse",
+        "CallToolResultResponse",
+        "CompleteResultResponse",
         "JSONRPCResponseInterface"
       ],
       "uses": [
@@ -245,7 +287,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\JSONRPCErrorResponse",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\DTO\\JSONRPCErrorResponse",
       "purpose": "A response to a request that indicates an error occurred",
       "implements": [
         "JSONRPCResponseInterface"
@@ -263,33 +305,220 @@
         "Error"
       ]
     },
-    "URLElicitationRequiredError": {
+    "ParseError": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\URLElicitationRequiredError",
-      "purpose": "An error response that indicates that the server requires the client to provide additional information via an elicitation request",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\ParseError",
+      "purpose": "A JSON-RPC error indicating that invalid JSON was received by the server",
+      "extends": "Error",
+      "implements": [],
+      "properties": {
+        "code": "typeof PARSE_ERROR"
+      },
+      "usedBy": [],
+      "uses": [
+        "Error"
+      ]
+    },
+    "InvalidRequestError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InvalidRequestError",
+      "purpose": "A JSON-RPC error indicating that the request is not a valid request object",
+      "extends": "Error",
+      "implements": [],
+      "properties": {
+        "code": "typeof INVALID_REQUEST"
+      },
+      "usedBy": [],
+      "uses": [
+        "Error"
+      ]
+    },
+    "MethodNotFoundError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\MethodNotFoundError",
+      "purpose": "A JSON-RPC error indicating that the requested method does not exist or is not available",
+      "extends": "Error",
+      "implements": [],
+      "properties": {
+        "code": "typeof METHOD_NOT_FOUND"
+      },
+      "usedBy": [],
+      "uses": [
+        "Error"
+      ]
+    },
+    "InvalidParamsError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InvalidParamsError",
+      "purpose": "A JSON-RPC error indicating that the method parameters are invalid or malformed",
+      "extends": "Error",
+      "implements": [],
+      "properties": {
+        "code": "typeof INVALID_PARAMS"
+      },
+      "usedBy": [],
+      "uses": [
+        "Error"
+      ]
+    },
+    "InternalError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InternalError",
+      "purpose": "A JSON-RPC error indicating that an internal error occurred on the receiver",
+      "extends": "Error",
+      "implements": [],
+      "properties": {
+        "code": "typeof INTERNAL_ERROR"
+      },
+      "usedBy": [],
+      "uses": [
+        "Error"
+      ]
+    },
+    "HeaderMismatchError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\HeaderMismatchError",
+      "purpose": "Returned when a server rejects a request because the values in the HTTP",
       "extends": "Omit",
       "implements": [],
       "properties": {
-        "error": "Error & {\n    code: typeof URL_ELICITATION_REQU..."
+        "error": "Error & {\n    code: typeof HEADER_MISMATCH;\n  }"
       },
       "usedBy": [],
       "uses": [
         "Omit",
-        "Error & {\n    code: typeof URL_ELICITATION_REQUIRED;\n    data: {\n      elicitations: ElicitRequestURLParams[];\n      [key: string]: unknown;\n    };\n  }"
+        "Error & {\n    code: typeof HEADER_MISMATCH;\n  }"
+      ]
+    },
+    "UnsupportedProtocolVersionError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\UnsupportedProtocolVersionError",
+      "purpose": "Returned when the request's protocol version is unknown to the server or",
+      "extends": "Omit",
+      "implements": [],
+      "properties": {
+        "error": "Error & {\n    code: typeof UNSUPPORTED_PROTOCOL..."
+      },
+      "usedBy": [],
+      "uses": [
+        "Omit",
+        "Error & {\n    code: typeof UNSUPPORTED_PROTOCOL_VERSION;\n    data: {\n      /**\n       * Protocol versions the server supports. The client should choose a\n       * mutually supported version from this list and retry.\n       */\n      supported: string[];\n      /**\n       * The protocol version that was requested by the client.\n       */\n      requested: string;\n    };\n  }"
+      ]
+    },
+    "MissingRequiredClientCapabilityError": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\MissingRequiredClientCapabilityError",
+      "purpose": "Returned when processing a request requires a capability the client did not",
+      "extends": "Omit",
+      "implements": [],
+      "properties": {
+        "error": "Error & {\n    code: typeof MISSING_REQUIRED_CLI..."
+      },
+      "usedBy": [],
+      "uses": [
+        "Omit",
+        "Error & {\n    code: typeof MISSING_REQUIRED_CLIENT_CAPABILITY;\n    data: {\n      /**\n       * The capabilities the server requires from the client to process this request.\n       */\n      requiredCapabilities: ClientCapabilities;\n    };\n  }"
+      ]
+    },
+    "InputRequests": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InputRequests",
+      "purpose": "A map of server-initiated requests that the client must fulfill",
+      "implements": [],
+      "properties": {},
+      "usedBy": [
+        "InputRequiredResult"
+      ],
+      "uses": []
+    },
+    "InputResponses": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InputResponses",
+      "purpose": "A map of client responses to server-initiated requests",
+      "implements": [],
+      "properties": {},
+      "usedBy": [
+        "InputResponseRequestParams"
+      ],
+      "uses": []
+    },
+    "InputRequiredResult": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InputRequiredResult",
+      "purpose": "An InputRequiredResult sent by the server to indicate that additional input is needed",
+      "extends": "Result",
+      "implements": [
+        "ServerResultInterface"
+      ],
+      "properties": {
+        "inputRequests": "InputRequests?",
+        "requestState": "string?"
+      },
+      "usedBy": [
+        "ReadResourceResultResponse",
+        "GetPromptResultResponse",
+        "CallToolResultResponse",
+        "ServerResultInterface"
+      ],
+      "uses": [
+        "Result",
+        "InputRequests"
+      ]
+    },
+    "InputResponseRequestParams": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\InputResponseRequestParams",
+      "purpose": "Parameters for InputResponseRequest",
+      "extends": "RequestParams",
+      "implements": [],
+      "properties": {
+        "inputResponses": "InputResponses?",
+        "requestState": "string?"
+      },
+      "usedBy": [
+        "ReadResourceRequestParams",
+        "GetPromptRequestParams",
+        "CallToolRequestParams"
+      ],
+      "uses": [
+        "RequestParams",
+        "InputResponses"
       ]
     },
     "CancelledNotificationParams": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\CancelledNotificationParams",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\CancelledNotificationParams",
       "purpose": "Parameters for a `notifications/cancelled` notification",
       "extends": "NotificationParams",
       "implements": [],
       "properties": {
-        "requestId": "RequestId?",
+        "requestId": "RequestId",
         "reason": "string?"
       },
       "usedBy": [
@@ -304,11 +533,10 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\CancelledNotification",
-      "purpose": "This notification can be sent by either side to indicate that it is cancelling a previously-issued request",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\CancelledNotification",
+      "purpose": "This notification is sent by the client to indicate that it is cancelling a request it previously issued",
       "extends": "JSONRPCNotification",
       "implements": [
-        "ClientNotificationInterface",
         "ServerNotificationInterface"
       ],
       "properties": {
@@ -316,7 +544,7 @@
         "params": "CancelledNotificationParams"
       },
       "usedBy": [
-        "ClientNotificationInterface",
+        "ClientNotification",
         "ServerNotificationInterface"
       ],
       "uses": [
@@ -328,110 +556,78 @@
         "value": "notifications/cancelled"
       }
     },
-    "InitializeRequestParams": {
+    "DiscoverRequest": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeRequestParams",
-      "purpose": "Parameters for an `initialize` request",
-      "extends": "RequestParams",
-      "implements": [],
-      "properties": {
-        "protocolVersion": "string",
-        "capabilities": "ClientCapabilities",
-        "clientInfo": "Implementation"
-      },
-      "usedBy": [
-        "InitializeRequest"
-      ],
-      "uses": [
-        "RequestParams",
-        "ClientCapabilities",
-        "Implementation"
-      ]
-    },
-    "InitializeRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeRequest",
-      "purpose": "This request is sent from the client to the server when it first connects, asking it to begin initialization",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\DiscoverRequest",
+      "purpose": "A request from the client asking the server to advertise its supported",
       "extends": "JSONRPCRequest",
       "implements": [
         "ClientRequestInterface"
       ],
       "properties": {
-        "method": "\"initialize\"",
-        "params": "InitializeRequestParams"
+        "method": "\"server/discover\"",
+        "params": "RequestParams"
       },
       "usedBy": [
         "ClientRequestInterface"
       ],
       "uses": [
         "JSONRPCRequest",
-        "InitializeRequestParams"
+        "RequestParams"
       ],
       "discriminator": {
         "field": "method",
-        "value": "initialize"
+        "value": "server/discover"
       }
     },
-    "InitializeResult": {
+    "DiscoverResult": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializeResult",
-      "purpose": "After receiving an initialize request from the client, the server sends this response",
-      "extends": "Result",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\DiscoverResult",
+      "purpose": "The result returned by the server for a {@link DiscoverRequest | server/discover} request",
+      "extends": "CacheableResult",
       "implements": [
         "ServerResultInterface"
       ],
       "properties": {
-        "protocolVersion": "string",
+        "supportedVersions": "string[]",
         "capabilities": "ServerCapabilities",
-        "serverInfo": "Implementation",
         "instructions": "string?"
       },
       "usedBy": [
+        "DiscoverResultResponse",
         "ServerResultInterface"
       ],
       "uses": [
-        "Result",
-        "ServerCapabilities",
-        "Implementation"
+        "CacheableResult",
+        "ServerCapabilities"
       ]
     },
-    "InitializedNotification": {
+    "DiscoverResultResponse": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\InitializedNotification",
-      "purpose": "This notification is sent from the client to the server after initialization has finished",
-      "extends": "JSONRPCNotification",
-      "implements": [
-        "ClientNotificationInterface"
-      ],
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\DiscoverResultResponse",
+      "purpose": "A successful response from the server for a {@link DiscoverRequest | server/discover} request",
+      "extends": "JSONRPCResultResponse",
+      "implements": [],
       "properties": {
-        "method": "\"notifications/initialized\"",
-        "params": "NotificationParams?"
+        "result": "DiscoverResult"
       },
-      "usedBy": [
-        "ClientNotificationInterface"
-      ],
+      "usedBy": [],
       "uses": [
-        "JSONRPCNotification",
-        "NotificationParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "notifications/initialized"
-      }
+        "JSONRPCResultResponse",
+        "DiscoverResult"
+      ]
     },
     "Icon": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Core",
-      "namespace": "WP\\McpSchema\\Common\\Core\\DTO\\Icon",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Core\\DTO\\Icon",
       "purpose": "An optionally-sized icon that can be displayed in a user interface",
       "implements": [],
       "properties": {
@@ -449,7 +645,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Icons",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\Icons",
       "purpose": "Base interface to add `icons` property",
       "implements": [],
       "properties": {
@@ -470,7 +666,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\BaseMetadata",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\BaseMetadata",
       "purpose": "Base interface for metadata with name (identifier) and title (display name) properties",
       "implements": [],
       "properties": {
@@ -492,7 +688,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Lifecycle",
-      "namespace": "WP\\McpSchema\\Common\\Lifecycle\\DTO\\Implementation",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Lifecycle\\DTO\\Implementation",
       "purpose": "Describes the MCP implementation",
       "extends": "BaseMetadata",
       "implements": [],
@@ -502,48 +698,20 @@
         "websiteUrl": "string?"
       },
       "usedBy": [
-        "InitializeRequestParams",
-        "InitializeResult"
+        "RequestMetaObject",
+        "ResultMetaObject"
       ],
       "uses": [
         "BaseMetadata",
         "Icons"
       ]
     },
-    "PingRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PingRequest",
-      "purpose": "A ping, issued by either the server or the client, to check that the other party is still alive",
-      "extends": "JSONRPCRequest",
-      "implements": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "properties": {
-        "method": "\"ping\"",
-        "params": "RequestParams?"
-      },
-      "usedBy": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "uses": [
-        "JSONRPCRequest",
-        "RequestParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "ping"
-      }
-    },
     "ProgressNotificationParams": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\ProgressNotificationParams",
-      "purpose": "Parameters for a `notifications/progress` notification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\ProgressNotificationParams",
+      "purpose": "Parameters for a {@link ProgressNotification | notifications/progress} notification",
       "extends": "NotificationParams",
       "implements": [],
       "properties": {
@@ -564,11 +732,10 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\ProgressNotification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\ProgressNotification",
       "purpose": "An out-of-band notification used to inform the receiver of a progress update for a long-running request",
       "extends": "JSONRPCNotification",
       "implements": [
-        "ClientNotificationInterface",
         "ServerNotificationInterface"
       ],
       "properties": {
@@ -576,7 +743,6 @@
         "params": "ProgressNotificationParams"
       },
       "usedBy": [
-        "ClientNotificationInterface",
         "ServerNotificationInterface"
       ],
       "uses": [
@@ -592,8 +758,8 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedRequestParams",
-      "purpose": "Common parameters for paginated requests",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\PaginatedRequestParams",
+      "purpose": "Common params for paginated requests",
       "extends": "RequestParams",
       "implements": [],
       "properties": {
@@ -611,19 +777,18 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedRequest",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\PaginatedRequest",
       "purpose": "Request for Paginated operation",
       "extends": "JSONRPCRequest",
       "implements": [],
       "properties": {
-        "params": "PaginatedRequestParams?"
+        "params": "PaginatedRequestParams"
       },
       "usedBy": [
         "ListResourcesRequest",
         "ListResourceTemplatesRequest",
         "ListPromptsRequest",
-        "ListToolsRequest",
-        "ListTasksRequest"
+        "ListToolsRequest"
       ],
       "uses": [
         "JSONRPCRequest",
@@ -634,7 +799,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\PaginatedResult",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\PaginatedResult",
       "purpose": "Result from Paginated operation",
       "extends": "Result",
       "implements": [],
@@ -645,19 +810,209 @@
         "ListResourcesResult",
         "ListResourceTemplatesResult",
         "ListPromptsResult",
-        "ListToolsResult",
-        "ListTasksResult"
+        "ListToolsResult"
       ],
       "uses": [
         "Result",
         "Cursor"
       ]
     },
+    "CacheableResult": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\CacheableResult",
+      "purpose": "A result that supports a time-to-live (TTL) hint for client-side caching",
+      "extends": "Result",
+      "implements": [],
+      "properties": {
+        "ttlMs": "number",
+        "cacheScope": "\"public\" | \"private\""
+      },
+      "usedBy": [
+        "DiscoverResult",
+        "ListResourcesResult",
+        "ListResourceTemplatesResult",
+        "ReadResourceResult",
+        "ListPromptsResult",
+        "ListToolsResult"
+      ],
+      "uses": [
+        "Result"
+      ]
+    },
+    "SubscriptionFilter": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionFilter",
+      "purpose": "The set of notification types a client may opt in to on a",
+      "implements": [],
+      "properties": {
+        "toolsListChanged": "boolean?",
+        "promptsListChanged": "boolean?",
+        "resourcesListChanged": "boolean?",
+        "resourceSubscriptions": "string[]?"
+      },
+      "usedBy": [
+        "SubscriptionsListenRequestParams",
+        "SubscriptionsAcknowledgedNotificationParams"
+      ],
+      "uses": []
+    },
+    "SubscriptionsListenRequestParams": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsListenRequestParams",
+      "purpose": "Parameters for a {@link SubscriptionsListenRequest | subscriptions/listen} request",
+      "extends": "RequestParams",
+      "implements": [],
+      "properties": {
+        "notifications": "SubscriptionFilter"
+      },
+      "usedBy": [
+        "SubscriptionsListenRequest"
+      ],
+      "uses": [
+        "RequestParams",
+        "SubscriptionFilter"
+      ]
+    },
+    "SubscriptionsListenRequest": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsListenRequest",
+      "purpose": "Sent from the client to open a long-lived channel for receiving notifications",
+      "extends": "JSONRPCRequest",
+      "implements": [
+        "ClientRequestInterface"
+      ],
+      "properties": {
+        "method": "\"subscriptions/listen\"",
+        "params": "SubscriptionsListenRequestParams"
+      },
+      "usedBy": [
+        "ClientRequestInterface"
+      ],
+      "uses": [
+        "JSONRPCRequest",
+        "SubscriptionsListenRequestParams"
+      ],
+      "discriminator": {
+        "field": "method",
+        "value": "subscriptions/listen"
+      }
+    },
+    "SubscriptionsListenResultMetaObject": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsListenResultMetaObject",
+      "purpose": "Extends {@link ResultMetaObject} with the subscription-stream identifier carried by a",
+      "extends": "ResultMetaObject",
+      "implements": [],
+      "properties": {
+        "io.modelcontextprotocol/subscriptionId": "RequestId"
+      },
+      "usedBy": [
+        "SubscriptionsListenResult"
+      ],
+      "uses": [
+        "ResultMetaObject",
+        "RequestId"
+      ]
+    },
+    "SubscriptionsListenResult": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsListenResult",
+      "purpose": "The response to a {@link SubscriptionsListenRequest | subscriptions/listen}",
+      "extends": "Result",
+      "implements": [
+        "ServerResultInterface"
+      ],
+      "properties": {
+        "_meta": "SubscriptionsListenResultMetaObject"
+      },
+      "usedBy": [
+        "SubscriptionsListenResultResponse",
+        "ServerResultInterface"
+      ],
+      "uses": [
+        "Result",
+        "SubscriptionsListenResultMetaObject"
+      ]
+    },
+    "SubscriptionsListenResultResponse": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsListenResultResponse",
+      "purpose": "A successful response from the server for a {@link SubscriptionsListenRequest | subscriptions/listen}",
+      "extends": "JSONRPCResultResponse",
+      "implements": [],
+      "properties": {
+        "result": "SubscriptionsListenResult"
+      },
+      "usedBy": [],
+      "uses": [
+        "JSONRPCResultResponse",
+        "SubscriptionsListenResult"
+      ]
+    },
+    "SubscriptionsAcknowledgedNotificationParams": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsAcknowledgedNotificationParams",
+      "purpose": "Parameters for a {@link SubscriptionsAcknowledgedNotification | notifications/subscriptions/acknowledged} notification",
+      "extends": "NotificationParams",
+      "implements": [],
+      "properties": {
+        "notifications": "SubscriptionFilter"
+      },
+      "usedBy": [
+        "SubscriptionsAcknowledgedNotification"
+      ],
+      "uses": [
+        "NotificationParams",
+        "SubscriptionFilter"
+      ]
+    },
+    "SubscriptionsAcknowledgedNotification": {
+      "kind": "class",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\SubscriptionsAcknowledgedNotification",
+      "purpose": "Sent by the server to acknowledge that a",
+      "extends": "JSONRPCNotification",
+      "implements": [
+        "ServerNotificationInterface"
+      ],
+      "properties": {
+        "method": "\"notifications/subscriptions/acknowledged\"",
+        "params": "SubscriptionsAcknowledgedNotificationParams"
+      },
+      "usedBy": [
+        "ServerNotificationInterface"
+      ],
+      "uses": [
+        "JSONRPCNotification",
+        "SubscriptionsAcknowledgedNotificationParams"
+      ],
+      "discriminator": {
+        "field": "method",
+        "value": "notifications/subscriptions/acknowledged"
+      }
+    },
     "TextResourceContents": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\TextResourceContents",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\TextResourceContents",
       "purpose": "Text Resource Contents data structure",
       "extends": "ResourceContents",
       "implements": [],
@@ -675,7 +1030,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\BlobResourceContents",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\BlobResourceContents",
       "purpose": "Blob Resource Contents data structure",
       "extends": "ResourceContents",
       "implements": [],
@@ -693,7 +1048,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\EmbeddedResource",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\EmbeddedResource",
       "purpose": "The contents of a resource, embedded into a prompt or tool call result",
       "implements": [
         "ContentBlockInterface"
@@ -702,7 +1057,7 @@
         "type": "\"resource\"",
         "resource": "TextResourceContents | BlobResourceContents",
         "annotations": "Annotations?",
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "MetaObject?"
       },
       "usedBy": [
         "ContentBlockInterface"
@@ -710,199 +1065,19 @@
       "uses": [
         "TextResourceContents",
         "BlobResourceContents",
-        "Annotations"
+        "Annotations",
+        "MetaObject"
       ],
       "discriminator": {
         "field": "type",
         "value": "resource"
       }
     },
-    "GetTaskRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskRequest",
-      "purpose": "A request to retrieve the state of a task",
-      "extends": "JSONRPCRequest",
-      "implements": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "properties": {
-        "method": "\"tasks/get\"",
-        "params": "GetTaskRequestParams"
-      },
-      "usedBy": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "uses": [
-        "JSONRPCRequest",
-        "GetTaskRequestParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "tasks/get"
-      }
-    },
-    "GetTaskPayloadRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadRequest",
-      "purpose": "A request to retrieve the result of a completed task",
-      "extends": "JSONRPCRequest",
-      "implements": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "properties": {
-        "method": "\"tasks/result\"",
-        "params": "GetTaskPayloadRequestParams"
-      },
-      "usedBy": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "uses": [
-        "JSONRPCRequest",
-        "GetTaskPayloadRequestParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "tasks/result"
-      }
-    },
-    "GetTaskPayloadResult": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadResult",
-      "purpose": "The response to a tasks/result request",
-      "extends": "Result",
-      "implements": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "properties": {},
-      "usedBy": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "uses": [
-        "Result"
-      ]
-    },
-    "CancelTaskRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskRequest",
-      "purpose": "A request to cancel a task",
-      "extends": "JSONRPCRequest",
-      "implements": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "properties": {
-        "method": "\"tasks/cancel\"",
-        "params": "CancelTaskRequestParams"
-      },
-      "usedBy": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "uses": [
-        "JSONRPCRequest",
-        "CancelTaskRequestParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "tasks/cancel"
-      }
-    },
-    "ListTasksRequest": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\ListTasksRequest",
-      "purpose": "A request to retrieve a list of tasks",
-      "extends": "PaginatedRequest",
-      "implements": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "properties": {
-        "method": "\"tasks/list\""
-      },
-      "usedBy": [
-        "ClientRequestInterface",
-        "ServerRequestInterface"
-      ],
-      "uses": [
-        "PaginatedRequest"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "tasks/list"
-      }
-    },
-    "ListTasksResult": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\ListTasksResult",
-      "purpose": "The response to a tasks/list request",
-      "extends": "PaginatedResult",
-      "implements": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "properties": {
-        "tasks": "Task[]"
-      },
-      "usedBy": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "uses": [
-        "PaginatedResult",
-        "Task"
-      ]
-    },
-    "TaskStatusNotification": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\TaskStatusNotification",
-      "purpose": "An optional notification from the receiver to the requestor, informing them that a task's status has changed",
-      "extends": "JSONRPCNotification",
-      "implements": [
-        "ClientNotificationInterface",
-        "ServerNotificationInterface"
-      ],
-      "properties": {
-        "method": "\"notifications/tasks/status\"",
-        "params": "TaskStatusNotificationParams"
-      },
-      "usedBy": [
-        "ClientNotificationInterface",
-        "ServerNotificationInterface"
-      ],
-      "uses": [
-        "JSONRPCNotification",
-        "TaskStatusNotificationParams"
-      ],
-      "discriminator": {
-        "field": "method",
-        "value": "notifications/tasks/status"
-      }
-    },
     "Annotations": {
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\Annotations",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\Annotations",
       "purpose": "Optional annotations for the client",
       "implements": [],
       "properties": {
@@ -926,7 +1101,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\TextContent",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Content\\DTO\\TextContent",
       "purpose": "Text provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -936,14 +1111,15 @@
         "type": "\"text\"",
         "text": "string",
         "annotations": "Annotations?",
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "MetaObject?"
       },
       "usedBy": [
         "SamplingMessageContentBlockInterface",
         "ContentBlockInterface"
       ],
       "uses": [
-        "Annotations"
+        "Annotations",
+        "MetaObject"
       ],
       "discriminator": {
         "field": "type",
@@ -954,7 +1130,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\ImageContent",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Content\\DTO\\ImageContent",
       "purpose": "An image provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -965,14 +1141,15 @@
         "data": "string",
         "mimeType": "string",
         "annotations": "Annotations?",
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "MetaObject?"
       },
       "usedBy": [
         "SamplingMessageContentBlockInterface",
         "ContentBlockInterface"
       ],
       "uses": [
-        "Annotations"
+        "Annotations",
+        "MetaObject"
       ],
       "discriminator": {
         "field": "type",
@@ -983,7 +1160,7 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Content",
-      "namespace": "WP\\McpSchema\\Common\\Content\\DTO\\AudioContent",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Content\\DTO\\AudioContent",
       "purpose": "Audio provided to or from an LLM",
       "implements": [
         "SamplingMessageContentBlockInterface",
@@ -994,87 +1171,40 @@
         "data": "string",
         "mimeType": "string",
         "annotations": "Annotations?",
-        "_meta": "{ [key: string]: unknown }?"
+        "_meta": "MetaObject?"
       },
       "usedBy": [
         "SamplingMessageContentBlockInterface",
         "ContentBlockInterface"
       ],
       "uses": [
-        "Annotations"
+        "Annotations",
+        "MetaObject"
       ],
       "discriminator": {
         "field": "type",
         "value": "audio"
       }
     },
-    "RequestParamsMeta": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\DTO\\RequestParamsMeta",
-      "purpose": "See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage",
-      "implements": [],
-      "properties": {
-        "progressToken": "ProgressToken?"
-      },
-      "usedBy": [
-        "RequestParams"
-      ],
-      "uses": [
-        "ProgressToken"
-      ]
-    },
-    "GetTaskRequestParams": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskRequestParams",
-      "purpose": "Parameters for GetTaskRequest",
-      "implements": [],
-      "properties": {
-        "taskId": "string"
-      },
-      "usedBy": [
-        "GetTaskRequest"
-      ],
-      "uses": []
-    },
-    "GetTaskPayloadRequestParams": {
-      "kind": "class",
+    "JSONValueInterface": {
+      "kind": "union",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\GetTaskPayloadRequestParams",
-      "purpose": "Parameters for GetTaskPayloadRequest",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\JSONValueInterface",
+      "purpose": "Union type: JSONObject | JSONArray",
       "implements": [],
-      "properties": {
-        "taskId": "string"
-      },
-      "usedBy": [
-        "GetTaskPayloadRequest"
-      ],
-      "uses": []
-    },
-    "CancelTaskRequestParams": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskRequestParams",
-      "purpose": "Parameters for CancelTaskRequest",
-      "implements": [],
-      "properties": {
-        "taskId": "string"
-      },
-      "usedBy": [
-        "CancelTaskRequest"
-      ],
-      "uses": []
+      "properties": {},
+      "usedBy": [],
+      "uses": [
+        "JSONObject",
+        "JSONArray"
+      ]
     },
     "JSONRPCMessageInterface": {
       "kind": "union",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Union\\JSONRPCMessageInterface",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\Union\\JSONRPCMessageInterface",
       "purpose": "Refers to any valid JSON-RPC object that can be decoded off the wire, or encoded to be sent.",
       "implements": [],
       "properties": {},
@@ -1089,8 +1219,19 @@
       "kind": "union",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\ProgressTokenInterface",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\ProgressTokenInterface",
       "purpose": "A progress token, used to associate progress notifications with the original request.",
+      "implements": [],
+      "properties": {},
+      "usedBy": [],
+      "uses": []
+    },
+    "ResultTypeInterface": {
+      "kind": "union",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\ResultTypeInterface",
+      "purpose": "Indicates the type of a {@link Result} object, allowing the client to\ndetermine how to parse the response.\n\ncomplete - the request completed successfully and the result contains the final content.\ninput_required - the request requires additional input and the result contains an {@link InputRequiredResult} object with instructions for the client to provide additional input before retrying the original request.",
       "implements": [],
       "properties": {},
       "usedBy": [],
@@ -1100,7 +1241,7 @@
       "kind": "union",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Union\\RequestIdInterface",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\Union\\RequestIdInterface",
       "purpose": "A uniquely identifying ID for a request in JSON-RPC.",
       "implements": [],
       "properties": {},
@@ -1111,7 +1252,7 @@
       "kind": "union",
       "domain": "Common",
       "subdomain": "JsonRpc",
-      "namespace": "WP\\McpSchema\\Common\\JsonRpc\\Union\\JSONRPCResponseInterface",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\JsonRpc\\Union\\JSONRPCResponseInterface",
       "purpose": "A response to a request, containing either the result or error.",
       "implements": [],
       "properties": {},
@@ -1125,27 +1266,56 @@
       "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\DTO\\EmptyResult",
-      "purpose": "A response that indicates success but carries no data.",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\EmptyResult",
+      "purpose": "A result that indicates success but carries no data.",
       "extends": "Result",
       "implements": [
-        "ClientResultInterface",
         "ServerResultInterface"
       ],
       "properties": {},
       "usedBy": [
-        "ClientResultInterface",
+        "ClientResult",
         "ServerResultInterface"
       ],
       "uses": [
         "Result"
       ]
     },
+    "InputRequestInterface": {
+      "kind": "union",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\InputRequestInterface",
+      "purpose": "Union type: CreateMessageRequest | ListRootsRequest | ElicitRequest",
+      "implements": [],
+      "properties": {},
+      "usedBy": [],
+      "uses": [
+        "CreateMessageRequest",
+        "ListRootsRequest",
+        "ElicitRequest"
+      ]
+    },
+    "InputResponseInterface": {
+      "kind": "union",
+      "domain": "Common",
+      "subdomain": "Protocol",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\InputResponseInterface",
+      "purpose": "Union type: CreateMessageResult | ListRootsResult | ElicitResult",
+      "implements": [],
+      "properties": {},
+      "usedBy": [],
+      "uses": [
+        "CreateMessageResult",
+        "ListRootsResult",
+        "ElicitResult"
+      ]
+    },
     "Role": {
       "kind": "enum",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Enum\\Role",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Enum\\Role",
       "purpose": "The sender or recipient of messages and data in a conversation.",
       "implements": [],
       "properties": {
@@ -1159,28 +1329,11 @@
       ],
       "uses": []
     },
-    "SamplingMessageContentBlockInterface": {
-      "kind": "union",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\SamplingMessageContentBlockInterface",
-      "purpose": "Union type: TextContent | ImageContent | AudioContent | ToolUseContent | ToolResultContent",
-      "implements": [],
-      "properties": {},
-      "usedBy": [],
-      "uses": [
-        "TextContent",
-        "ImageContent",
-        "AudioContent",
-        "ToolUseContent",
-        "ToolResultContent"
-      ]
-    },
     "ContentBlockInterface": {
       "kind": "union",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\ContentBlockInterface",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\ContentBlockInterface",
       "purpose": "Union type: TextContent | ImageContent | AudioContent | ResourceLink | EmbeddedResource",
       "implements": [],
       "properties": {},
@@ -1197,137 +1350,47 @@
       "kind": "union",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\ClientRequestInterface",
-      "purpose": "Union type: PingRequest | InitializeRequest | CompleteRequest | SetLevelRequest | GetPromptRequest | ListPromptsRequest | ListResourcesRequest | ListResourceTemplatesRequest | ReadResourceRequest | SubscribeRequest | UnsubscribeRequest | CallToolRequest | ListToolsRequest | GetTaskRequest | GetTaskPayloadRequest | ListTasksRequest | CancelTaskRequest",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\Union\\ClientRequestInterface",
+      "purpose": "Union type: DiscoverRequest | CompleteRequest | GetPromptRequest | ListPromptsRequest | ListResourcesRequest | ListResourceTemplatesRequest | ReadResourceRequest | SubscriptionsListenRequest | CallToolRequest | ListToolsRequest",
       "implements": [],
       "properties": {},
       "usedBy": [],
       "uses": [
-        "PingRequest",
-        "InitializeRequest",
+        "DiscoverRequest",
         "CompleteRequest",
-        "SetLevelRequest",
         "GetPromptRequest",
         "ListPromptsRequest",
         "ListResourcesRequest",
         "ListResourceTemplatesRequest",
         "ReadResourceRequest",
-        "SubscribeRequest",
-        "UnsubscribeRequest",
+        "SubscriptionsListenRequest",
         "CallToolRequest",
-        "ListToolsRequest",
-        "GetTaskRequest",
-        "GetTaskPayloadRequest",
-        "ListTasksRequest",
-        "CancelTaskRequest"
+        "ListToolsRequest"
       ]
     },
-    "ClientNotificationInterface": {
-      "kind": "union",
+    "ClientNotification": {
+      "kind": "class",
       "domain": "Common",
       "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\ClientNotificationInterface",
-      "purpose": "Union type: CancelledNotification | ProgressNotification | InitializedNotification | RootsListChangedNotification | TaskStatusNotification",
+      "namespace": "WP\\McpSchema\\V20260728\\Common\\Protocol\\DTO\\ClientNotification",
+      "purpose": "Type alias for CancelledNotification",
+      "extends": "CancelledNotification",
       "implements": [],
       "properties": {},
       "usedBy": [],
       "uses": [
-        "CancelledNotification",
-        "ProgressNotification",
-        "InitializedNotification",
-        "RootsListChangedNotification",
-        "TaskStatusNotification"
-      ]
-    },
-    "ServerRequestInterface": {
-      "kind": "union",
-      "domain": "Common",
-      "subdomain": "Protocol",
-      "namespace": "WP\\McpSchema\\Common\\Protocol\\Union\\ServerRequestInterface",
-      "purpose": "Union type: PingRequest | CreateMessageRequest | ListRootsRequest | ElicitRequest | GetTaskRequest | GetTaskPayloadRequest | ListTasksRequest | CancelTaskRequest",
-      "implements": [],
-      "properties": {},
-      "usedBy": [],
-      "uses": [
-        "PingRequest",
-        "CreateMessageRequest",
-        "ListRootsRequest",
-        "ElicitRequest",
-        "GetTaskRequest",
-        "GetTaskPayloadRequest",
-        "ListTasksRequest",
-        "CancelTaskRequest"
-      ]
-    },
-    "GetTaskResult": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\GetTaskResult",
-      "purpose": "The response to a tasks/get request.",
-      "extends": "Result",
-      "implements": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "properties": {
-        "taskId": "string",
-        "status": "\"working\" | \"input_required\" | \"completed\" | \"f...",
-        "statusMessage": "string?",
-        "createdAt": "string",
-        "lastUpdatedAt": "string",
-        "ttl": "number | null",
-        "pollInterval": "number?"
-      },
-      "usedBy": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "uses": [
-        "Result",
-        "Task"
-      ]
-    },
-    "CancelTaskResult": {
-      "kind": "class",
-      "domain": "Common",
-      "subdomain": "Tasks",
-      "namespace": "WP\\McpSchema\\Common\\Tasks\\DTO\\CancelTaskResult",
-      "purpose": "The response to a tasks/cancel request.",
-      "extends": "Result",
-      "implements": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "properties": {
-        "taskId": "string",
-        "status": "\"working\" | \"input_required\" | \"completed\" | \"f...",
-        "statusMessage": "string?",
-        "createdAt": "string",
-        "lastUpdatedAt": "string",
-        "ttl": "number | null",
-        "pollInterval": "number?"
-      },
-      "usedBy": [
-        "ClientResultInterface",
-        "ServerResultInterface"
-      ],
-      "uses": [
-        "Result",
-        "Task"
+        "CancelledNotification"
       ]
     }
   },
   "factories": {
-    "SamplingMessageContentBlockFactory": {
-      "interface": "SamplingMessageContentBlockInterface",
-      "discriminator": "type",
+    "InputRequestFactory": {
+      "interface": "InputRequestInterface",
+      "discriminator": "method",
       "mappings": {
-        "text": "TextContent",
-        "image": "ImageContent",
-        "audio": "AudioContent",
-        "tool_use": "ToolUseContent",
-        "tool_result": "ToolResultContent"
+        "sampling/createMessage": "CreateMessageRequest",
+        "roots/list": "ListRootsRequest",
+        "elicitation/create": "ElicitRequest"
       }
     },
     "ContentBlockFactory": {
@@ -1345,48 +1408,16 @@
       "interface": "ClientRequestInterface",
       "discriminator": "method",
       "mappings": {
-        "ping": "PingRequest",
-        "initialize": "InitializeRequest",
+        "server/discover": "DiscoverRequest",
         "completion/complete": "CompleteRequest",
-        "logging/setLevel": "SetLevelRequest",
         "prompts/get": "GetPromptRequest",
         "prompts/list": "ListPromptsRequest",
         "resources/list": "ListResourcesRequest",
         "resources/templates/list": "ListResourceTemplatesRequest",
         "resources/read": "ReadResourceRequest",
-        "resources/subscribe": "SubscribeRequest",
-        "resources/unsubscribe": "UnsubscribeRequest",
+        "subscriptions/listen": "SubscriptionsListenRequest",
         "tools/call": "CallToolRequest",
-        "tools/list": "ListToolsRequest",
-        "tasks/get": "GetTaskRequest",
-        "tasks/result": "GetTaskPayloadRequest",
-        "tasks/list": "ListTasksRequest",
-        "tasks/cancel": "CancelTaskRequest"
-      }
-    },
-    "ClientNotificationFactory": {
-      "interface": "ClientNotificationInterface",
-      "discriminator": "method",
-      "mappings": {
-        "notifications/cancelled": "CancelledNotification",
-        "notifications/progress": "ProgressNotification",
-        "notifications/initialized": "InitializedNotification",
-        "notifications/roots/list_changed": "RootsListChangedNotification",
-        "notifications/tasks/status": "TaskStatusNotification"
-      }
-    },
-    "ServerRequestFactory": {
-      "interface": "ServerRequestInterface",
-      "discriminator": "method",
-      "mappings": {
-        "ping": "PingRequest",
-        "sampling/createMessage": "CreateMessageRequest",
-        "roots/list": "ListRootsRequest",
-        "elicitation/create": "ElicitRequest",
-        "tasks/get": "GetTaskRequest",
-        "tasks/result": "GetTaskPayloadRequest",
-        "tasks/list": "ListTasksRequest",
-        "tasks/cancel": "CancelTaskRequest"
+        "tools/list": "ListToolsRequest"
       }
     }
   }

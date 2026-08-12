@@ -4,20 +4,18 @@ Factories instantiate the correct DTO based on discriminator values.
 
 ## Common Factories
 
-### SamplingMessageContentBlockFactory
+### InputRequestFactory
 
-- **Interface:** `SamplingMessageContentBlockInterface`
-- **Discriminator:** `type`
+- **Interface:** `InputRequestInterface`
+- **Discriminator:** `method`
 
 **Mappings:**
 
 | Value | Type |
 | --- | --- |
-| `text` | TextContent |
-| `image` | ImageContent |
-| `audio` | AudioContent |
-| `tool_use` | ToolUseContent |
-| `tool_result` | ToolResultContent |
+| `sampling/createMessage` | CreateMessageRequest |
+| `roots/list` | ListRootsRequest |
+| `elicitation/create` | ElicitRequest |
 
 ### ContentBlockFactory
 
@@ -43,59 +41,34 @@ Factories instantiate the correct DTO based on discriminator values.
 
 | Value | Type |
 | --- | --- |
-| `ping` | PingRequest |
-| `initialize` | InitializeRequest |
+| `server/discover` | DiscoverRequest |
 | `completion/complete` | CompleteRequest |
-| `logging/setLevel` | SetLevelRequest |
 | `prompts/get` | GetPromptRequest |
 | `prompts/list` | ListPromptsRequest |
 | `resources/list` | ListResourcesRequest |
 | `resources/templates/list` | ListResourceTemplatesRequest |
 | `resources/read` | ReadResourceRequest |
-| `resources/subscribe` | SubscribeRequest |
-| `resources/unsubscribe` | UnsubscribeRequest |
+| `subscriptions/listen` | SubscriptionsListenRequest |
 | `tools/call` | CallToolRequest |
 | `tools/list` | ListToolsRequest |
-| `tasks/get` | GetTaskRequest |
-| `tasks/result` | GetTaskPayloadRequest |
-| `tasks/list` | ListTasksRequest |
-| `tasks/cancel` | CancelTaskRequest |
-
-### ClientNotificationFactory
-
-- **Interface:** `ClientNotificationInterface`
-- **Discriminator:** `method`
-
-**Mappings:**
-
-| Value | Type |
-| --- | --- |
-| `notifications/cancelled` | CancelledNotification |
-| `notifications/progress` | ProgressNotification |
-| `notifications/initialized` | InitializedNotification |
-| `notifications/roots/list_changed` | RootsListChangedNotification |
-| `notifications/tasks/status` | TaskStatusNotification |
-
-### ServerRequestFactory
-
-- **Interface:** `ServerRequestInterface`
-- **Discriminator:** `method`
-
-**Mappings:**
-
-| Value | Type |
-| --- | --- |
-| `ping` | PingRequest |
-| `sampling/createMessage` | CreateMessageRequest |
-| `roots/list` | ListRootsRequest |
-| `elicitation/create` | ElicitRequest |
-| `tasks/get` | GetTaskRequest |
-| `tasks/result` | GetTaskPayloadRequest |
-| `tasks/list` | ListTasksRequest |
-| `tasks/cancel` | CancelTaskRequest |
 
 
 ## Client Factories
+
+### SamplingMessageContentBlockFactory
+
+- **Interface:** `SamplingMessageContentBlockInterface`
+- **Discriminator:** `type`
+
+**Mappings:**
+
+| Value | Type |
+| --- | --- |
+| `text` | TextContent |
+| `image` | ImageContent |
+| `audio` | AudioContent |
+| `tool_use` | ToolUseContent |
+| `tool_result` | ToolResultContent |
 
 ### ElicitRequestParamsFactory
 
@@ -174,5 +147,4 @@ Factories instantiate the correct DTO based on discriminator values.
 | `notifications/resources/list_changed` | ResourceListChangedNotification |
 | `notifications/tools/list_changed` | ToolListChangedNotification |
 | `notifications/prompts/list_changed` | PromptListChangedNotification |
-| `notifications/elicitation/complete` | ElicitationCompleteNotification |
-| `notifications/tasks/status` | TaskStatusNotification |
+| `notifications/subscriptions/acknowledged` | SubscriptionsAcknowledgedNotification |

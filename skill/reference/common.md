@@ -4,10 +4,9 @@
 
 - [Content](#content) (3 types)
 - [Core](#core) (1 types)
-- [JsonRpc](#jsonrpc) (13 types)
+- [JsonRpc](#jsonrpc) (14 types)
 - [Lifecycle](#lifecycle) (1 types)
-- [Protocol](#protocol) (31 types)
-- [Tasks](#tasks) (10 types)
+- [Protocol](#protocol) (49 types)
 
 ## Content
 
@@ -49,19 +48,20 @@
 | JSONRPCResponseInterface | A response to a request, containing either the result or ... | - |
 | JSONRPCResultResponse | A successful (non-error) response to a request | jsonrpc: typeof JSONR..., id: RequestId, result: Result |
 | Notification | Notification for  events | method: string, params?: { [key: stri... |
-| NotificationParams | Parameters for Notification | _meta?: { [key: stri... |
+| NotificationMetaObject | Extends {@link MetaObject} with additional notification-s... | io.modelcontextprotocol/subscriptionId?: RequestId |
+| NotificationParams | Common params for any notification | _meta?: Notification... |
 | Request | Request for  operation | method: string, params?: { [key: stri... |
 | RequestIdInterface | A uniquely identifying ID for a request in JSON-RPC | - |
-| RequestParams | Common params for any request | _meta?: RequestParam... |
-| RequestParamsMeta | See [General fields: `_meta`](/specification/2025-11-25/b... | progressToken?: ProgressToken |
+| RequestMetaObject | Extends {@link MetaObject} with additional request-specif... | progressToken?: ProgressToken, io.modelcontextprotocol/protocolVersion: string, io.modelcontextprotocol/clientInfo?: Implementation, +2 more |
+| RequestParams | Common params for any request | _meta: RequestMetaO... |
 
 ### Relationships
 
+- `RequestMetaObject` extends `MetaObject`
+- `NotificationMetaObject` extends `MetaObject`
 - `JSONRPCRequest` extends `Request`
 - `JSONRPCRequest` implements `JSONRPCMessageInterface`
 - `JSONRPCNotification` extends `Notification`
-- `JSONRPCNotification` implements `JSONRPCMessageInterface`
-- `JSONRPCResultResponse` implements `JSONRPCResponseInterface`
 
 ## Lifecycle
 
@@ -84,65 +84,60 @@
 | Annotations | Optional annotations for the client | audience?: Role[], priority?: number, lastModified?: string |
 | BaseMetadata | Base interface for metadata with name (identifier) and ti... | name: string, title?: string |
 | BlobResourceContents | Blob Resource Contents data structure | blob: string |
-| CancelledNotification | This notification can be sent by either side to indicate ... | method: "notificatio..., params: CancelledNot... |
-| CancelledNotificationParams | Parameters for a `notifications/cancelled` notification | requestId?: RequestId, reason?: string |
-| ClientNotificationInterface | Union type: CancelledNotification \| ProgressNotification ... | - |
-| ClientRequestInterface | Union type: PingRequest \| InitializeRequest \| CompleteReq... | - |
+| CacheableResult | A result that supports a time-to-live (TTL) hint for clie... | ttlMs: number, cacheScope: "public" \| "... |
+| CancelledNotification | This notification is sent by the client to indicate that ... | method: "notificatio..., params: CancelledNot... |
+| CancelledNotificationParams | Parameters for a `notifications/cancelled` notification | requestId: RequestId, reason?: string |
+| ClientNotification | Type alias for CancelledNotification | - |
+| ClientRequestInterface | Union type: DiscoverRequest \| CompleteRequest \| GetPrompt... | - |
 | ContentBlockInterface | Union type: TextContent \| ImageContent \| AudioContent \| R... | - |
+| DiscoverRequest | A request from the client asking the server to advertise ... | method: "server/disc..., params: RequestParams |
+| DiscoverResult | The result returned by the server for a {@link DiscoverRe... | supportedVersions: string[], capabilities: ServerCapabi..., instructions?: string |
+| DiscoverResultResponse | A successful response from the server for a {@link Discov... | result: DiscoverResult |
 | EmbeddedResource | The contents of a resource, embedded into a prompt or too... | type: "resource", resource: TextResource..., annotations?: Annotations, +1 more |
-| EmptyResult | A response that indicates success but carries no data | - |
-| GetTaskPayloadRequest | A request to retrieve the result of a completed task | method: "tasks/result", params: GetTaskPaylo... |
-| GetTaskPayloadRequestParams | Parameters for GetTaskPayloadRequest | taskId: string |
-| GetTaskPayloadResult | The response to a tasks/result request | - |
+| EmptyResult | A result that indicates success but carries no data | - |
+| HeaderMismatchError | Returned when a server rejects a request because the valu... | error: Error & {
+  ... |
 | Icons | Base interface to add `icons` property | icons?: Icon[] |
-| InitializedNotification | This notification is sent from the client to the server a... | method: "notificatio..., params?: Notification... |
-| InitializeRequest | This request is sent from the client to the server when i... | method: "initialize", params: InitializeRe... |
-| InitializeRequestParams | Parameters for an `initialize` request | protocolVersion: string, capabilities: ClientCapabi..., clientInfo: Implementation |
-| InitializeResult | After receiving an initialize request from the client, th... | protocolVersion: string, capabilities: ServerCapabi..., serverInfo: Implementation, +1 more |
-| PaginatedRequest | Request for Paginated operation | params?: PaginatedReq... |
-| PaginatedRequestParams | Common parameters for paginated requests | cursor?: Cursor |
+| InputRequestInterface | Union type: CreateMessageRequest \| ListRootsRequest \| Eli... | - |
+| InputRequests | A map of server-initiated requests that the client must f... | - |
+| InputRequiredResult | An InputRequiredResult sent by the server to indicate tha... | inputRequests?: InputRequests, requestState?: string |
+| InputResponseInterface | Union type: CreateMessageResult \| ListRootsResult \| Elici... | - |
+| InputResponseRequestParams | Parameters for InputResponseRequest | inputResponses?: InputResponses, requestState?: string |
+| InputResponses | A map of client responses to server-initiated requests | - |
+| InternalError | A JSON-RPC error indicating that an internal error occurr... | code: typeof INTER... |
+| InvalidParamsError | A JSON-RPC error indicating that the method parameters ar... | code: typeof INVAL... |
+| InvalidRequestError | A JSON-RPC error indicating that the request is not a val... | code: typeof INVAL... |
+| JSONValueInterface | Union type: JSONObject \| JSONArray | - |
+| MethodNotFoundError | A JSON-RPC error indicating that the requested method doe... | code: typeof METHO... |
+| MissingRequiredClientCapabilityError | Returned when processing a request requires a capability ... | error: Error & {
+  ... |
+| PaginatedRequest | Request for Paginated operation | params: PaginatedReq... |
+| PaginatedRequestParams | Common params for paginated requests | cursor?: Cursor |
 | PaginatedResult | Result from Paginated operation | nextCursor?: Cursor |
-| PingRequest | A ping, issued by either the server or the client, to che... | method: "ping", params?: RequestParams |
+| ParseError | A JSON-RPC error indicating that invalid JSON was receive... | code: typeof PARSE... |
 | ProgressNotification | An out-of-band notification used to inform the receiver o... | method: "notificatio..., params: ProgressNoti... |
-| ProgressNotificationParams | Parameters for a `notifications/progress` notification | progressToken: ProgressToken, progress: number, total?: number, +1 more |
+| ProgressNotificationParams | Parameters for a {@link ProgressNotification \| notificati... | progressToken: ProgressToken, progress: number, total?: number, +1 more |
 | ProgressTokenInterface | A progress token, used to associate progress notification... | - |
-| Result | Result from  operation | _meta?: { [key: stri... |
+| Result | Common result fields | _meta?: ResultMetaOb..., resultType: ResultType |
+| ResultMetaObject | Extends {@link MetaObject} with additional result-specifi... | io.modelcontextprotocol/serverInfo?: Implementation |
+| ResultTypeInterface | Indicates the type of a {@link Result} object, allowing t... | - |
 | Role | The sender or recipient of messages and data in a convers... | USER: user, ASSISTANT: assistant |
-| SamplingMessageContentBlockInterface | Union type: TextContent \| ImageContent \| AudioContent \| T... | - |
-| ServerRequestInterface | Union type: PingRequest \| CreateMessageRequest \| ListRoot... | - |
+| SubscriptionFilter | The set of notification types a client may opt in to on a | toolsListChanged?: boolean, promptsListChanged?: boolean, resourcesListChanged?: boolean, +1 more |
+| SubscriptionsAcknowledgedNotification | Sent by the server to acknowledge that a | method: "notificatio..., params: Subscription... |
+| SubscriptionsAcknowledgedNotificationParams | Parameters for a {@link SubscriptionsAcknowledgedNotifica... | notifications: Subscription... |
+| SubscriptionsListenRequest | Sent from the client to open a long-lived channel for rec... | method: "subscriptio..., params: Subscription... |
+| SubscriptionsListenRequestParams | Parameters for a {@link SubscriptionsListenRequest \| subs... | notifications: Subscription... |
+| SubscriptionsListenResult | The response to a {@link SubscriptionsListenRequest \| sub... | _meta: Subscription... |
+| SubscriptionsListenResultMetaObject | Extends {@link ResultMetaObject} with the subscription-st... | io.modelcontextprotocol/subscriptionId: RequestId |
+| SubscriptionsListenResultResponse | A successful response from the server for a {@link Subscr... | result: Subscription... |
 | TextResourceContents | Text Resource Contents data structure | text: string |
-| URLElicitationRequiredError | An error response that indicates that the server requires... | error: Error & {
+| UnsupportedProtocolVersionError | Returned when the request's protocol version is unknown t... | error: Error & {
   ... |
 
 ### Relationships
 
-- `URLElicitationRequiredError` extends `Omit`
-- `CancelledNotificationParams` extends `NotificationParams`
-- `CancelledNotification` extends `JSONRPCNotification`
-- `CancelledNotification` implements `ClientNotificationInterface`
-- `CancelledNotification` implements `ServerNotificationInterface`
-
-## Tasks
-
-### Types
-
-| Type | Purpose | Key Properties |
-| --- | --- | --- |
-| CancelTaskRequest | A request to cancel a task | method: "tasks/cancel", params: CancelTaskRe... |
-| CancelTaskRequestParams | Parameters for CancelTaskRequest | taskId: string |
-| CancelTaskResult | The response to a tasks/cancel request | taskId: string, status: "working" \| ..., statusMessage?: string, +4 more |
-| GetTaskRequest | A request to retrieve the state of a task | method: "tasks/get", params: GetTaskReque... |
-| GetTaskRequestParams | Parameters for GetTaskRequest | taskId: string |
-| GetTaskResult | The response to a tasks/get request | taskId: string, status: "working" \| ..., statusMessage?: string, +4 more |
-| ListTasksRequest | A request to retrieve a list of tasks | method: "tasks/list" |
-| ListTasksResult | The response to a tasks/list request | tasks: Task[] |
-| TaskAugmentedRequestParams | Common params for any task-augmented request | task?: TaskMetadata |
-| TaskStatusNotification | An optional notification from the receiver to the request... | method: "notificatio..., params: TaskStatusNo... |
-
-### Relationships
-
-- `TaskAugmentedRequestParams` extends `RequestParams`
-- `GetTaskRequest` extends `JSONRPCRequest`
-- `GetTaskRequest` implements `ClientRequestInterface`
-- `GetTaskRequest` implements `ServerRequestInterface`
-- `CancelTaskRequest` extends `JSONRPCRequest`
+- `ResultMetaObject` extends `MetaObject`
+- `ParseError` extends `Error`
+- `InvalidRequestError` extends `Error`
+- `MethodNotFoundError` extends `Error`
+- `InvalidParamsError` extends `Error`

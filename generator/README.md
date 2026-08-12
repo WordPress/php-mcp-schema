@@ -11,24 +11,24 @@ npm run build
 
 ## Running the Generator
 
-The generator requires a configuration file that specifies the schema version. Config files are located in `config/`.
+`config/revisions/` is the shipping build list. A normal run generates both revision trees; `-c` remains available for isolated development.
 
-**Available versions:**
-- `2024-11-05.json` - Initial MCP release
-- `2025-03-26.json`
-- `2025-06-18.json`
-- `2025-11-25.json` - Latest
-
-**Generate PHP schema:**
+**Generate every shipping revision:**
 
 ```bash
-npx mcp-php-generator generate -c config/2025-11-25.json
+npm run generate
 ```
 
 **Generate and run PHPStan validation:**
 
 ```bash
-npm run generate:check -- -c config/2025-11-25.json
+npm run generate:check
+```
+
+**Generate one revision:**
+
+```bash
+node dist/cli/index.js generate -c config/revisions/2026-07-28.json
 ```
 
 ## CLI Options
@@ -37,12 +37,9 @@ npm run generate:check -- -c config/2025-11-25.json
 npx mcp-php-generator generate --help
 
 Options:
-  -c, --config <file>      Configuration file (required)
+  -c, --config <file>      Generate one revision from a configuration file
   -o, --output <dir>       Output directory (overrides config)
   -n, --namespace <ns>     PHP namespace (overrides config)
-  -p, --php-version <ver>  PHP version (overrides config)
-  --builders               Generate builder classes
-  --no-factories           Disable factory generation
   --dry-run                Show what would be generated without writing files
   --fresh                  Force fresh fetch from GitHub (ignore cache)
   --verbose                Enable verbose output

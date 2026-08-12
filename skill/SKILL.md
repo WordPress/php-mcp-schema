@@ -3,7 +3,11 @@ name: mcp-php-schema
 description: Navigate and understand the MCP PHP schema. Use when implementing MCP clients/servers, understanding protocol types, or finding the right DTO for a task.
 ---
 
-# MCP PHP Schema Reference
+# MCP PHP Schema Reference (2026-07-28)
+
+This generated reference describes the 2026-07-28 DTO tree.
+The package also ships the legacy `V20251125` tree for dual-revision consumers.
+Every PHP import must include its `V<YYYYMMDD>` revision segment.
 
 ## Quick Navigation
 
@@ -15,15 +19,15 @@ description: Navigate and understand the MCP PHP schema. Use when implementing M
 
 ## Schema Structure
 
-3 domains, 17 subdomains, 164 types total.
+3 domains, 15 subdomains, 166 types total.
 
 ### Domains Overview
 
 | Domain | Types | Purpose |
 | --- | --- | --- |
-| Common | 59 | Protocol base, JSON-RPC, content blocks |
+| Common | 68 | Protocol base, JSON-RPC, content blocks |
 | Server | 59 | Tools, resources, prompts, logging |
-| Client | 46 | Sampling, elicitation, roots, tasks |
+| Client | 39 | Sampling, elicitation, roots, tasks |
 
 ## Common Patterns
 

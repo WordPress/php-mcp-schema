@@ -8,6 +8,7 @@ import {
   SyntaxKind,
   VariableDeclarationKind,
   type ExpressionWithTypeArguments,
+  type PropertySignature,
   type SourceFile,
   type TypeNode,
 } from 'ts-morph';
@@ -30,6 +31,25 @@ export const SHIPPING_REVISIONS = ['2025-11-25', '2026-07-28'] as const;
 const SCHEMA_SHA256: Readonly<Record<(typeof SHIPPING_REVISIONS)[number], string>> = {
   '2025-11-25': 'e74b56e73b2e37bdb595f74ba22e428ad7f07aa3519355ba661d681298ed38ac',
   '2026-07-28': '742750af0bb8c716e7030c4977c992b55d1adc4407e9e66997db5846baedc2cd',
+};
+
+interface CuratedRecordConstraints {
+  readonly atLeastOneOf: readonly (readonly string[])[];
+}
+
+/**
+ * Cross-field rules that schema.ts states only in prose, keyed by revision
+ * and type name. Every entry is validated against the compiled descriptors,
+ * which come from sources pinned by SCHEMA_SHA256, so adding or bumping a
+ * revision forces this table to be re-reviewed against its prose.
+ */
+const CURATED_RECORD_CONSTRAINTS: Readonly<
+  Record<string, Readonly<Record<string, CuratedRecordConstraints>>>
+> = {
+  '2026-07-28': {
+    // "At least one of `inputRequests` or `requestState` MUST be present."
+    InputRequiredResult: { atLeastOneOf: [['inputRequests', 'requestState']] },
+  },
 };
 
 export async function compileRevisions(revisions: readonly string[]): Promise<DescriptorBundle> {
@@ -91,7 +111,11 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
       }
       fields[propertyName(property.getNameNode())] = {
         required: !property.hasQuestionToken(),
-        type: compileType(typeNode, constants),
+        type: applyNumericBounds(
+          compileType(typeNode, constants),
+          property,
+          `${revision}:${declaration.getName()}.${property.getName()}`
+        ),
       };
     }
 
@@ -113,6 +137,8 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
     }
     descriptors[declaration.getName()] = compileType(typeNode, constants);
   }
+
+  applyCuratedConstraints(revision, descriptors);
 
   const sortedDescriptors = sortRecord(descriptors);
   const rootRecordTypes = Object.keys(sortedDescriptors)
@@ -240,7 +266,11 @@ function compileType(node: TypeNode, constants: ReadonlyMap<string, LiteralValue
       }
       fields[propertyName(property.getNameNode())] = {
         required: !property.hasQuestionToken(),
-        type: compileType(typeNode, constants),
+        type: applyNumericBounds(
+          compileType(typeNode, constants),
+          property,
+          `type-literal property ${property.getName()}`
+        ),
       };
     }
     const indexSignature = node.getIndexSignatures()[0];
@@ -319,6 +349,72 @@ function compileReference(
     );
   }
   return { kind: 'ref', name };
+}
+
+function applyNumericBounds(
+  descriptor: Descriptor,
+  property: PropertySignature,
+  context: string
+): Descriptor {
+  const minimum = numericBoundTag(property, 'minimum', context);
+  const maximum = numericBoundTag(property, 'maximum', context);
+  if (minimum === undefined && maximum === undefined) {
+    return descriptor;
+  }
+  if (descriptor.kind !== 'number') {
+    throw new Error(`${context} declares a numeric bound but compiles to '${descriptor.kind}'`);
+  }
+  return {
+    kind: 'number',
+    ...(minimum === undefined ? {} : { minimum }),
+    ...(maximum === undefined ? {} : { maximum }),
+  };
+}
+
+function numericBoundTag(
+  property: PropertySignature,
+  tagName: 'minimum' | 'maximum',
+  context: string
+): number | undefined {
+  for (const doc of property.getJsDocs()) {
+    for (const tag of doc.getTags()) {
+      if (tag.getTagName() !== tagName) {
+        continue;
+      }
+      const raw = (tag.getCommentText() ?? '').trim();
+      if (!/^-?\d+(?:\.\d+)?$/.test(raw)) {
+        throw new Error(`${context} @${tagName} is not a number: '${raw}'`);
+      }
+      return Number(raw);
+    }
+  }
+  return undefined;
+}
+
+function applyCuratedConstraints(revision: string, descriptors: Record<string, Descriptor>): void {
+  for (const [typeName, constraints] of Object.entries(
+    CURATED_RECORD_CONSTRAINTS[revision] ?? {}
+  )) {
+    const descriptor = descriptors[typeName];
+    if (!descriptor || descriptor.kind !== 'record') {
+      throw new Error(`Curated constraint targets missing or non-record type ${revision}:${typeName}`);
+    }
+    for (const group of constraints.atLeastOneOf) {
+      if (group.length < 2) {
+        throw new Error(
+          `Curated atLeastOneOf group for ${revision}:${typeName} needs at least two fields`
+        );
+      }
+      for (const field of group) {
+        if (!descriptor.fields[field]) {
+          throw new Error(
+            `Curated constraint references unknown field ${revision}:${typeName}.${field}`
+          );
+        }
+      }
+    }
+    descriptors[typeName] = { ...descriptor, atLeastOneOf: constraints.atLeastOneOf };
+  }
 }
 
 function extractLiteralStrings(node: TypeNode): string[] {

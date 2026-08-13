@@ -80,6 +80,26 @@ test('retains revision-specific literal constants', async () => {
   });
 });
 
+test('compiles numeric JSDoc bounds and curated cross-field constraints', async () => {
+  const bundle = await compileRevisions(revisions);
+  const legacy = bundle.revisions['2025-11-25'];
+  const modern = bundle.revisions['2026-07-28'];
+
+  assert.deepEqual(modern.descriptors.CacheableResult.fields.ttlMs.type, {
+    kind: 'number',
+    minimum: 0,
+  });
+  assert.deepEqual(legacy.descriptors.Annotations.fields.priority.type, {
+    kind: 'number',
+    minimum: 0,
+    maximum: 1,
+  });
+  assert.deepEqual(modern.descriptors.InputRequiredResult.atLeastOneOf, [
+    ['inputRequests', 'requestState'],
+  ]);
+  assert.equal(legacy.descriptors.InputRequiredResult, undefined);
+});
+
 test('renders acronym-aware catalog methods and rejects unsafe names', () => {
   assert.equal(catalogMethodName('JSONRPCErrorResponse'), 'jsonrpcErrorResponse');
   assert.equal(catalogMethodName('URLSchema'), 'urlSchema');

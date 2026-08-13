@@ -1,4 +1,4 @@
-export type ScalarKind = 'string' | 'number' | 'boolean' | 'null';
+export type ScalarKind = 'string' | 'boolean' | 'null';
 
 export type LiteralValue = string | number | boolean | null;
 
@@ -8,6 +8,12 @@ export interface AnyDescriptor {
 
 export interface ScalarDescriptor {
   readonly kind: ScalarKind;
+}
+
+export interface NumberDescriptor {
+  readonly kind: 'number';
+  readonly minimum?: number;
+  readonly maximum?: number;
 }
 
 export interface LiteralDescriptor {
@@ -45,6 +51,8 @@ export interface RecordDescriptor {
   readonly fields: Readonly<Record<string, FieldDescriptor>>;
   readonly parents: readonly Descriptor[];
   readonly additional: Descriptor | false;
+  /** Cross-field groups where at least one member must be present. */
+  readonly atLeastOneOf?: readonly (readonly string[])[];
 }
 
 export interface UnionDescriptor {
@@ -66,6 +74,7 @@ export interface OmitDescriptor {
 export type Descriptor =
   | AnyDescriptor
   | ScalarDescriptor
+  | NumberDescriptor
   | LiteralDescriptor
   | ReferenceDescriptor
   | ListDescriptor

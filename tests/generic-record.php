@@ -299,4 +299,39 @@ assertValidationFails(
     'A non-finite number was accepted as a JSON wire value.'
 );
 
-echo "Generic record, dual-revision, union, map, null, identity, and immutability seams passed.\n";
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->inputRequiredResult()->fromArray(['resultType' => 'input_required']);
+    },
+    'An InputRequiredResult with neither inputRequests nor requestState was accepted.'
+);
+$stateOnly = $modernSchema->inputRequiredResult()->fromArray([
+    'resultType' => 'input_required',
+    'requestState' => 'opaque-state',
+]);
+assertSameValue('opaque-state', $stateOnly->get('requestState'), 'A requestState-only InputRequiredResult failed to hydrate.');
+
+$cacheable = $modernSchema->cacheableResult()->fromArray([
+    'resultType' => 'complete',
+    'ttlMs' => 0,
+    'cacheScope' => 'private',
+]);
+assertSameValue(0, $cacheable->get('ttlMs'), 'A ttlMs at the schema @minimum bound failed to hydrate.');
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->cacheableResult()->fromArray([
+            'resultType' => 'complete',
+            'ttlMs' => -5,
+            'cacheScope' => 'private',
+        ]);
+    },
+    'A negative ttlMs was accepted despite the schema @minimum 0 bound.'
+);
+assertValidationFails(
+    static function () use ($schema): void {
+        $schema->type('Annotations')->fromArray(['priority' => 1.5]);
+    },
+    'A priority above the schema @maximum 1 bound was accepted.'
+);
+
+echo "Generic record, dual-revision, union, map, null, identity, immutability, and constraint seams passed.\n";

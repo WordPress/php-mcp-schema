@@ -15,7 +15,7 @@ use WP\McpSchema\Contract\Type;
  *
  * @phpstan-type Descriptor array<string, mixed>
  * @phpstan-type Field array{required: bool, type: Descriptor}
- * @phpstan-type Shape array{fields: array<string, Field>, additional: Descriptor|false}
+ * @phpstan-type Shape array{fields: array<string, Field>, additional: Descriptor|false, atLeastOneOf: array<int, array<int, string>>}
  */
 class GenericRevisionSchema implements RevisionSchema
 {
@@ -149,6 +149,22 @@ class GenericRevisionSchema implements RevisionSchema
             case 'number':
                 if ((!is_int($value) && !is_float($value)) || (is_float($value) && !is_finite($value))) {
                     throw $this->expected($contextName, $path, 'number', $value);
+                }
+                $minimum = $descriptor['minimum'] ?? null;
+                if ((is_int($minimum) || is_float($minimum)) && $value < $minimum) {
+                    throw $this->error($contextName, $path, sprintf(
+                        'expected number >= %s, got %s',
+                        var_export($minimum, true),
+                        var_export($value, true)
+                    ));
+                }
+                $maximum = $descriptor['maximum'] ?? null;
+                if ((is_int($maximum) || is_float($maximum)) && $value > $maximum) {
+                    throw $this->error($contextName, $path, sprintf(
+                        'expected number <= %s, got %s',
+                        var_export($maximum, true),
+                        var_export($value, true)
+                    ));
                 }
                 return $value;
             case 'boolean':
@@ -373,6 +389,22 @@ class GenericRevisionSchema implements RevisionSchema
             }
         }
 
+        foreach ($shape['atLeastOneOf'] as $group) {
+            $present = false;
+            foreach ($group as $member) {
+                if (array_key_exists($member, $data)) {
+                    $present = true;
+                    break;
+                }
+            }
+            if (!$present) {
+                throw $this->error($contextName, $path, sprintf(
+                    "at least one of '%s' must be present",
+                    implode("', '", $group)
+                ));
+            }
+        }
+
         $decoded = [];
         foreach ($data as $key => $item) {
             $name = (string) $key;
@@ -403,7 +435,7 @@ class GenericRevisionSchema implements RevisionSchema
     /**
      * @param array<string, mixed> $descriptor
      * @param array<int, string> $visiting
-     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false}
+     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false, atLeastOneOf: array<int, array<int, string>>}
      */
     private function shape(array $descriptor, array $visiting): array
     {
@@ -420,17 +452,29 @@ class GenericRevisionSchema implements RevisionSchema
             return [
                 'fields' => [],
                 'additional' => self::descriptorEntry($descriptor, 'values'),
+                'atLeastOneOf' => [],
             ];
         }
         if ($kind === 'omit') {
             $shape = $this->shape(self::descriptorEntry($descriptor, 'from'), $visiting);
-            foreach (self::stringListEntry($descriptor, 'keys') as $key) {
+            $omitted = self::stringListEntry($descriptor, 'keys');
+            foreach ($omitted as $key) {
                 unset($shape['fields'][$key]);
             }
+            // A group referencing an omitted field is dropped entirely:
+            // requiring the surviving members would be stricter than the
+            // source contract the omission was derived from.
+            $groups = [];
+            foreach ($shape['atLeastOneOf'] as $group) {
+                if (array_intersect($group, $omitted) === []) {
+                    $groups[] = $group;
+                }
+            }
+            $shape['atLeastOneOf'] = $groups;
             return $shape;
         }
         if ($kind === 'intersection') {
-            $shape = ['fields' => [], 'additional' => false];
+            $shape = ['fields' => [], 'additional' => false, 'atLeastOneOf' => []];
             foreach (self::descriptorListEntry($descriptor, 'allOf') as $part) {
                 $shape = self::mergeShapes($shape, $this->shape($part, $visiting));
             }
@@ -440,11 +484,15 @@ class GenericRevisionSchema implements RevisionSchema
             throw new LogicException('Descriptor is not record-compatible: ' . $kind);
         }
 
-        $shape = ['fields' => [], 'additional' => false];
+        $shape = ['fields' => [], 'additional' => false, 'atLeastOneOf' => []];
         foreach (self::descriptorListEntry($descriptor, 'parents') as $parent) {
             $shape = self::mergeShapes($shape, $this->shape($parent, $visiting));
         }
         $shape['fields'] = array_merge($shape['fields'], self::fieldMapEntry($descriptor, 'fields'));
+        $shape['atLeastOneOf'] = array_merge(
+            $shape['atLeastOneOf'],
+            self::groupListEntry($descriptor, 'atLeastOneOf')
+        );
         $additional = $descriptor['additional'] ?? false;
         if ($additional !== false) {
             if (!is_array($additional)) {
@@ -457,15 +505,16 @@ class GenericRevisionSchema implements RevisionSchema
     }
 
     /**
-     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false} $left
-     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false} $right
-     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false}
+     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false, atLeastOneOf: array<int, array<int, string>>} $left
+     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false, atLeastOneOf: array<int, array<int, string>>} $right
+     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false, atLeastOneOf: array<int, array<int, string>>}
      */
     private static function mergeShapes(array $left, array $right): array
     {
         return [
             'fields' => array_merge($left['fields'], $right['fields']),
             'additional' => $right['additional'] !== false ? $right['additional'] : $left['additional'],
+            'atLeastOneOf' => array_merge($left['atLeastOneOf'], $right['atLeastOneOf']),
         ];
     }
 
@@ -530,6 +579,33 @@ class GenericRevisionSchema implements RevisionSchema
             }
             /** @var array<string, mixed> $item */
             $result[] = $item;
+        }
+        return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $descriptor
+     * @return array<int, array<int, string>>
+     */
+    private static function groupListEntry(array $descriptor, string $key): array
+    {
+        $value = $descriptor[$key] ?? [];
+        if (!is_array($value)) {
+            throw new LogicException(sprintf("Descriptor entry '%s' must be a list of string lists", $key));
+        }
+        $result = [];
+        foreach ($value as $group) {
+            if (!is_array($group)) {
+                throw new LogicException(sprintf("Descriptor entry '%s' contains a non-list group", $key));
+            }
+            $members = [];
+            foreach ($group as $member) {
+                if (!is_string($member)) {
+                    throw new LogicException(sprintf("Descriptor entry '%s' contains a non-string member", $key));
+                }
+                $members[] = $member;
+            }
+            $result[] = $members;
         }
         return $result;
     }

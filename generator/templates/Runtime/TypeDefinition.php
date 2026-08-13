@@ -54,6 +54,17 @@ final class TypeDefinition implements Type
         return $record;
     }
 
+    /**
+     * @param mixed $value
+     * @return Record<array<string, mixed>, array<string, mixed>>
+     */
+    public function fromValue($value): Record
+    {
+        /** @var Record<array<string, mixed>, array<string, mixed>> $record */
+        $record = $this->schema->hydrate($this->name, $value);
+        return $record;
+    }
+
     /** @param array<string, mixed> $data */
     public function validate(array $data): void
     {

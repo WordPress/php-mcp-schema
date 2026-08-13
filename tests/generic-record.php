@@ -228,6 +228,47 @@ assertSameValue(
     'Mutating toWireArray() output changed the immutable record.'
 );
 
+$decodedObject = json_decode(
+    '{"resultType":"complete","content":[],"structuredContent":{}}',
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+$decodedList = json_decode(
+    '{"resultType":"complete","content":[],"structuredContent":[]}',
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+$valueObjectWire = $modernType->fromValue($decodedObject)->toWireArray();
+$valueListWire = $modernType->fromValue($decodedList)->toWireArray();
+if (!$valueObjectWire['structuredContent'] instanceof stdClass || !is_array($valueListWire['structuredContent'])) {
+    throw new RuntimeException('fromValue() lost decoded stdClass/list identity.');
+}
+
+$decodedNumericKeys = json_decode(
+    '{"resultType":"complete","content":[],"structuredContent":{"0":"a","1":"b"}}',
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+$numericKeysWire = json_decode(
+    json_encode($modernType->fromValue($decodedNumericKeys), JSON_THROW_ON_ERROR),
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+if (!$numericKeysWire->structuredContent instanceof stdClass || $numericKeysWire->structuredContent->{'0'} !== 'a') {
+    throw new RuntimeException('fromValue() re-emitted an all-numeric-key JSON object as a list.');
+}
+
+assertValidationFails(
+    static function () use ($modernType): void {
+        $modernType->fromValue(['one', 'two']);
+    },
+    'fromValue() accepted a non-empty list where a record is required.'
+);
+
 $emptyResult = Schemas::v20251125()->emptyResult()->fromArray([]);
 assertSameValue('EmptyResult', $emptyResult->typeName(), 'A direct record alias lost its public logical name.');
 assertSameValue(false, $modernSchema->hasType('ProgressToken'), 'A scalar alias leaked into the record catalog.');

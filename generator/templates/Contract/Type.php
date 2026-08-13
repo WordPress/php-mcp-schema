@@ -21,6 +21,17 @@ interface Type
     /** @return Record<TWire, TFields> */
     public function fromJson(string $json): Record;
 
+    /**
+     * Hydrates an already-decoded JSON value, preserving object/list
+     * identity: `stdClass` means a JSON object and a PHP list means a
+     * JSON list, exactly as produced by `json_decode()` without the
+     * assoc flag.
+     *
+     * @param mixed $value
+     * @return Record<TWire, TFields>
+     */
+    public function fromValue($value): Record;
+
     /** @param TWire $data */
     public function validate(array $data): void;
 

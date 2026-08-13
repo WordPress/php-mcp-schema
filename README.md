@@ -127,7 +127,7 @@ Nested schema objects and maps hydrate to `Record` instances. Values declared as
 
 ### Empty JSON objects and lists
 
-PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
+PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. When the value was already decoded elsewhere — `json_decode()` without the assoc flag — use `fromValue()`; it accepts the decoded value as-is, so `stdClass` stays a JSON object and a PHP list stays a JSON list, including objects whose keys are all numeric strings. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
 
 ```php
 $object = $type->fromArray([

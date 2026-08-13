@@ -18,6 +18,7 @@ import type {
   FieldDescriptor,
   LiteralValue,
   RecordDescriptor,
+  RecordConstraint,
   RevisionManifest,
 } from './model.js';
 
@@ -91,17 +92,25 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
       }
       fields[propertyName(property.getNameNode())] = {
         required: !property.hasQuestionToken(),
-        type: compileType(typeNode, constants),
+        type: applyPropertyConstraints(
+          compileType(typeNode, constants),
+          property.getFullText(),
+          revision,
+          declaration.getName(),
+          property.getName()
+        ),
       };
     }
 
     const indexSignature = declaration.getIndexSignatures()[0];
     const indexType = indexSignature?.getReturnTypeNode();
+    const constraints = recordConstraints(revision, declaration.getName());
     const descriptor: RecordDescriptor = {
       kind: 'record',
       fields: sortRecord(fields),
       parents: declaration.getExtends().map((parent) => compileParent(parent, constants)),
       additional: indexType ? compileType(indexType, constants) : false,
+      ...(constraints === undefined ? {} : { constraints }),
     };
     descriptors[declaration.getName()] = descriptor;
   }
@@ -111,7 +120,11 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
     if (!typeNode) {
       throw new Error(`${revision}:${declaration.getName()} has no type node`);
     }
-    descriptors[declaration.getName()] = compileType(typeNode, constants);
+    const descriptor = compileType(typeNode, constants);
+    descriptors[declaration.getName()] =
+      declaration.getName() === 'MetaObject' && descriptor.kind === 'map'
+        ? { ...descriptor, keyFormat: 'meta-key' }
+        : descriptor;
   }
 
   const sortedDescriptors = sortRecord(descriptors);
@@ -125,6 +138,52 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
     descriptors: sortedDescriptors,
     rootRecordTypes,
   };
+}
+
+function recordConstraints(revision: string, name: string): readonly RecordConstraint[] | undefined {
+  if (revision === '2026-07-28' && name === 'InputRequiredResult') {
+    return [{ kind: 'any-present', fields: ['inputRequests', 'requestState'] }];
+  }
+
+  return undefined;
+}
+
+function applyPropertyConstraints(
+  descriptor: Descriptor,
+  source: string,
+  revision: string,
+  interfaceName: string,
+  propertyNameValue: string
+): Descriptor {
+  if (descriptor.kind !== 'number' && descriptor.kind !== 'string') {
+    return descriptor;
+  }
+
+  const minimum = documentationNumber(source, 'minimum');
+  const maximum = documentationNumber(source, 'maximum');
+  const format = documentationFormat(source);
+  const integer =
+    revision === '2026-07-28' && interfaceName === 'CacheableResult' && propertyNameValue === 'ttlMs';
+
+  return {
+    ...descriptor,
+    ...(minimum === undefined ? {} : { minimum }),
+    ...(maximum === undefined ? {} : { maximum }),
+    ...(format === undefined ? {} : { format }),
+    ...(integer ? { integer: true } : {}),
+  };
+}
+
+function documentationNumber(source: string, tag: 'minimum' | 'maximum'): number | undefined {
+  const match = source.match(new RegExp(`@${tag}\\s+(-?\\d+(?:\\.\\d+)?)`));
+  return match?.[1] === undefined ? undefined : Number(match[1]);
+}
+
+function documentationFormat(
+  source: string
+): 'byte' | 'uri' | 'uri-template' | undefined {
+  const match = source.match(/@format\s+(byte|uri-template|uri)\b/);
+  return match?.[1] as 'byte' | 'uri' | 'uri-template' | undefined;
 }
 
 async function fetchSchema(revision: string): Promise<string> {
@@ -240,7 +299,13 @@ function compileType(node: TypeNode, constants: ReadonlyMap<string, LiteralValue
       }
       fields[propertyName(property.getNameNode())] = {
         required: !property.hasQuestionToken(),
-        type: compileType(typeNode, constants),
+        type: applyPropertyConstraints(
+          compileType(typeNode, constants),
+          property.getFullText(),
+          '',
+          '',
+          property.getName()
+        ),
       };
     }
     const indexSignature = node.getIndexSignatures()[0];

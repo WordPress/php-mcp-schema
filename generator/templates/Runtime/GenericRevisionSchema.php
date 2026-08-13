@@ -15,7 +15,8 @@ use WP\McpSchema\Contract\Type;
  *
  * @phpstan-type Descriptor array<string, mixed>
  * @phpstan-type Field array{required: bool, type: Descriptor}
- * @phpstan-type Shape array{fields: array<string, Field>, additional: Descriptor|false}
+ * @phpstan-type Constraint array{kind: string, fields?: list<string>}
+ * @phpstan-type Shape array{fields: array<string, Field>, additional: Descriptor|false, keyFormat: string|null, constraints: list<Constraint>}
  */
 class GenericRevisionSchema implements RevisionSchema
 {
@@ -145,11 +146,13 @@ class GenericRevisionSchema implements RevisionSchema
                 if (!is_string($value)) {
                     throw $this->expected($contextName, $path, 'string', $value);
                 }
+                $this->validateStringConstraints($descriptor, $value, $path, $contextName);
                 return $value;
             case 'number':
                 if ((!is_int($value) && !is_float($value)) || (is_float($value) && !is_finite($value))) {
                     throw $this->expected($contextName, $path, 'number', $value);
                 }
+                $this->validateNumberConstraints($descriptor, $value, $path, $contextName);
                 return $value;
             case 'boolean':
                 if (!is_bool($value)) {
@@ -360,7 +363,7 @@ class GenericRevisionSchema implements RevisionSchema
         if ($value instanceof stdClass) {
             /** @var array<string, mixed> $data */
             $data = get_object_vars($value);
-        } elseif (is_array($value) && ($value === [] || !self::isList($value))) {
+        } elseif (is_array($value) && !self::isList($value)) {
             /** @var array<string, mixed> $data */
             $data = $value;
         } else {
@@ -376,6 +379,9 @@ class GenericRevisionSchema implements RevisionSchema
         $decoded = [];
         foreach ($data as $key => $item) {
             $name = (string) $key;
+            if ($shape['keyFormat'] !== null && !$this->validKeyFormat($shape['keyFormat'], $name)) {
+                throw $this->error($contextName, $path . '.' . $name, 'invalid object key format');
+            }
             if (isset($shape['fields'][$name])) {
                 $field = $shape['fields'][$name];
                 $decoded[$key] = $this->decode(
@@ -397,13 +403,15 @@ class GenericRevisionSchema implements RevisionSchema
             );
         }
 
+        $this->validateRecordConstraints($shape['constraints'], $decoded, $path, $contextName);
+
         return new GenericRecord($this->revision, $contextName, $decoded);
     }
 
     /**
      * @param array<string, mixed> $descriptor
      * @param array<int, string> $visiting
-     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false}
+     * @return Shape
      */
     private function shape(array $descriptor, array $visiting): array
     {
@@ -420,6 +428,10 @@ class GenericRevisionSchema implements RevisionSchema
             return [
                 'fields' => [],
                 'additional' => self::descriptorEntry($descriptor, 'values'),
+                'keyFormat' => isset($descriptor['keyFormat']) && is_string($descriptor['keyFormat'])
+                    ? $descriptor['keyFormat']
+                    : null,
+                'constraints' => [],
             ];
         }
         if ($kind === 'omit') {
@@ -430,7 +442,7 @@ class GenericRevisionSchema implements RevisionSchema
             return $shape;
         }
         if ($kind === 'intersection') {
-            $shape = ['fields' => [], 'additional' => false];
+            $shape = ['fields' => [], 'additional' => false, 'keyFormat' => null, 'constraints' => []];
             foreach (self::descriptorListEntry($descriptor, 'allOf') as $part) {
                 $shape = self::mergeShapes($shape, $this->shape($part, $visiting));
             }
@@ -440,7 +452,7 @@ class GenericRevisionSchema implements RevisionSchema
             throw new LogicException('Descriptor is not record-compatible: ' . $kind);
         }
 
-        $shape = ['fields' => [], 'additional' => false];
+        $shape = ['fields' => [], 'additional' => false, 'keyFormat' => null, 'constraints' => []];
         foreach (self::descriptorListEntry($descriptor, 'parents') as $parent) {
             $shape = self::mergeShapes($shape, $this->shape($parent, $visiting));
         }
@@ -453,20 +465,142 @@ class GenericRevisionSchema implements RevisionSchema
             /** @var array<string, mixed> $additional */
             $shape['additional'] = $additional;
         }
+        $constraints = $descriptor['constraints'] ?? [];
+        if (!is_array($constraints)) {
+            throw new LogicException('Descriptor constraints entry must be a list');
+        }
+        foreach ($constraints as $constraint) {
+            if (!is_array($constraint)) {
+                throw new LogicException('Record constraint must be a descriptor');
+            }
+            /** @var Constraint $constraint */
+            $shape['constraints'][] = $constraint;
+        }
         return $shape;
     }
 
     /**
-     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false} $left
-     * @param array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false} $right
-     * @return array{fields: array<string, array{required: bool, type: array<string, mixed>}>, additional: array<string, mixed>|false}
+     * @param Shape $left
+     * @param Shape $right
+     * @return Shape
      */
     private static function mergeShapes(array $left, array $right): array
     {
         return [
             'fields' => array_merge($left['fields'], $right['fields']),
             'additional' => $right['additional'] !== false ? $right['additional'] : $left['additional'],
+            'keyFormat' => $right['keyFormat'] !== null ? $right['keyFormat'] : $left['keyFormat'],
+            'constraints' => array_merge($left['constraints'], $right['constraints']),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $descriptor
+     * @param int|float $value
+     */
+    private function validateNumberConstraints(
+        array $descriptor,
+        $value,
+        string $path,
+        string $contextName
+    ): void {
+        if (($descriptor['integer'] ?? false) === true && !is_int($value)) {
+            throw $this->expected($contextName, $path, 'integer', $value);
+        }
+        $minimum = $descriptor['minimum'] ?? null;
+        if ((is_int($minimum) || is_float($minimum)) && $value < $minimum) {
+            throw $this->error($contextName, $path, 'must be at least ' . (string) $minimum);
+        }
+        $maximum = $descriptor['maximum'] ?? null;
+        if ((is_int($maximum) || is_float($maximum)) && $value > $maximum) {
+            throw $this->error($contextName, $path, 'must be at most ' . (string) $maximum);
+        }
+    }
+
+    /** @param array<string, mixed> $descriptor */
+    private function validateStringConstraints(
+        array $descriptor,
+        string $value,
+        string $path,
+        string $contextName
+    ): void {
+        $format = $descriptor['format'] ?? null;
+        if (!is_string($format) || $this->validStringFormat($format, $value)) {
+            return;
+        }
+        throw $this->error($contextName, $path, 'invalid ' . $format . ' string');
+    }
+
+    private function validStringFormat(string $format, string $value): bool
+    {
+        if ($format === 'byte') {
+            return $value === '' || base64_decode($value, true) !== false;
+        }
+        if ($format === 'uri') {
+            return preg_match('/^[A-Za-z][A-Za-z0-9+.-]*:[^\\s\\x00-\\x1F\\x7F]*$/', $value) === 1
+                && preg_match('/%(?![0-9A-Fa-f]{2})/', $value) !== 1;
+        }
+        if ($format === 'uri-template') {
+            if (preg_match('/[\\s\\x00-\\x1F\\x7F]/', $value) === 1) {
+                return false;
+            }
+            $withoutExpressions = preg_replace_callback(
+                '/\{([^{}]*)\}/',
+                static function (array $matches): string {
+                    return preg_match('/^[+#.\\/;?&]?[A-Za-z0-9_][A-Za-z0-9_.:%*-]*(?:,[A-Za-z0-9_][A-Za-z0-9_.:%*-]*)*$/', $matches[1]) === 1
+                        ? ''
+                        : '{invalid}';
+                },
+                $value
+            );
+            return is_string($withoutExpressions)
+                && strpos($withoutExpressions, '{') === false
+                && strpos($withoutExpressions, '}') === false;
+        }
+        return true;
+    }
+
+    private function validKeyFormat(string $format, string $value): bool
+    {
+        if ($format !== 'meta-key') {
+            return true;
+        }
+        $label = '[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?';
+        $prefix = '(?:' . $label . ')(?:\\.' . $label . ')*\\/';
+        $name = '[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?';
+        return preg_match('/^(?:' . $prefix . ')?(?:' . $name . ')?$/', $value) === 1;
+    }
+
+    /**
+     * @param list<Constraint> $constraints
+     * @param array<string, mixed> $decoded
+     */
+    private function validateRecordConstraints(
+        array $constraints,
+        array $decoded,
+        string $path,
+        string $contextName
+    ): void {
+        foreach ($constraints as $constraint) {
+            $kind = $constraint['kind'];
+            if ($kind !== 'any-present') {
+                throw new LogicException('Unsupported record constraint: ' . $kind);
+            }
+            $fields = $constraint['fields'] ?? [];
+            if (!is_array($fields)) {
+                throw new LogicException('any-present constraint fields must be a list');
+            }
+            foreach ($fields as $field) {
+                if (is_string($field) && array_key_exists($field, $decoded)) {
+                    continue 2;
+                }
+            }
+            throw $this->error(
+                $contextName,
+                $path,
+                'at least one of ' . implode(', ', $fields) . ' must be present'
+            );
+        }
     }
 
     /** @return array<string, mixed> */

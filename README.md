@@ -118,7 +118,9 @@ The shared runtime validates and decodes:
 - explicit `null` separately from omission;
 - string, number, boolean, and numeric or string literals;
 - lists, tuples, indexed maps, inline objects, unions, intersections, and `Omit` inheritance;
-- strict object/map boundaries that reject non-empty sequential arrays instead of silently re-keying them as JSON objects;
+- strict object/map boundaries that reject sequential arrays, including `[]`, instead of silently re-keying them as JSON objects;
+- numeric bounds, integer cache TTLs, URI/base64 formats, and MCP metadata-key syntax declared by the official schema;
+- record-level protocol invariants such as `InputRequiredResult` requiring input requests or request state;
 - discriminator unions such as `ContentBlock`, `InputRequest`, and `InputResponse`;
 - open records that preserve and re-emit extension keys;
 - closed records that reject unrecognized keys.
@@ -127,9 +129,13 @@ Nested schema objects and maps hydrate to `Record` instances. Values declared as
 
 ### Empty JSON objects and lists
 
-PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
+PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. Use `fromValue(new stdClass())` for an empty top-level object. Within a record, use `new stdClass()` for an empty object and `[]` for an empty list:
 
 ```php
+$emptyObject = Schemas::v20260728()
+    ->serverCapabilities()
+    ->fromValue(new stdClass());
+
 $object = $type->fromArray([
     'resultType' => 'complete',
     'content' => [],
@@ -142,6 +148,8 @@ $list = $type->fromArray([
     'structuredContent' => [],
 ]);
 ```
+
+`fromArray([])` is intentionally rejected for an object/map type because `[]` unambiguously represents a JSON list under this API.
 
 `toArray()` necessarily normalizes `stdClass` to an array. Use `toWireArray()` when a consumer requires a top-level array but must retain nested JSON objects as `stdClass`; use normal JSON serialization when the top level should also remain an object. Both JSON-ready paths return defensive copies.
 

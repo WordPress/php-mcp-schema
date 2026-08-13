@@ -228,8 +228,72 @@ assertSameValue(
     'Mutating toWireArray() output changed the immutable record.'
 );
 
-$emptyResult = Schemas::v20251125()->emptyResult()->fromArray([]);
+$emptyResult = Schemas::v20251125()->emptyResult()->fromValue(new stdClass());
 assertSameValue('EmptyResult', $emptyResult->typeName(), 'A direct record alias lost its public logical name.');
+
+assertValidationFails(
+    static function (): void {
+        Schemas::v20251125()->emptyResult()->fromArray([]);
+    },
+    'An empty PHP list was accepted as an empty JSON object.'
+);
+
+$emptyCapabilities = $modernSchema->serverCapabilities()->fromValue(new stdClass());
+if (!$emptyCapabilities->jsonSerialize() instanceof stdClass) {
+    throw new RuntimeException('An explicit empty top-level object lost its identity.');
+}
+
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->inputRequiredResult()->fromArray(['resultType' => 'input_required']);
+    },
+    'InputRequiredResult accepted neither inputRequests nor requestState.'
+);
+$inputRequiredWithState = $modernSchema->inputRequiredResult()->fromArray([
+    'resultType' => 'input_required',
+    'requestState' => 'opaque-state',
+]);
+assertSameValue('opaque-state', $inputRequiredWithState->get('requestState'), 'Request state did not hydrate.');
+
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->listToolsResult()->fromArray([
+            'resultType' => 'complete',
+            'cacheScope' => 'private',
+            'ttlMs' => -1,
+            'tools' => [],
+        ]);
+    },
+    'A negative cache TTL was accepted.'
+);
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->listToolsResult()->fromArray([
+            'resultType' => 'complete',
+            'cacheScope' => 'private',
+            'ttlMs' => 1.5,
+            'tools' => [],
+        ]);
+    },
+    'A fractional cache TTL was accepted.'
+);
+
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->resource()->fromArray([
+            'name' => 'bad-resource',
+            'uri' => 'not a uri',
+        ]);
+    },
+    'An invalid resource URI was accepted.'
+);
+
+assertValidationFails(
+    static function () use ($modernSchema): void {
+        $modernSchema->metaObject()->fromArray(['bad/key/' => true]);
+    },
+    'An invalid MCP metadata key was accepted.'
+);
 assertSameValue(false, $modernSchema->hasType('ProgressToken'), 'A scalar alias leaked into the record catalog.');
 assertLogicFails(
     static function () use ($modernSchema): void {

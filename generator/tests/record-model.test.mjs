@@ -49,6 +49,36 @@ test('publishes record-capable hard shapes through both catalogs', async () => {
   assert.ok(modern.rootRecordTypes.includes('InputRequests'));
   assert.ok(modern.rootRecordTypes.includes('InputResponses'));
   assert.ok(modern.rootRecordTypes.includes('RequestMetaObject'));
+  assert.ok(modern.rootRecordTypes.includes('DiscoverResult'));
+  assert.ok(modern.rootRecordTypes.includes('InputRequiredResult'));
+  assert.equal(modern.rootRecordTypes.includes('PingRequest'), false);
+});
+
+test('compiles exact runtime constraints owned by the schema', async () => {
+  const bundle = await compileRevisions(revisions);
+  const modern = bundle.revisions['2026-07-28'];
+
+  assert.deepEqual(modern.descriptors.InputRequiredResult.constraints, [
+    { kind: 'any-present', fields: ['inputRequests', 'requestState'] },
+  ]);
+  assert.deepEqual(modern.descriptors.CacheableResult.fields.ttlMs.type, {
+    kind: 'number',
+    minimum: 0,
+    integer: true,
+  });
+  assert.deepEqual(modern.descriptors.MetaObject, {
+    kind: 'map',
+    values: { kind: 'any' },
+    keyFormat: 'meta-key',
+  });
+  assert.deepEqual(modern.descriptors.Resource.fields.uri.type, {
+    kind: 'string',
+    format: 'uri',
+  });
+  assert.deepEqual(modern.descriptors.ResourceTemplate.fields.uriTemplate.type, {
+    kind: 'string',
+    format: 'uri-template',
+  });
 });
 
 test('retains revision-specific literal constants', async () => {

@@ -133,24 +133,6 @@ final class DescriptorPool
                     'parents' => [],
                     'additional' => false,
                 ],
-                '02a785e52c4ded35f38d7e8022ce631717679e387d93c3bfd380ef993e010719' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'uri' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'RequestParams',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
                 '02c2ea676c3cdec865ce281934522c7c3c5b622ac6eb61f2cc1006b0f111f35e' => [
                     'kind' => 'record',
                     'fields' => [
@@ -462,35 +444,6 @@ final class DescriptorPool
                             'name' => 'JSONRPCRequest',
                         ],
                     ],
-                    'additional' => false,
-                ],
-                '06b681c280f6d5d4e15c2af16e038a70ebf8cab7fa9bae19531b3125c7e23600' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'audience' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'list',
-                                'items' => [
-                                    'kind' => 'ref',
-                                    'name' => 'Role',
-                                ],
-                            ],
-                        ],
-                        'lastModified' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'priority' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
                     'additional' => false,
                 ],
                 '08229e5261a03f670d31cbf25c192592ffbace3ae0f5218d5e9afcecb608e9bf' => [
@@ -891,6 +844,33 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
+                '169e942992b356183864b8dd5459dc3063f8515a3ed8e1fc86e5a75c85b35e7b' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'MetaObject',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
                 '173a507389b4062fb5e8bcd8849f556eee20b5ed611fc30b261f39eb6d6163bc' => [
                     'kind' => 'record',
                     'fields' => [
@@ -922,54 +902,6 @@ final class DescriptorPool
                         [
                             'kind' => 'ref',
                             'name' => 'JSONRPCRequest',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
-                '184774a364cde4a4fd595b7d60d55047cc50af153525e1f9b8e67a1b600a70ce' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'MetaObject',
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'description' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'uriTemplate' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'BaseMetadata',
-                        ],
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Icons',
                         ],
                     ],
                     'additional' => false,
@@ -1039,31 +971,6 @@ final class DescriptorPool
                         [
                             'kind' => 'ref',
                             'name' => 'TaskAugmentedRequestParams',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
-                '1d4a1ba22f169f0c315499627a4de83e40812b51053e9cee23d268fd1220cfc4' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'inputRequests' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'InputRequests',
-                            ],
-                        ],
-                        'requestState' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Result',
                         ],
                     ],
                     'additional' => false,
@@ -1190,6 +1097,37 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
+                '22b3a607ba21f9bdd68142940f8cb4a6ccb7e6b41e85dadee8299db03c56f704' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'audience' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'list',
+                                'items' => [
+                                    'kind' => 'ref',
+                                    'name' => 'Role',
+                                ],
+                            ],
+                        ],
+                        'lastModified' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'priority' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'number',
+                                'minimum' => 0,
+                                'maximum' => 1,
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
                 '23040a3ad89efb6f6ed4253cd298aa26c5e7c2642471f6fcd2ee1f4ca06fc1ae' => [
                     'kind' => 'record',
                     'fields' => [
@@ -1269,60 +1207,6 @@ final class DescriptorPool
                         ],
                         'description' => [
                             'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'BaseMetadata',
-                        ],
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Icons',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
-                '24dd5d2401798a0fcc27b3a39729aecb935852a5bd1bf91133a13bdeaf9de4c0' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'MetaObject',
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'description' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'size' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                        'uri' => [
-                            'required' => true,
                             'type' => [
                                 'kind' => 'string',
                             ],
@@ -1450,6 +1334,25 @@ final class DescriptorPool
                         ],
                     ],
                 ],
+                '254a68eedf435f223f94aa8c70b3ead3f021bd798885ea2d69ed9de92a81c048' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'blob' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'byte',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'ResourceContents',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
                 '2785806074e1ca3f943c78507f902cc7415c03530765dfee4ac25a6277a69456' => [
                     'kind' => 'record',
                     'fields' => [
@@ -1565,24 +1468,6 @@ final class DescriptorPool
                             'name' => 'CancelTaskResult',
                         ],
                     ],
-                ],
-                '2c53786b4677151108cecaef442de4ede73143c767ab82ada7e5dc3e3ac5a29d' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'uri' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'NotificationParams',
-                        ],
-                    ],
-                    'additional' => false,
                 ],
                 '2dae2d6778bc00bab2d0ca6c6474d8d199b9ffea2a78d0f6f8de16d090cb1963' => [
                     'kind' => 'record',
@@ -1924,46 +1809,6 @@ final class DescriptorPool
                         ],
                     ],
                 ],
-                '34e00c9f48330725a119d354a3e0eab63b67fa2f642a96bafd89880bd929db29' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'MetaObject',
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'data' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'type' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'image',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
                 '35a3d3d66e0154666946d406382b171ed4ac967078d9c10ee3e98a5d39e8efb6' => [
                     'kind' => 'record',
                     'fields' => [
@@ -2026,35 +1871,39 @@ final class DescriptorPool
                     'parents' => [],
                     'additional' => false,
                 ],
-                '37ad14d1634ad77cfb57f096836a3903aef498328ed15fe4fa4f163e61333448' => [
+                '36e135bac8da8122433706b080977da11fbb358c3e04c5c36950e89e704b4506' => [
                     'kind' => 'record',
                     'fields' => [
-                        '_meta' => [
+                        'inputRequests' => [
                             'required' => false,
                             'type' => [
-                                'kind' => 'record',
-                                'fields' => [],
-                                'parents' => [],
-                                'additional' => [
-                                    'kind' => 'any',
-                                ],
+                                'kind' => 'ref',
+                                'name' => 'InputRequests',
                             ],
                         ],
-                        'name' => [
+                        'requestState' => [
                             'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'uri' => [
-                            'required' => true,
                             'type' => [
                                 'kind' => 'string',
                             ],
                         ],
                     ],
-                    'parents' => [],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Result',
+                        ],
+                    ],
                     'additional' => false,
+                    'constraints' => [
+                        [
+                            'kind' => 'any-present',
+                            'fields' => [
+                                'inputRequests',
+                                'requestState',
+                            ],
+                        ],
+                    ],
                 ],
                 '3968ccd7d06c471868fc013c31d1090055064ac79ca77e44a13fc3c043ec6dde' => [
                     'kind' => 'union',
@@ -2135,6 +1984,41 @@ final class DescriptorPool
                         [
                             'kind' => 'ref',
                             'name' => 'Result',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
+                '3d0ca31beb00c7a3a1b4932b63e435ed8fbcbf74c03ad23a628fd87334cd134d' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'description' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'version' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'websiteUrl' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'BaseMetadata',
+                        ],
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Icons',
                         ],
                     ],
                     'additional' => false,
@@ -2580,6 +2464,47 @@ final class DescriptorPool
                     'parents' => [],
                     'additional' => false,
                 ],
+                '4afb59ef5b1ad1e1ef3a2dfc95e92d031299f0b68c0b16e29ef61a417a21b1a2' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'MetaObject',
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'data' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'byte',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'type' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'image',
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
                 '4c512a8998ac6aaa54ba845663f65a47e2b7aae2a2b9e13fbf9c0e9e08304135' => [
                     'kind' => 'record',
                     'fields' => [
@@ -2606,74 +2531,110 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                '50cfdd75a1f62d3d8290f34a5507afd41d9bcc3e6158bab469513d4892611ed5' => [
+                '4e2389503738e221b9ae835d18cf3882677d0e89ff14e9e92d7a01499eaba1a4' => [
                     'kind' => 'record',
                     'fields' => [
-                        'costPriority' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'MetaObject',
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'description' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'size' => [
                             'required' => false,
                             'type' => [
                                 'kind' => 'number',
                             ],
                         ],
-                        'hints' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'list',
-                                'items' => [
-                                    'kind' => 'ref',
-                                    'name' => 'ModelHint',
-                                ],
-                            ],
-                        ],
-                        'intelligencePriority' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                        'speedPriority' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
-                '50f4b3e75734ebac318affc8bdf4a363dd383b19612ddf538fad8b8f96de5a59' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'elicitationId' => [
+                        'uri' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
-                            ],
-                        ],
-                        'message' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mode' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'url',
-                            ],
-                        ],
-                        'url' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
+                                'format' => 'uri',
                             ],
                         ],
                     ],
                     'parents' => [
                         [
                             'kind' => 'ref',
-                            'name' => 'TaskAugmentedRequestParams',
+                            'name' => 'BaseMetadata',
+                        ],
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Icons',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
+                '519f7b72a62f932cc71723a0d4276710f9c266d0f41c1507136f5bcfb8484917' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'record',
+                                'fields' => [],
+                                'parents' => [],
+                                'additional' => [
+                                    'kind' => 'any',
+                                ],
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'description' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'uriTemplate' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri-template',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'BaseMetadata',
+                        ],
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Icons',
                         ],
                     ],
                     'additional' => false,
@@ -2901,46 +2862,6 @@ final class DescriptorPool
                     'parents' => [],
                     'additional' => false,
                 ],
-                '523b0717d5565753f9bec8260de70efc6dd26c2d8249fec9a0419e8cc41a95da' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'MetaObject',
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'data' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'type' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'audio',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
                 '546a1f096fe349b8a4fbb54a0424a0205be466d8b16bfe18c9047937253c7cd8' => [
                     'kind' => 'record',
                     'fields' => [
@@ -3080,58 +3001,6 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                '54cb8fe437ac131d47102487c921e8eb100befbdf18a080a7b1012a3785606f0' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'record',
-                                'fields' => [],
-                                'parents' => [],
-                                'additional' => [
-                                    'kind' => 'any',
-                                ],
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'description' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'uriTemplate' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'BaseMetadata',
-                        ],
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Icons',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
                 '55ef98235c635e09ee04e9dc9ea65bf94f4cd94fb136e474739b4484c17b087b' => [
                     'kind' => 'record',
                     'fields' => [
@@ -3147,40 +3016,6 @@ final class DescriptorPool
                         [
                             'kind' => 'ref',
                             'name' => 'NotificationParams',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
-                '566bb526abf9b5f8c02178a278a26a10aa0797dbb8af88a05598f612c8dcb82f' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'cacheScope' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'union',
-                                'anyOf' => [
-                                    [
-                                        'kind' => 'literal',
-                                        'value' => 'public',
-                                    ],
-                                    [
-                                        'kind' => 'literal',
-                                        'value' => 'private',
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'ttlMs' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Result',
                         ],
                     ],
                     'additional' => false,
@@ -3387,50 +3222,6 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                '5ce1bf64c40d638fb26e70b541a9105b04fbf76cef13e0af5eb0103e64ea3e4b' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'record',
-                                'fields' => [],
-                                'parents' => [],
-                                'additional' => [
-                                    'kind' => 'any',
-                                ],
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'data' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'type' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'audio',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
                 '5f5a6c0edbd3e3253f8d491614580ede44dc9445fe00fe23cb89ceaf7ae4ffb2' => [
                     'kind' => 'record',
                     'fields' => [
@@ -3622,6 +3413,65 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
+                '6732c395d1624537973665040e02863775e2b7f414d1a7b7c6dff653f0282211' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'record',
+                                'fields' => [],
+                                'parents' => [],
+                                'additional' => [
+                                    'kind' => 'any',
+                                ],
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'description' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'size' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'number',
+                            ],
+                        ],
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'BaseMetadata',
+                        ],
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Icons',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
                 '68f37295e42b0448d455dcba49b1b37f4e3919bfb2cc07738f3f2ba46177c654' => [
                     'kind' => 'record',
                     'fields' => [
@@ -3721,20 +3571,66 @@ final class DescriptorPool
                         ],
                     ],
                 ],
-                '6ed0530eb5ed8455b39ccf926bc832366d376a740096dae7133b13afbc3c2998' => [
+                '694c838f97f8c2fcdaff03f81a4d5758efa5a7e9041cb66661eb828187695c1c' => [
                     'kind' => 'record',
                     'fields' => [
-                        'blob' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'record',
+                                'fields' => [],
+                                'parents' => [],
+                                'additional' => [
+                                    'kind' => 'any',
+                                ],
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'data' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
+                                'format' => 'byte',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'type' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'audio',
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
+                '6c691ce92eab1b277c71cacc4937b95cfeb2a3a3379e521252071f6bccd853b3' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
                             ],
                         ],
                     ],
                     'parents' => [
                         [
                             'kind' => 'ref',
-                            'name' => 'ResourceContents',
+                            'name' => 'RequestParams',
                         ],
                     ],
                     'additional' => false,
@@ -3884,11 +3780,54 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                '7718f5ae79c70b7968cffca1dc89fe768646af27c1c7e67f28f755990f197123' => [
-                    'kind' => 'map',
-                    'values' => [
-                        'kind' => 'any',
+                '76ec768348bbdcde2a59263d0dbaf1ebfd38f6f726c64909223e564a6554182c' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'MetaObject',
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'description' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'uriTemplate' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri-template',
+                            ],
+                        ],
                     ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'BaseMetadata',
+                        ],
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Icons',
+                        ],
+                    ],
+                    'additional' => false,
                 ],
                 '77ff7357ce669b24231945f3e99de044d00749e259c274606548f8e781585f94' => [
                     'kind' => 'record',
@@ -4470,6 +4409,51 @@ final class DescriptorPool
                         ],
                     ],
                 ],
+                '895c65d152050ff8e44ef57b8528c854388be1e838ca49a9ff1415655d247cef' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'mimeType' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'sizes' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'list',
+                                'items' => [
+                                    'kind' => 'string',
+                                ],
+                            ],
+                        ],
+                        'src' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                        'theme' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'union',
+                                'anyOf' => [
+                                    [
+                                        'kind' => 'literal',
+                                        'value' => 'light',
+                                    ],
+                                    [
+                                        'kind' => 'literal',
+                                        'value' => 'dark',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
                 '899f9d97c38bdfb5d06ee49d31bef836d187238de150ede6ae2594ca902fb301' => [
                     'kind' => 'union',
                     'anyOf' => [
@@ -4536,6 +4520,47 @@ final class DescriptorPool
                             'name' => 'JSONRPCResultResponse',
                         ],
                     ],
+                    'additional' => false,
+                ],
+                '8e90a9225659a8b01ec8a9358f4c75e3e5d691a705ec1947e5c6042194627fd3' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'costPriority' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'number',
+                                'minimum' => 0,
+                                'maximum' => 1,
+                            ],
+                        ],
+                        'hints' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'list',
+                                'items' => [
+                                    'kind' => 'ref',
+                                    'name' => 'ModelHint',
+                                ],
+                            ],
+                        ],
+                        'intelligencePriority' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'number',
+                                'minimum' => 0,
+                                'maximum' => 1,
+                            ],
+                        ],
+                        'speedPriority' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'number',
+                                'minimum' => 0,
+                                'maximum' => 1,
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
                     'additional' => false,
                 ],
                 '8f1a0a87efa7c60e206208553407418b0dc8386bfc0a1104554876f13d48dafc' => [
@@ -4757,6 +4782,13 @@ final class DescriptorPool
                         ],
                     ],
                     'additional' => false,
+                ],
+                '9965b76cb161da91b21d8ee754adb58086c2794cb4edea291dab40e9f2f0c636' => [
+                    'kind' => 'map',
+                    'values' => [
+                        'kind' => 'any',
+                    ],
+                    'keyFormat' => 'meta-key',
                 ],
                 '9bddc1fdfb55932e41cf34e4a0bf062564cf848d3e0070d86dcd3a998fdce008' => [
                     'kind' => 'string',
@@ -5367,7 +5399,28 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'ad5e0649ce479184bbcd9a1aca2e64408aa41b0ad55e38d1d15b0c7f3b31af8f' => [
+                'ad802c7d38968e6739e0b0f36a9d27f003db42f601217e8a26e5f751c8d42d73' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'type' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'ref/resource',
+                            ],
+                        ],
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri-template',
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
+                'ae8fc57357d98c346720a8b4d5dfb4348b195cd220c763fe94f7f7501d616041' => [
                     'kind' => 'record',
                     'fields' => [
                         '_meta' => [
@@ -5387,6 +5440,7 @@ final class DescriptorPool
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
+                                'format' => 'uri',
                             ],
                         ],
                     ],
@@ -5819,64 +5873,6 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'baefbbdbba0a3354b735583fc9b5b8247c28dcc07a4e953dfe8d38aa4de4e5b2' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'record',
-                                'fields' => [],
-                                'parents' => [],
-                                'additional' => [
-                                    'kind' => 'any',
-                                ],
-                            ],
-                        ],
-                        'annotations' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'description' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'size' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'number',
-                            ],
-                        ],
-                        'uri' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'BaseMetadata',
-                        ],
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Icons',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
                 'bc8d5f7f61033da11ed1233551f833dd17074348c348364157fe443d8b44775e' => [
                     'kind' => 'record',
                     'fields' => [
@@ -5903,30 +5899,41 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'bd1d6f7e224c0e7f9390b276abbb7d1653e996a942bdf5b6e7a2f00817c5397d' => [
+                'bcd687717f2f2f427cfccf88d7a048a28e27dff2922505c7aed3cf24a297c3bc' => [
                     'kind' => 'record',
                     'fields' => [
                         '_meta' => [
                             'required' => false,
                             'type' => [
-                                'kind' => 'record',
-                                'fields' => [],
-                                'parents' => [],
-                                'additional' => [
-                                    'kind' => 'any',
-                                ],
+                                'kind' => 'ref',
+                                'name' => 'MetaObject',
                             ],
                         ],
-                        'mimeType' => [
+                        'annotations' => [
                             'required' => false,
                             'type' => [
-                                'kind' => 'string',
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
                             ],
                         ],
-                        'uri' => [
+                        'data' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
+                                'format' => 'byte',
+                            ],
+                        ],
+                        'mimeType' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'type' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'audio',
                             ],
                         ],
                     ],
@@ -6047,40 +6054,6 @@ final class DescriptorPool
                         ],
                     ],
                 ],
-                'c3abe71235fdcf042adddaefd55485a887684fbf9cad4dfb3a50667d015d3c5d' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'description' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'version' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'websiteUrl' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [
-                        [
-                            'kind' => 'ref',
-                            'name' => 'BaseMetadata',
-                        ],
-                        [
-                            'kind' => 'ref',
-                            'name' => 'Icons',
-                        ],
-                    ],
-                    'additional' => false,
-                ],
                 'c586c52751aef3b40171900fe36de1d782e136f9a2eee3f2b1c00984c602f15b' => [
                     'kind' => 'record',
                     'fields' => [
@@ -6120,6 +6093,44 @@ final class DescriptorPool
                         [
                             'kind' => 'ref',
                             'name' => 'Result',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
+                'c6da82b09198e097bd945a3624b8ad55c77f0cf5a0f7bf5c754f46e62a322ae6' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'elicitationId' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'message' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'mode' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'url',
+                            ],
+                        ],
+                        'url' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'TaskAugmentedRequestParams',
                         ],
                     ],
                     'additional' => false,
@@ -6173,6 +6184,42 @@ final class DescriptorPool
                         ],
                     ],
                     'parents' => [],
+                    'additional' => false,
+                ],
+                'cfd2f57706c90453cc935b463bd904997537e93717e0be30a193fedd6ba736b2' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'cacheScope' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'union',
+                                'anyOf' => [
+                                    [
+                                        'kind' => 'literal',
+                                        'value' => 'public',
+                                    ],
+                                    [
+                                        'kind' => 'literal',
+                                        'value' => 'private',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'ttlMs' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'number',
+                                'minimum' => 0,
+                                'integer' => true,
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'Result',
+                        ],
+                    ],
                     'additional' => false,
                 ],
                 'd2138088265d38716276841ed1d893f5232f7ac279a83bdbc598c305ddf33b48' => [
@@ -6366,6 +6413,25 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
+                'd8c3ea564fc1282d7adca298ad460b901b85519a4ec6b8f68f8373e8d24d3062' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [
+                        [
+                            'kind' => 'ref',
+                            'name' => 'NotificationParams',
+                        ],
+                    ],
+                    'additional' => false,
+                ],
                 'd908535bde749822e82207083cf37682b0ba799d9a1c425c4430b78b7103cd94' => [
                     'kind' => 'union',
                     'anyOf' => [
@@ -6444,6 +6510,37 @@ final class DescriptorPool
                         ],
                     ],
                 ],
+                'db3f2635e3294f7b0cadfbf9e5e319b6eec285997a129c065a04d1a7abc678bc' => [
+                    'kind' => 'record',
+                    'fields' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'record',
+                                'fields' => [],
+                                'parents' => [],
+                                'additional' => [
+                                    'kind' => 'any',
+                                ],
+                            ],
+                        ],
+                        'name' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'string',
+                            ],
+                        ],
+                        'uri' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
+                            ],
+                        ],
+                    ],
+                    'parents' => [],
+                    'additional' => false,
+                ],
                 'db7a6d10a8cb4be19b3228461f0634568c747f79d6122e93780980397587fbdc' => [
                     'kind' => 'record',
                     'fields' => [
@@ -6463,7 +6560,7 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'df215f6b66866f63609af4d9c5a0b257c2891d64d9547ff38a0cc598dfba6841' => [
+                'dc1a2b2a9ba40cd13a6bee2cdd6449c7e8d694a761180fea981fc254fc40d0b3' => [
                     'kind' => 'record',
                     'fields' => [
                         '_meta' => [
@@ -6477,30 +6574,17 @@ final class DescriptorPool
                                 ],
                             ],
                         ],
-                        'annotations' => [
+                        'mimeType' => [
                             'required' => false,
                             'type' => [
-                                'kind' => 'ref',
-                                'name' => 'Annotations',
-                            ],
-                        ],
-                        'data' => [
-                            'required' => true,
-                            'type' => [
                                 'kind' => 'string',
                             ],
                         ],
-                        'mimeType' => [
+                        'uri' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
-                            ],
-                        ],
-                        'type' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'image',
+                                'format' => 'uri',
                             ],
                         ],
                     ],
@@ -6745,90 +6829,45 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'edb123f0f494e6a9fe6763130f096763bdff0e4772f88b077ef7ef8b4f59f3ed' => [
+                'f032274565bc9e6888aa7bc13f7b043889eb0c97386fb1ae3772b1a3f194eb35' => [
                     'kind' => 'record',
                     'fields' => [
-                        'message' => [
+                        '_meta' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'record',
+                                'fields' => [],
+                                'parents' => [],
+                                'additional' => [
+                                    'kind' => 'any',
+                                ],
+                            ],
+                        ],
+                        'annotations' => [
+                            'required' => false,
+                            'type' => [
+                                'kind' => 'ref',
+                                'name' => 'Annotations',
+                            ],
+                        ],
+                        'data' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'byte',
+                            ],
+                        ],
+                        'mimeType' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
                             ],
                         ],
-                        'mode' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'literal',
-                                'value' => 'url',
-                            ],
-                        ],
-                        'url' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
-                'ef2d78e131efbe00b3a37ae5346d4c12dbd795eeedf85a96c24244caba5d6763' => [
-                    'kind' => 'record',
-                    'fields' => [
                         'type' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'literal',
-                                'value' => 'ref/resource',
-                            ],
-                        ],
-                        'uri' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                    ],
-                    'parents' => [],
-                    'additional' => false,
-                ],
-                'f01a74823018c1ee2b8d9ddfd99211b14c3c12c68cee6e80c8328baa78de4309' => [
-                    'kind' => 'record',
-                    'fields' => [
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'sizes' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'list',
-                                'items' => [
-                                    'kind' => 'string',
-                                ],
-                            ],
-                        ],
-                        'src' => [
-                            'required' => true,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'theme' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'union',
-                                'anyOf' => [
-                                    [
-                                        'kind' => 'literal',
-                                        'value' => 'light',
-                                    ],
-                                    [
-                                        'kind' => 'literal',
-                                        'value' => 'dark',
-                                    ],
-                                ],
+                                'value' => 'image',
                             ],
                         ],
                     ],
@@ -7106,26 +7145,27 @@ final class DescriptorPool
                     ],
                     'additional' => false,
                 ],
-                'f9ec6ef233f8cad733ebe004793c40af89ee1c7b19ea1d79757fe58b95e8e11a' => [
+                'fada6d192f842970287c1301799ac52194a4a5cfebc5cf658ef6a8680696cc7b' => [
                     'kind' => 'record',
                     'fields' => [
-                        '_meta' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'ref',
-                                'name' => 'MetaObject',
-                            ],
-                        ],
-                        'mimeType' => [
-                            'required' => false,
-                            'type' => [
-                                'kind' => 'string',
-                            ],
-                        ],
-                        'uri' => [
+                        'message' => [
                             'required' => true,
                             'type' => [
                                 'kind' => 'string',
+                            ],
+                        ],
+                        'mode' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'literal',
+                                'value' => 'url',
+                            ],
+                        ],
+                        'url' => [
+                            'required' => true,
+                            'type' => [
+                                'kind' => 'string',
+                                'format' => 'uri',
                             ],
                         ],
                     ],
@@ -7276,7 +7316,7 @@ final class DescriptorPool
         if (self::$manifestCache === null) {
             self::$manifestCache = [
                 '2025-11-25' => [
-                    'fingerprint' => '93e8226aafe5c872fd9326dbfd29db2536a69c80899da74d75ba567691e41752',
+                    'fingerprint' => 'aadbb77fd14e69b8ffdbeb62fa4de8c9b48c0df8d00c91dc7168dba2087e09eb',
                     'roots' => [
                         'Annotations',
                         'AudioContent',
@@ -7419,10 +7459,10 @@ final class DescriptorPool
                         'UntitledSingleSelectEnumSchema',
                     ],
                     'types' => [
-                        'Annotations' => '06b681c280f6d5d4e15c2af16e038a70ebf8cab7fa9bae19531b3125c7e23600',
-                        'AudioContent' => '5ce1bf64c40d638fb26e70b541a9105b04fbf76cef13e0af5eb0103e64ea3e4b',
+                        'Annotations' => '22b3a607ba21f9bdd68142940f8cb4a6ccb7e6b41e85dadee8299db03c56f704',
+                        'AudioContent' => '694c838f97f8c2fcdaff03f81a4d5758efa5a7e9041cb66661eb828187695c1c',
                         'BaseMetadata' => '1198169004537cee13a1c72a64290ece1bbe93f71fe621b9bb02da0d1f46ec79',
-                        'BlobResourceContents' => '6ed0530eb5ed8455b39ccf926bc832366d376a740096dae7133b13afbc3c2998',
+                        'BlobResourceContents' => '254a68eedf435f223f94aa8c70b3ead3f021bd798885ea2d69ed9de92a81c048',
                         'BooleanSchema' => '7b4d6f829ad188dc30a95abb063d9f71f3d6bb8237e308cb10d52deb858cada1',
                         'CallToolRequest' => '0682e30e407afdccee01ae9154b819dc9b582beaf93d89d2ac33dcd5f09e5a81',
                         'CallToolRequestParams' => 'fe697eb27adaceabc4d7d97aecc99ab30dd8b179ac490061e3e3b8da99773f53',
@@ -7447,7 +7487,7 @@ final class DescriptorPool
                         'ElicitRequest' => '82a71d19afcb13219e9f8a18b3ec65f67acd96dab51450cbf26a565d6e96e87d',
                         'ElicitRequestFormParams' => '1bf4ca6ddc402d7a5722b1dff1667472b4ec7e8e99ac1526b4584eb99b157f1c',
                         'ElicitRequestParams' => '3968ccd7d06c471868fc013c31d1090055064ac79ca77e44a13fc3c043ec6dde',
-                        'ElicitRequestURLParams' => '50f4b3e75734ebac318affc8bdf4a363dd383b19612ddf538fad8b8f96de5a59',
+                        'ElicitRequestURLParams' => 'c6da82b09198e097bd945a3624b8ad55c77f0cf5a0f7bf5c754f46e62a322ae6',
                         'ElicitResult' => '301c17a7e94ede4d119114aaffa2201a951ad78f9a65a7bb7bd216fef56848d4',
                         'ElicitationCompleteNotification' => '295e00f59cbb648ff699658ea2564e7e67ebc078878e558bfa15a0cba075904b',
                         'EmbeddedResource' => '690c4bb85d7a06c44f30755f12db0c8f52bd42afc15d717e9fbf018b47ab2f9d',
@@ -7461,10 +7501,10 @@ final class DescriptorPool
                         'GetTaskPayloadResult' => '752c90fd455e3c6279efcb95f4f7fa8661fa577f81d23275a9dd75b843e918ec',
                         'GetTaskRequest' => '5af96c5e34bd823a6cf43bbaea2570dab3b6b3eaf958c343cda6de8a630b4981',
                         'GetTaskResult' => 'a0ac81e894be01dcc9fd3c7093081c49096e02fb0d2245ec4f2a4c1050a5b94a',
-                        'Icon' => 'f01a74823018c1ee2b8d9ddfd99211b14c3c12c68cee6e80c8328baa78de4309',
+                        'Icon' => '895c65d152050ff8e44ef57b8528c854388be1e838ca49a9ff1415655d247cef',
                         'Icons' => '3b75b6cc8fa1c8abf3ac6e014397a5f4b5136d4d65ff5cf046337b2587a9cbcf',
-                        'ImageContent' => 'df215f6b66866f63609af4d9c5a0b257c2891d64d9547ff38a0cc598dfba6841',
-                        'Implementation' => 'c3abe71235fdcf042adddaefd55485a887684fbf9cad4dfb3a50667d015d3c5d',
+                        'ImageContent' => 'f032274565bc9e6888aa7bc13f7b043889eb0c97386fb1ae3772b1a3f194eb35',
+                        'Implementation' => '3d0ca31beb00c7a3a1b4932b63e435ed8fbcbf74c03ad23a628fd87334cd134d',
                         'InitializeRequest' => '0435f730fdd966d579c3b5bf97eea24bdcef49313893ca34bf895992a33faee5',
                         'InitializeRequestParams' => 'b430cd158c442064ef65c9f54e26490cbb47e6d2c987b64c0e19d335e7322fec',
                         'InitializeResult' => '7d628467e39ecf4d9bacc204e1518596ef1bda879bf8f3ebee67d663e8a8f8d3',
@@ -7492,7 +7532,7 @@ final class DescriptorPool
                         'LoggingMessageNotification' => '94f08740a82ec1d850f594570bc77f95bdaec03c74dc7544d5be072109b06795',
                         'LoggingMessageNotificationParams' => 'b11013bed05ebbe3ccd84861c0987bb5dec98f78f10b551d73929a749867e614',
                         'ModelHint' => '360ace9e4a4a109ff81b2b12727502c85cd68b2ba60f1efc3afccf92f6c335ad',
-                        'ModelPreferences' => '50cfdd75a1f62d3d8290f34a5507afd41d9bcc3e6158bab469513d4892611ed5',
+                        'ModelPreferences' => '8e90a9225659a8b01ec8a9358f4c75e3e5d691a705ec1947e5c6042194627fd3',
                         'MultiSelectEnumSchema' => 'aa252d98219442a18b7fde9e042ea5a166ff1d1e368b8b16f5ca8ee586721e90',
                         'Notification' => '4318f0dcbd6026298fdd4de241f25d8b6494f7cc03947d4efe63b34dfb8c2c8f',
                         'NotificationParams' => '7b557ebe6667b288c0df12f3d48244f58baa45d5e3441a8ffecf0297ed029daf',
@@ -7517,18 +7557,18 @@ final class DescriptorPool
                         'Request' => '4318f0dcbd6026298fdd4de241f25d8b6494f7cc03947d4efe63b34dfb8c2c8f',
                         'RequestId' => '725d88eafeb72df891575802199de52f6629c541ae90851f7fbce23b773e0dc5',
                         'RequestParams' => 'ab8806b20249e6b91b98231da341df47fc019269f4c9af7f51a36f6f8ffec155',
-                        'Resource' => 'baefbbdbba0a3354b735583fc9b5b8247c28dcc07a4e953dfe8d38aa4de4e5b2',
-                        'ResourceContents' => 'bd1d6f7e224c0e7f9390b276abbb7d1653e996a942bdf5b6e7a2f00817c5397d',
+                        'Resource' => '6732c395d1624537973665040e02863775e2b7f414d1a7b7c6dff653f0282211',
+                        'ResourceContents' => 'dc1a2b2a9ba40cd13a6bee2cdd6449c7e8d694a761180fea981fc254fc40d0b3',
                         'ResourceLink' => 'a01b5badd56aff721d35d81c8d20df1e263a473f4faab8eaba7fd8a24f82eb8b',
                         'ResourceListChangedNotification' => '68f37295e42b0448d455dcba49b1b37f4e3919bfb2cc07738f3f2ba46177c654',
-                        'ResourceRequestParams' => '02a785e52c4ded35f38d7e8022ce631717679e387d93c3bfd380ef993e010719',
-                        'ResourceTemplate' => '54cb8fe437ac131d47102487c921e8eb100befbdf18a080a7b1012a3785606f0',
-                        'ResourceTemplateReference' => 'ef2d78e131efbe00b3a37ae5346d4c12dbd795eeedf85a96c24244caba5d6763',
+                        'ResourceRequestParams' => '6c691ce92eab1b277c71cacc4937b95cfeb2a3a3379e521252071f6bccd853b3',
+                        'ResourceTemplate' => '519f7b72a62f932cc71723a0d4276710f9c266d0f41c1507136f5bcfb8484917',
+                        'ResourceTemplateReference' => 'ad802c7d38968e6739e0b0f36a9d27f003db42f601217e8a26e5f751c8d42d73',
                         'ResourceUpdatedNotification' => 'aebff34739361d6f6af193ca318cd6daff3f21cd4458de7a9e02d1b00a6e46ba',
-                        'ResourceUpdatedNotificationParams' => '2c53786b4677151108cecaef442de4ede73143c767ab82ada7e5dc3e3ac5a29d',
+                        'ResourceUpdatedNotificationParams' => 'd8c3ea564fc1282d7adca298ad460b901b85519a4ec6b8f68f8373e8d24d3062',
                         'Result' => 'b9a132338083bcffef2866a03a780bf2365593a14218189d421a218f76a9f5a2',
                         'Role' => '8f1a0a87efa7c60e206208553407418b0dc8386bfc0a1104554876f13d48dafc',
-                        'Root' => '37ad14d1634ad77cfb57f096836a3903aef498328ed15fe4fa4f163e61333448',
+                        'Root' => 'db3f2635e3294f7b0cadfbf9e5e319b6eec285997a129c065a04d1a7abc678bc',
                         'RootsListChangedNotification' => 'f7b3459d22977703a7a5b239f62224a677bccf869070097cb60080fac0ea096e',
                         'SamplingMessage' => '2785806074e1ca3f943c78507f902cc7415c03530765dfee4ac25a6277a69456',
                         'SamplingMessageContentBlock' => 'a7fafa6aa20355815aa3c3fcf7f09c759d05a59df68a962ad645aae07d6d966c',
@@ -7567,7 +7607,7 @@ final class DescriptorPool
                     ],
                 ],
                 '2026-07-28' => [
-                    'fingerprint' => 'd47c92f7f61a6fc681ec163ded6e49bd062cd95cb68953b423cc2ce55397eb10',
+                    'fingerprint' => '6e3182f702439c35a4f135fdb8eee7211eab64ce7f807ae82f76cec65842117a',
                     'roots' => [
                         'Annotations',
                         'AudioContent',
@@ -7718,12 +7758,12 @@ final class DescriptorPool
                         'UntitledSingleSelectEnumSchema',
                     ],
                     'types' => [
-                        'Annotations' => '06b681c280f6d5d4e15c2af16e038a70ebf8cab7fa9bae19531b3125c7e23600',
-                        'AudioContent' => '523b0717d5565753f9bec8260de70efc6dd26c2d8249fec9a0419e8cc41a95da',
+                        'Annotations' => '22b3a607ba21f9bdd68142940f8cb4a6ccb7e6b41e85dadee8299db03c56f704',
+                        'AudioContent' => 'bcd687717f2f2f427cfccf88d7a048a28e27dff2922505c7aed3cf24a297c3bc',
                         'BaseMetadata' => '1198169004537cee13a1c72a64290ece1bbe93f71fe621b9bb02da0d1f46ec79',
-                        'BlobResourceContents' => '6ed0530eb5ed8455b39ccf926bc832366d376a740096dae7133b13afbc3c2998',
+                        'BlobResourceContents' => '254a68eedf435f223f94aa8c70b3ead3f021bd798885ea2d69ed9de92a81c048',
                         'BooleanSchema' => '7b4d6f829ad188dc30a95abb063d9f71f3d6bb8237e308cb10d52deb858cada1',
-                        'CacheableResult' => '566bb526abf9b5f8c02178a278a26a10aa0797dbb8af88a05598f612c8dcb82f',
+                        'CacheableResult' => 'cfd2f57706c90453cc935b463bd904997537e93717e0be30a193fedd6ba736b2',
                         'CallToolRequest' => '0682e30e407afdccee01ae9154b819dc9b582beaf93d89d2ac33dcd5f09e5a81',
                         'CallToolRequestParams' => '23040a3ad89efb6f6ed4253cd298aa26c5e7c2642471f6fcd2ee1f4ca06fc1ae',
                         'CallToolResult' => '3ba037cd7c67dbe690ac262101c26acd9e3b40e404536eac92e9e1ea0273856c',
@@ -7749,7 +7789,7 @@ final class DescriptorPool
                         'ElicitRequest' => 'bdaa6d447221b0cf0a42c56eb1ca3378e3ac48ccfed5040a1f3a14fcb70d1c37',
                         'ElicitRequestFormParams' => '5497b0290d183bec6460a81ec04661a3f6ac3739741f23c97a38be4b52535e8e',
                         'ElicitRequestParams' => '3968ccd7d06c471868fc013c31d1090055064ac79ca77e44a13fc3c043ec6dde',
-                        'ElicitRequestURLParams' => 'edb123f0f494e6a9fe6763130f096763bdff0e4772f88b077ef7ef8b4f59f3ed',
+                        'ElicitRequestURLParams' => 'fada6d192f842970287c1301799ac52194a4a5cfebc5cf658ef6a8680696cc7b',
                         'ElicitResult' => '22010e063c633e68bcd6d5295ce1d17abff40ea946cc60d449196dd3efe70cc3',
                         'EmbeddedResource' => '02c2ea676c3cdec865ce281934522c7c3c5b622ac6eb61f2cc1006b0f111f35e',
                         'EmptyResult' => '848b552c88ae7cc88524840e500ac1c760ce866d22c04a829928e8e86b669863',
@@ -7760,13 +7800,13 @@ final class DescriptorPool
                         'GetPromptResult' => '769ff700e91ecf0b0a2884ec8c7f3fdc40c243e461da27bc848a2b3d701598ac',
                         'GetPromptResultResponse' => '35a3d3d66e0154666946d406382b171ed4ac967078d9c10ee3e98a5d39e8efb6',
                         'HeaderMismatchError' => 'b8aa317ddaaca339b65e386d1b43e4539669f4c61bee7d7db031b04fb49f0d2f',
-                        'Icon' => 'f01a74823018c1ee2b8d9ddfd99211b14c3c12c68cee6e80c8328baa78de4309',
+                        'Icon' => '895c65d152050ff8e44ef57b8528c854388be1e838ca49a9ff1415655d247cef',
                         'Icons' => '3b75b6cc8fa1c8abf3ac6e014397a5f4b5136d4d65ff5cf046337b2587a9cbcf',
-                        'ImageContent' => '34e00c9f48330725a119d354a3e0eab63b67fa2f642a96bafd89880bd929db29',
-                        'Implementation' => 'c3abe71235fdcf042adddaefd55485a887684fbf9cad4dfb3a50667d015d3c5d',
+                        'ImageContent' => '4afb59ef5b1ad1e1ef3a2dfc95e92d031299f0b68c0b16e29ef61a417a21b1a2',
+                        'Implementation' => '3d0ca31beb00c7a3a1b4932b63e435ed8fbcbf74c03ad23a628fd87334cd134d',
                         'InputRequest' => '144965b224ec7329f8dc380d660c2e23271180e766c4e71d177e5755a332cea3',
                         'InputRequests' => '245e460e4769be5504d54b789c0ad3b13351bb339b3a320e4740b9d94a7ed431',
-                        'InputRequiredResult' => '1d4a1ba22f169f0c315499627a4de83e40812b51053e9cee23d268fd1220cfc4',
+                        'InputRequiredResult' => '36e135bac8da8122433706b080977da11fbb358c3e04c5c36950e89e704b4506',
                         'InputResponse' => 'd2df755d73cf75af72f6df8591f31518f700847ba3f81ad06f28d80b07ed91d8',
                         'InputResponseRequestParams' => '2dae2d6778bc00bab2d0ca6c6474d8d199b9ffea2a78d0f6f8de16d090cb1963',
                         'InputResponses' => '9e72a946898b43ed2aee4d01f778f7d0cc62d81e2a34d6660cc504dd117074e6',
@@ -7800,11 +7840,11 @@ final class DescriptorPool
                         'LoggingLevel' => '25241836c35f79aa2215f3e07dfe1f2b8318a09a5c6c9e86b8fe3af31ab7fc5e',
                         'LoggingMessageNotification' => '94f08740a82ec1d850f594570bc77f95bdaec03c74dc7544d5be072109b06795',
                         'LoggingMessageNotificationParams' => 'b11013bed05ebbe3ccd84861c0987bb5dec98f78f10b551d73929a749867e614',
-                        'MetaObject' => '7718f5ae79c70b7968cffca1dc89fe768646af27c1c7e67f28f755990f197123',
+                        'MetaObject' => '9965b76cb161da91b21d8ee754adb58086c2794cb4edea291dab40e9f2f0c636',
                         'MethodNotFoundError' => '12d9c00d75ac7bc1aedd449ba900507349d62867be6efdfc891e481132e80811',
                         'MissingRequiredClientCapabilityError' => 'e8de88e3a6c048f0ea951482b4d5384009dca3a8d00bb854adf9d36e3725680a',
                         'ModelHint' => '360ace9e4a4a109ff81b2b12727502c85cd68b2ba60f1efc3afccf92f6c335ad',
-                        'ModelPreferences' => '50cfdd75a1f62d3d8290f34a5507afd41d9bcc3e6158bab469513d4892611ed5',
+                        'ModelPreferences' => '8e90a9225659a8b01ec8a9358f4c75e3e5d691a705ec1947e5c6042194627fd3',
                         'MultiSelectEnumSchema' => 'aa252d98219442a18b7fde9e042ea5a166ff1d1e368b8b16f5ca8ee586721e90',
                         'Notification' => '4318f0dcbd6026298fdd4de241f25d8b6494f7cc03947d4efe63b34dfb8c2c8f',
                         'NotificationMetaObject' => 'b7f349e4964481f431b2c24e25c9b6aef09a84bc1e8bed361b27181363a05eb1',
@@ -7831,20 +7871,20 @@ final class DescriptorPool
                         'RequestId' => '725d88eafeb72df891575802199de52f6629c541ae90851f7fbce23b773e0dc5',
                         'RequestMetaObject' => 'a3270d527f86da39141d77600ecd3d5112048069ba70672aadd30494c4ecc5db',
                         'RequestParams' => '72133c4790109a76018ceeba83b83e26ec15ab5386c1901d566ea16a7e102400',
-                        'Resource' => '24dd5d2401798a0fcc27b3a39729aecb935852a5bd1bf91133a13bdeaf9de4c0',
-                        'ResourceContents' => 'f9ec6ef233f8cad733ebe004793c40af89ee1c7b19ea1d79757fe58b95e8e11a',
+                        'Resource' => '4e2389503738e221b9ae835d18cf3882677d0e89ff14e9e92d7a01499eaba1a4',
+                        'ResourceContents' => '169e942992b356183864b8dd5459dc3063f8515a3ed8e1fc86e5a75c85b35e7b',
                         'ResourceLink' => 'a01b5badd56aff721d35d81c8d20df1e263a473f4faab8eaba7fd8a24f82eb8b',
                         'ResourceListChangedNotification' => '68f37295e42b0448d455dcba49b1b37f4e3919bfb2cc07738f3f2ba46177c654',
-                        'ResourceRequestParams' => '02a785e52c4ded35f38d7e8022ce631717679e387d93c3bfd380ef993e010719',
-                        'ResourceTemplate' => '184774a364cde4a4fd595b7d60d55047cc50af153525e1f9b8e67a1b600a70ce',
-                        'ResourceTemplateReference' => 'ef2d78e131efbe00b3a37ae5346d4c12dbd795eeedf85a96c24244caba5d6763',
+                        'ResourceRequestParams' => '6c691ce92eab1b277c71cacc4937b95cfeb2a3a3379e521252071f6bccd853b3',
+                        'ResourceTemplate' => '76ec768348bbdcde2a59263d0dbaf1ebfd38f6f726c64909223e564a6554182c',
+                        'ResourceTemplateReference' => 'ad802c7d38968e6739e0b0f36a9d27f003db42f601217e8a26e5f751c8d42d73',
                         'ResourceUpdatedNotification' => 'aebff34739361d6f6af193ca318cd6daff3f21cd4458de7a9e02d1b00a6e46ba',
-                        'ResourceUpdatedNotificationParams' => '2c53786b4677151108cecaef442de4ede73143c767ab82ada7e5dc3e3ac5a29d',
+                        'ResourceUpdatedNotificationParams' => 'd8c3ea564fc1282d7adca298ad460b901b85519a4ec6b8f68f8373e8d24d3062',
                         'Result' => '8bbc9f2aa7a1a69e7788a2e901fc12f1cb33c27fc520dd5af9a37ded28ab271c',
                         'ResultMetaObject' => '9595862a6acd88e8c27901b536b5ae2aa21b038ad21ab5cdd2264a7e651aa973',
                         'ResultType' => '0a7cf6d688dd548cbbdd452d63523ce7a91ea0765a328563724e1db2531cb385',
                         'Role' => '8f1a0a87efa7c60e206208553407418b0dc8386bfc0a1104554876f13d48dafc',
-                        'Root' => 'ad5e0649ce479184bbcd9a1aca2e64408aa41b0ad55e38d1d15b0c7f3b31af8f',
+                        'Root' => 'ae8fc57357d98c346720a8b4d5dfb4348b195cd220c763fe94f7f7501d616041',
                         'SamplingMessage' => '0ba77fb802ae20b0d5bf227a0ee2d77ddb82a54b56995a23c4000586feae61e3',
                         'SamplingMessageContentBlock' => 'a7fafa6aa20355815aa3c3fcf7f09c759d05a59df68a962ad645aae07d6d966c',
                         'ServerCapabilities' => 'aa80f54eec259a269eba8833dce28598f597997abe756764ea9fc72f9c4bccdd',

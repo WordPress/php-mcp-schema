@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test tests/*.test.mjs",
+    "pregenerate": "npm run build",
     "generate": "node dist/record-model/cli.js",
     "generate:check": "npm run generate && cd .. && composer check",
     "lint": "eslint src --ext .ts",

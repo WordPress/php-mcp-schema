@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WP\McpSchema\Runtime;
 
 use JsonException;
-use stdClass;
 use WP\McpSchema\Contract\Record;
 use WP\McpSchema\Contract\Type;
 
@@ -30,17 +29,6 @@ final class TypeDefinition implements Type
      * @return Record<array<string, mixed>, array<string, mixed>>
      */
     public function fromArray(array $data): Record
-    {
-        /** @var Record<array<string, mixed>, array<string, mixed>> $record */
-        $record = $this->schema->hydrate($this->name, $data);
-        return $record;
-    }
-
-    /**
-     * @param array<string, mixed>|stdClass $data
-     * @return Record<array<string, mixed>, array<string, mixed>>
-     */
-    public function fromValue($data): Record
     {
         /** @var Record<array<string, mixed>, array<string, mixed>> $record */
         $record = $this->schema->hydrate($this->name, $data);

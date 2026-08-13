@@ -8,10 +8,6 @@ export interface AnyDescriptor {
 
 export interface ScalarDescriptor {
   readonly kind: ScalarKind;
-  readonly minimum?: number;
-  readonly maximum?: number;
-  readonly integer?: boolean;
-  readonly format?: 'byte' | 'meta-key' | 'uri' | 'uri-template';
 }
 
 export interface LiteralDescriptor {
@@ -37,15 +33,7 @@ export interface TupleDescriptor {
 export interface MapDescriptor {
   readonly kind: 'map';
   readonly values: Descriptor;
-  readonly keyFormat?: 'meta-key';
 }
-
-export interface AnyPresentConstraint {
-  readonly kind: 'any-present';
-  readonly fields: readonly string[];
-}
-
-export type RecordConstraint = AnyPresentConstraint;
 
 export interface FieldDescriptor {
   readonly required: boolean;
@@ -57,7 +45,6 @@ export interface RecordDescriptor {
   readonly fields: Readonly<Record<string, FieldDescriptor>>;
   readonly parents: readonly Descriptor[];
   readonly additional: Descriptor | false;
-  readonly constraints?: readonly RecordConstraint[];
 }
 
 export interface UnionDescriptor {

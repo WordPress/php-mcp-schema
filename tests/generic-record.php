@@ -5,7 +5,6 @@ declare(strict_types=1);
 use WP\McpSchema\Revision;
 use WP\McpSchema\Schemas;
 use WP\McpSchema\Contract\Record;
-use WP\McpSchema\Contract\RevisionSchema;
 use WP\McpSchema\Generated\V20251125Constants;
 use WP\McpSchema\Generated\V20260728Constants;
 use WP\McpSchema\Runtime\ValidationException;
@@ -34,38 +33,6 @@ function fixture(string $relativePath): array
     /** @var array<string, mixed> $decoded */
     $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
     return $decoded;
-}
-
-/** @return list<object{type: string, wire: stdClass}> */
-function objectFixtureCases(string $relativePath): array
-{
-    $contents = file_get_contents(__DIR__ . '/fixtures/' . $relativePath);
-    if ($contents === false) {
-        throw new RuntimeException('Unable to read fixture: ' . $relativePath);
-    }
-
-    $decoded = json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($decoded)) {
-        throw new RuntimeException('Fixture cases must be a JSON list: ' . $relativePath);
-    }
-
-    /** @var list<object{type: string, wire: stdClass}> $decoded */
-    return $decoded;
-}
-
-/** @param list<object{type: string, wire: stdClass}> $cases */
-function assertFixtureCasesRoundTrip(RevisionSchema $schema, array $cases, string $revision): void
-{
-    foreach ($cases as $index => $case) {
-        $record = $schema->type($case->type)->fromValue($case->wire);
-        $expected = json_encode($case->wire, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-        $actual = json_encode($record, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
-        assertSameValue(
-            $expected,
-            $actual,
-            sprintf('%s fixture %d (%s) did not round trip exactly.', $revision, $index, $case->type)
-        );
-    }
 }
 
 /** @param callable(): void $operation */
@@ -169,16 +136,6 @@ $inputRequestsWire = fixture('V20260728/input-requests.json');
 $inputResponsesWire = fixture('V20260728/input-responses.json');
 $requestMetaWire = fixture('V20260728/request-meta.json');
 $modernSchema = Schemas::v20260728();
-assertFixtureCasesRoundTrip(
-    Schemas::v20251125(),
-    objectFixtureCases('V20251125/adapter-flows.json'),
-    Revision::V20251125
-);
-assertFixtureCasesRoundTrip(
-    $modernSchema,
-    objectFixtureCases('V20260728/adapter-flows.json'),
-    Revision::V20260728
-);
 $inputRequests = $modernSchema->inputRequests()->fromArray($inputRequestsWire);
 $inputResponses = $modernSchema->inputResponses()->fromArray($inputResponsesWire);
 $requestMeta = $modernSchema->requestMetaObject()->fromArray($requestMetaWire);
@@ -271,72 +228,8 @@ assertSameValue(
     'Mutating toWireArray() output changed the immutable record.'
 );
 
-$emptyResult = Schemas::v20251125()->emptyResult()->fromValue(new stdClass());
+$emptyResult = Schemas::v20251125()->emptyResult()->fromArray([]);
 assertSameValue('EmptyResult', $emptyResult->typeName(), 'A direct record alias lost its public logical name.');
-
-assertValidationFails(
-    static function (): void {
-        Schemas::v20251125()->emptyResult()->fromArray([]);
-    },
-    'An empty PHP list was accepted as an empty JSON object.'
-);
-
-$emptyCapabilities = $modernSchema->serverCapabilities()->fromValue(new stdClass());
-if (!$emptyCapabilities->jsonSerialize() instanceof stdClass) {
-    throw new RuntimeException('An explicit empty top-level object lost its identity.');
-}
-
-assertValidationFails(
-    static function () use ($modernSchema): void {
-        $modernSchema->inputRequiredResult()->fromArray(['resultType' => 'input_required']);
-    },
-    'InputRequiredResult accepted neither inputRequests nor requestState.'
-);
-$inputRequiredWithState = $modernSchema->inputRequiredResult()->fromArray([
-    'resultType' => 'input_required',
-    'requestState' => 'opaque-state',
-]);
-assertSameValue('opaque-state', $inputRequiredWithState->get('requestState'), 'Request state did not hydrate.');
-
-assertValidationFails(
-    static function () use ($modernSchema): void {
-        $modernSchema->listToolsResult()->fromArray([
-            'resultType' => 'complete',
-            'cacheScope' => 'private',
-            'ttlMs' => -1,
-            'tools' => [],
-        ]);
-    },
-    'A negative cache TTL was accepted.'
-);
-assertValidationFails(
-    static function () use ($modernSchema): void {
-        $modernSchema->listToolsResult()->fromArray([
-            'resultType' => 'complete',
-            'cacheScope' => 'private',
-            'ttlMs' => 1.5,
-            'tools' => [],
-        ]);
-    },
-    'A fractional cache TTL was accepted.'
-);
-
-assertValidationFails(
-    static function () use ($modernSchema): void {
-        $modernSchema->resource()->fromArray([
-            'name' => 'bad-resource',
-            'uri' => 'not a uri',
-        ]);
-    },
-    'An invalid resource URI was accepted.'
-);
-
-assertValidationFails(
-    static function () use ($modernSchema): void {
-        $modernSchema->metaObject()->fromArray(['bad/key/' => true]);
-    },
-    'An invalid MCP metadata key was accepted.'
-);
 assertSameValue(false, $modernSchema->hasType('ProgressToken'), 'A scalar alias leaked into the record catalog.');
 assertLogicFails(
     static function () use ($modernSchema): void {
@@ -364,7 +257,5 @@ assertValidationFails(
     },
     'A non-finite number was accepted as a JSON wire value.'
 );
-
-require __DIR__ . '/compatibility-facades.php';
 
 echo "Generic record, dual-revision, union, map, null, identity, and immutability seams passed.\n";

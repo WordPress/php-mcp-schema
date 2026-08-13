@@ -357,11 +357,10 @@ class GenericRevisionSchema implements RevisionSchema
         string $contextName
     ): GenericRecord {
         $shape = $this->shape($descriptor, []);
-        $mapLike = $shape['fields'] === [] && $shape['additional'] !== false;
         if ($value instanceof stdClass) {
             /** @var array<string, mixed> $data */
             $data = get_object_vars($value);
-        } elseif (is_array($value) && ($mapLike || $value === [] || !self::isList($value))) {
+        } elseif (is_array($value) && ($value === [] || !self::isList($value))) {
             /** @var array<string, mixed> $data */
             $data = $value;
         } else {

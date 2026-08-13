@@ -1,6 +1,6 @@
 # Descriptor record generator
 
-The generator fetches the official MCP `2025-11-25` and `2026-07-28` TypeScript schemas, compiles their type syntax into canonical descriptors, deduplicates identical descriptors by SHA-256, and replaces `../src` with the generic PHP runtime and revision catalogs.
+The generator fetches the official MCP `2025-11-25` and `2026-07-28` TypeScript schemas, compiles their type syntax and exported literal constants, deduplicates identical descriptors by SHA-256, and replaces `../src` with the generic PHP runtime, revision catalogs, and constants classes.
 
 `../src` is a destructive generated-output boundary. The writer verifies that the resolved destination is exactly the repository's `src/` directory before replacing it.
 
@@ -22,6 +22,6 @@ Each shipping source schema has a pinned SHA-256 digest in the compiler. Generat
 ## Source layout
 
 - `src/record-model/compiler.ts` compiles TypeScript AST nodes into descriptor data.
-- `src/record-model/php-renderer.ts` writes the content-addressed pool, typed catalogs, and entry point.
+- `src/record-model/php-renderer.ts` writes the content-addressed pool, typed catalogs and aliases, constants classes, and entry point.
 - `templates/` owns the shared PHP 7.4 runtime and public contracts.
-- `tests/record-model.test.mjs` verifies determinism, deduplication, reference closure, and representative catalog coverage.
+- `tests/record-model.test.mjs` verifies determinism, deduplication, reference closure, constants, and safe catalog method generation.

@@ -5,6 +5,8 @@ declare(strict_types=1);
 use WP\McpSchema\Revision;
 use WP\McpSchema\Schemas;
 use WP\McpSchema\Contract\Record;
+use WP\McpSchema\Generated\V20251125Constants;
+use WP\McpSchema\Generated\V20260728Constants;
 use WP\McpSchema\Runtime\ValidationException;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -63,6 +65,23 @@ $wire = [
 $schema = Schemas::revision(Revision::V20251125);
 $record = $schema->type('TextContent')->fromArray($wire);
 
+assertSameValue(
+    Revision::V20251125,
+    V20251125Constants::LATEST_PROTOCOL_VERSION,
+    'The legacy generated protocol revision constant is incorrect.'
+);
+assertSameValue(
+    Revision::V20260728,
+    V20260728Constants::LATEST_PROTOCOL_VERSION,
+    'The modern generated protocol revision constant is incorrect.'
+);
+assertSameValue(-32020, V20260728Constants::HEADER_MISMATCH, 'HEADER_MISMATCH was not generated.');
+assertSameValue(
+    -32022,
+    V20260728Constants::UNSUPPORTED_PROTOCOL_VERSION,
+    'UNSUPPORTED_PROTOCOL_VERSION was not generated.'
+);
+
 assertSameValue(Revision::V20251125, $record->revision(), 'The record lost its revision identity.');
 assertSameValue('TextContent', $record->typeName(), 'The record lost its logical type identity.');
 assertSameValue('Hello from a generic record', $record->get('text'), 'A typed field was not readable.');
@@ -78,6 +97,16 @@ $modernResult = Schemas::v20260728()->callToolResult()->fromArray($modernWire);
 
 assertSameValue($legacyWire, $legacyResult->toArray(), 'Legacy tools/call did not round trip exactly.');
 assertSameValue($modernWire, $modernResult->toArray(), 'Modern tools/call did not round trip exactly.');
+
+assertValidationFails(
+    static function () use ($legacyWire): void {
+        Schemas::v20251125()->callToolResult()->fromArray([
+            'content' => $legacyWire['content'],
+            'structuredContent' => ['one', 'two'],
+        ]);
+    },
+    'A non-empty list was accepted where legacy structuredContent requires an object map.'
+);
 
 $legacyContent = $legacyResult->get('content')[0] ?? null;
 $modernContent = $modernResult->get('content')[0] ?? null;
@@ -182,6 +211,22 @@ $arrayListWire = json_decode(json_encode($arrayList, JSON_THROW_ON_ERROR), false
 if (!$arrayObjectWire->structuredContent instanceof stdClass || !is_array($arrayListWire->structuredContent)) {
     throw new RuntimeException('Explicit stdClass/array empty-value identity was not retained.');
 }
+
+$wireArray = $arrayObject->toWireArray();
+assertSameValue(true, is_array($wireArray), 'The JSON-ready representation is not a top-level array.');
+if (!$wireArray['structuredContent'] instanceof stdClass) {
+    throw new RuntimeException('toWireArray() lost nested JSON object identity.');
+}
+$wireArray['structuredContent']->changed = true;
+$freshWireArray = $arrayObject->toWireArray();
+if (!$freshWireArray['structuredContent'] instanceof stdClass) {
+    throw new RuntimeException('toWireArray() changed nested JSON object representation.');
+}
+assertSameValue(
+    false,
+    property_exists($freshWireArray['structuredContent'], 'changed'),
+    'Mutating toWireArray() output changed the immutable record.'
+);
 
 $emptyResult = Schemas::v20251125()->emptyResult()->fromArray([]);
 assertSameValue('EmptyResult', $emptyResult->typeName(), 'A direct record alias lost its public logical name.');

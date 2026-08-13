@@ -7276,7 +7276,7 @@ final class DescriptorPool
         if (self::$manifestCache === null) {
             self::$manifestCache = [
                 '2025-11-25' => [
-                    'fingerprint' => '57685761f4b49479e16577446fb7bd05adebc58a91b4435db118d2ee987e1cf0',
+                    'fingerprint' => '93e8226aafe5c872fd9326dbfd29db2536a69c80899da74d75ba567691e41752',
                     'roots' => [
                         'Annotations',
                         'AudioContent',
@@ -7567,7 +7567,7 @@ final class DescriptorPool
                     ],
                 ],
                 '2026-07-28' => [
-                    'fingerprint' => 'c271b0d338d7f9b2109acff0cab8b005a992e919335ed9ca4741c72ff8a8a092',
+                    'fingerprint' => 'd47c92f7f61a6fc681ec163ded6e49bd062cd95cb68953b423cc2ce55397eb10',
                     'roots' => [
                         'Annotations',
                         'AudioContent',

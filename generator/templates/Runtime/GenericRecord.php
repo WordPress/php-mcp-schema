@@ -30,8 +30,14 @@ final class GenericRecord implements Record
     public function toArray(): array
     {
         /** @var array<string, mixed> $result */
-        $result = self::toWireArray($this->data);
+        $result = self::toPlainArrayValue($this->data);
         return $result;
+    }
+
+    /** @return array<string, mixed> */
+    public function toWireArray(): array
+    {
+        return get_object_vars($this->jsonSerialize());
     }
 
     /** @return mixed */
@@ -104,7 +110,7 @@ final class GenericRecord implements Record
      * @param mixed $value
      * @return mixed
      */
-    private static function toWireArray($value)
+    private static function toPlainArrayValue($value)
     {
         if ($value instanceof self) {
             return $value->toArray();
@@ -118,7 +124,7 @@ final class GenericRecord implements Record
 
         $result = [];
         foreach ($value as $key => $item) {
-            $result[$key] = self::toWireArray($item);
+            $result[$key] = self::toPlainArrayValue($item);
         }
         return $result;
     }

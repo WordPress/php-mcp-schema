@@ -2,7 +2,7 @@
 
 This branch is a ground-up experiment in representing multiple Model Context Protocol revisions with one immutable generic record runtime. It replaces the generated concrete DTO class trees; it is not a backward-compatible release candidate.
 
-The package currently ships MCP `2025-11-25` and `2026-07-28` as explicit catalogs. The generator compiles 300 revision-bound logical types into 225 structurally unique descriptors and 12 PHP source files.
+The package currently ships MCP `2025-11-25` and `2026-07-28` as explicit catalogs. The generator compiles 300 revision-bound logical types into 225 structurally unique descriptors and 14 PHP source files.
 
 ## Using a revision
 
@@ -24,7 +24,8 @@ $result->revision(); // '2026-07-28'
 $result->typeName(); // 'CallToolResult'
 $result->get('resultType'); // 'complete'
 $result->has('isError'); // false: omitted, not present-null
-$result->toArray(); // exact wire array
+$result->toArray(); // plain PHP array; nested objects become arrays
+$result->toWireArray(); // top-level array; nested JSON object/list identity is retained
 json_encode($result, JSON_THROW_ON_ERROR); // JSON wire object
 ```
 
@@ -47,6 +48,25 @@ $content = $result->get('content');
 
 `Type<TWire, TFields>` uses separate generic shapes because the accepted wire value and hydrated value are not identical. `content` enters as a list of arrays but is exposed as a list of nested `Record` instances. `Record<TWire, TFields>::toArray()` returns `TWire`, while `get()` reads from `TFields`.
 
+Every public catalog type also exports importable `<Type>Wire` and `<Type>Fields` PHPStan aliases. They keep records typed when an application stores them instead of consuming them in one expression:
+
+```php
+use WP\McpSchema\Contract\Record;
+use WP\McpSchema\Generated\V20260728Schema;
+
+/**
+ * @phpstan-import-type ToolWire from V20260728Schema
+ * @phpstan-import-type ToolFields from V20260728Schema
+ */
+final class ToolStore
+{
+    /** @var Record<ToolWire, ToolFields> */
+    private Record $tool;
+}
+```
+
+Nested named records retain their own generated wire and field aliases where PHPStan can resolve them safely. Very large aggregate unions use broad nested record types to avoid recursive or unresolvable aliases.
+
 String lookup remains available for dynamic consumers, but returns broad `array<string, mixed>` types. It exposes only record-compatible logical types; scalar aliases remain internal descriptor references. Prefer the catalog method when the logical type is known in code.
 
 ## Exact wire behavior
@@ -57,6 +77,7 @@ The shared runtime validates and decodes:
 - explicit `null` separately from omission;
 - string, number, boolean, and numeric or string literals;
 - lists, tuples, indexed maps, inline objects, unions, intersections, and `Omit` inheritance;
+- strict object/map boundaries that reject non-empty sequential arrays instead of silently re-keying them as JSON objects;
 - discriminator unions such as `ContentBlock`, `InputRequest`, and `InputResponse`;
 - open records that preserve and re-emit extension keys;
 - closed records that reject unrecognized keys.
@@ -81,18 +102,36 @@ $list = $type->fromArray([
 ]);
 ```
 
-`toArray()` necessarily normalizes `stdClass` to an array. JSON serialization uses the retained descriptor-backed record boundaries and preserves object/list identity.
+`toArray()` necessarily normalizes `stdClass` to an array. Use `toWireArray()` when a consumer requires a top-level array but must retain nested JSON objects as `stdClass`; use normal JSON serialization when the top level should also remain an object. Both JSON-ready paths return defensive copies.
+
+For values declared as `unknown`, the schema cannot infer whether an empty PHP array means `{}` or `[]`. Pass `new stdClass()` when caller intent is an object.
+
+## Revision constants
+
+Literal constants exported by each official schema are generated into revision-specific classes:
+
+```php
+use WP\McpSchema\Generated\V20260728Constants;
+
+V20260728Constants::LATEST_PROTOCOL_VERSION; // '2026-07-28'
+V20260728Constants::JSONRPC_VERSION; // '2.0'
+V20260728Constants::HEADER_MISMATCH; // -32020
+V20260728Constants::UNSUPPORTED_PROTOCOL_VERSION; // -32022
+```
+
+This keeps protocol and error literals revision-bound. It does not make the schema package responsible for negotiation or error policy.
 
 ## Architecture
 
-The generated package has four layers:
+The generated package has five layers:
 
 1. `Revision` and `Schemas` select an immutable revision catalog.
-2. Generated catalogs map logical names to content hashes and add typed accessors.
+2. Generated catalogs map logical names to content hashes and add typed accessors and importable PHPStan aliases.
 3. `DescriptorPool` stores each locally unique descriptor once across revisions.
-4. One recursive runtime validates, hydrates, and serializes every descriptor.
+4. Generated constants classes retain each revision's exported protocol and error literals.
+5. One recursive runtime validates, hydrates, and serializes every descriptor.
 
-A descriptor hash identifies a local structural definition. References inside it remain logical type names and resolve through the selected revision manifest. The revision fingerprint hashes the complete logical-name-to-descriptor binding, so any definition change changes the revision fingerprint even when referring descriptors are shared.
+A descriptor hash identifies a local structural definition. References inside it remain logical type names and resolve through the selected revision manifest. The revision fingerprint hashes the exported constants and complete logical-name-to-descriptor binding, so any constant or definition change changes the revision fingerprint even when referring descriptors are shared.
 
 The generated descriptor pool and revision schemas are cached in-process. There is no mutable global registry and no cross-revision cache key. Composer or Jetpack package-copy selection still determines which package implementation owns the shared `WP\McpSchema` class names; this model does not make two different package releases with the same namespace independently loadable.
 
@@ -107,7 +146,7 @@ Adopting this model as the package API would require a major release. It removes
 - DTO `instanceof` checks and reflection over concrete properties;
 - static `SomeDto::fromArray()` entry points.
 
-Consumers gain a much smaller runtime surface, explicit revision identity, descriptor introspection, exact runtime validation, and catalog-assisted array shapes. They lose native concrete-class ergonomics. This branch intentionally tests that tradeoff rather than hiding it behind compatibility shims.
+Consumers gain a much smaller runtime surface, explicit revision identity, exact runtime validation, revision constants, and catalog-assisted array shapes. They lose native concrete-class ergonomics. This branch intentionally tests that tradeoff rather than hiding it behind compatibility shims.
 
 ## Development
 

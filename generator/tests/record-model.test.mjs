@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { compileRevisions } from '../dist/record-model/compiler.js';
+import {
+  catalogMethodName,
+  catalogMethodNames,
+} from '../dist/record-model/php-renderer.js';
 
 const revisions = ['2025-11-25', '2026-07-28'];
 
@@ -45,6 +49,47 @@ test('publishes record-capable hard shapes through both catalogs', async () => {
   assert.ok(modern.rootRecordTypes.includes('InputRequests'));
   assert.ok(modern.rootRecordTypes.includes('InputResponses'));
   assert.ok(modern.rootRecordTypes.includes('RequestMetaObject'));
+});
+
+test('retains revision-specific literal constants', async () => {
+  const bundle = await compileRevisions(revisions);
+  const legacy = bundle.revisions['2025-11-25'];
+  const modern = bundle.revisions['2026-07-28'];
+
+  assert.deepEqual(legacy.constants, {
+    INTERNAL_ERROR: -32603,
+    INVALID_PARAMS: -32602,
+    INVALID_REQUEST: -32600,
+    JSONRPC_VERSION: '2.0',
+    LATEST_PROTOCOL_VERSION: '2025-11-25',
+    METHOD_NOT_FOUND: -32601,
+    PARSE_ERROR: -32700,
+    URL_ELICITATION_REQUIRED: -32042,
+  });
+  assert.deepEqual(modern.constants, {
+    HEADER_MISMATCH: -32020,
+    INTERNAL_ERROR: -32603,
+    INVALID_PARAMS: -32602,
+    INVALID_REQUEST: -32600,
+    JSONRPC_VERSION: '2.0',
+    LATEST_PROTOCOL_VERSION: '2026-07-28',
+    METHOD_NOT_FOUND: -32601,
+    MISSING_REQUIRED_CLIENT_CAPABILITY: -32021,
+    PARSE_ERROR: -32700,
+    UNSUPPORTED_PROTOCOL_VERSION: -32022,
+  });
+});
+
+test('renders acronym-aware catalog methods and rejects unsafe names', () => {
+  assert.equal(catalogMethodName('JSONRPCErrorResponse'), 'jsonrpcErrorResponse');
+  assert.equal(catalogMethodName('URLSchema'), 'urlSchema');
+  assert.equal(catalogMethodName('TextContent'), 'textContent');
+  assert.throws(() => catalogMethodName('Type'), /inherited method type/);
+  assert.throws(() => catalogMethodName('Class'), /reserved PHP method class/);
+  assert.throws(
+    () => catalogMethodNames(['JSONRPCError', 'JsonrpcError']),
+    /both produce PHP method jsonrpcError/
+  );
 });
 
 function referencesIn(value) {

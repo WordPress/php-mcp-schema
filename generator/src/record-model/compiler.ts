@@ -53,7 +53,7 @@ export async function compileRevisions(revisions: readonly string[]): Promise<De
 
     const roots = [...revision.rootRecordTypes];
     manifests[revision.revision] = {
-      fingerprint: fingerprint({ roots, types }),
+      fingerprint: fingerprint({ constants: revision.constants, roots, types }),
       roots,
       types,
     };
@@ -121,6 +121,7 @@ async function compileRevision(revision: string): Promise<CompiledRevision> {
 
   return {
     revision,
+    constants: sortRecord(Object.fromEntries(constants)),
     descriptors: sortedDescriptors,
     rootRecordTypes,
   };

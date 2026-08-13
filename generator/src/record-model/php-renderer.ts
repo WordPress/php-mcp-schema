@@ -81,6 +81,12 @@ const PHP_RESERVED_METHODS = new Set([
   'yield',
 ]);
 
+const INHERITED_CATALOG_METHODS = new Set(
+  ['__construct', 'fingerprint', 'hasType', 'hydrate', 'revision', 'type', 'types'].map((name) =>
+    name.toLowerCase()
+  )
+);
+
 export async function writePhpPackage(bundle: DescriptorBundle): Promise<void> {
   assertSafeOutputDirectory(outputDirectory);
   await rm(outputDirectory, { recursive: true, force: true });
@@ -90,11 +96,39 @@ export async function writePhpPackage(bundle: DescriptorBundle): Promise<void> {
   await writeGeneratedFile('Generated/DescriptorPool.php', renderDescriptorPool(bundle));
   for (const revision of Object.values(bundle.revisions)) {
     await writeGeneratedFile(
+      `Generated/${revisionClassName(revision.revision)}Constants.php`,
+      renderConstants(revision)
+    );
+    await writeGeneratedFile(
       `Generated/${revisionClassName(revision.revision)}Schema.php`,
       renderCatalog(revision)
     );
   }
   await writeGeneratedFile('Schemas.php', renderSchemas(Object.values(bundle.revisions)));
+}
+
+function renderConstants(revision: CompiledRevision): string {
+  const className = `${revisionClassName(revision.revision)}Constants`;
+  const constants = Object.entries(revision.constants)
+    .map(([name, value]) => `    public const ${name} = ${phpValue(value, 1)};`)
+    .join('\n');
+
+  return `<?php
+
+declare(strict_types=1);
+
+namespace WP\\McpSchema\\Generated;
+
+/** Generated literal constants exported by the MCP ${revision.revision} schema. */
+final class ${className}
+{
+${constants}
+
+    private function __construct()
+    {
+    }
+}
+`;
 }
 
 async function copyTemplates(source: string, destination: string): Promise<void> {
@@ -173,8 +207,12 @@ final class DescriptorPool
 
 function renderCatalog(revision: CompiledRevision): string {
   const className = `${revisionClassName(revision.revision)}Schema`;
+  const methodNames = catalogMethodNames(revision.rootRecordTypes);
+  const typeAliases = revision.rootRecordTypes
+    .map((name) => renderCatalogTypeAliases(name, revision.descriptors))
+    .join('\n');
   const methods = revision.rootRecordTypes
-    .map((name) => renderCatalogMethod(name, revision.descriptors))
+    .map((name) => renderCatalogMethod(name, methodNames.get(name)!, revision.descriptors))
     .join('\n');
 
   return `<?php
@@ -187,7 +225,11 @@ use WP\\McpSchema\\Contract\\Type;
 use WP\\McpSchema\\Contract\\Record;
 use WP\\McpSchema\\Runtime\\GenericRevisionSchema;
 
-/** Generated discoverable catalog for MCP ${revision.revision}. */
+/**
+ * Generated discoverable catalog for MCP ${revision.revision}.
+ *
+${typeAliases}
+ */
 final class ${className} extends GenericRevisionSchema
 {
     public const REVISION = '${revision.revision}';
@@ -208,18 +250,39 @@ ${methods}}
 `;
 }
 
-function renderCatalogMethod(name: string, registry: Readonly<Record<string, Descriptor>>): string {
+function renderCatalogTypeAliases(
+  name: string,
+  registry: Readonly<Record<string, Descriptor>>
+): string {
   const descriptor = registry[name];
   if (!descriptor) {
     throw new Error(`Cannot render missing catalog type ${name}`);
   }
   const wireShape = phpStanType(descriptor, registry, new Set([name]), 0);
-  const fieldShape = phpStanAccessRootType(descriptor, registry, new Set([name]), 0);
-  const method = methodName(name);
-  return `    /** @return Type<${wireShape}, ${fieldShape}> */
+  const namedNestedRecords = descriptor.kind !== 'union' || descriptor.anyOf.length <= 8;
+  const fieldShape = phpStanAccessRootType(
+    descriptor,
+    registry,
+    new Set([name]),
+    0,
+    namedNestedRecords
+  );
+  return ` * @phpstan-type ${name}Wire ${wireShape}
+ * @phpstan-type ${name}Fields ${fieldShape}`;
+}
+
+function renderCatalogMethod(
+  name: string,
+  method: string,
+  registry: Readonly<Record<string, Descriptor>>
+): string {
+  if (!registry[name]) {
+    throw new Error(`Cannot render missing catalog type ${name}`);
+  }
+  return `    /** @return Type<${name}Wire, ${name}Fields> */
     public function ${method}(): Type
     {
-        /** @var Type<${wireShape}, ${fieldShape}> $type */
+        /** @var Type<${name}Wire, ${name}Fields> $type */
         $type = $this->type('${phpString(name)}');
         return $type;
     }
@@ -231,22 +294,25 @@ function phpStanAccessRootType(
   descriptor: Descriptor,
   registry: Readonly<Record<string, Descriptor>>,
   visiting: Set<string>,
-  depth: number
+  depth: number,
+  namedNestedRecords: boolean
 ): string {
   if (descriptor.kind === 'ref') {
     const target = registry[descriptor.name];
     if (!target || visiting.has(descriptor.name)) return 'array<string, mixed>';
     const next = new Set(visiting);
     next.add(descriptor.name);
-    return phpStanAccessRootType(target, registry, next, depth);
+    return phpStanAccessRootType(target, registry, next, depth, namedNestedRecords);
   }
   if (descriptor.kind === 'union') {
     return phpStanUnion(
-      descriptor.anyOf.map((part) => phpStanAccessRootType(part, registry, visiting, depth))
+      descriptor.anyOf.map((part) =>
+        phpStanAccessRootType(part, registry, visiting, depth, namedNestedRecords)
+      )
     );
   }
   if (descriptor.kind === 'map') {
-    return `array<string, ${phpStanAccessValueType(descriptor.values, registry, visiting, depth + 1)}>`;
+    return `array<string, ${phpStanAccessValueType(descriptor.values, registry, visiting, depth + 1, namedNestedRecords)}>`;
   }
   if (
     descriptor.kind === 'record' ||
@@ -257,11 +323,11 @@ function phpStanAccessRootType(
     const fields = Object.entries(shape.fields).map(([name, field]) => {
       const key = /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? name : `'${phpString(name)}'`;
       const optional = field.required ? '' : '?';
-      return `${key}${optional}: ${phpStanAccessValueType(field.type, registry, visiting, depth + 1)}`;
+      return `${key}${optional}: ${phpStanAccessValueType(field.type, registry, visiting, depth + 1, namedNestedRecords)}`;
     });
     if (shape.additional !== false) {
       fields.push(
-        `...<string, ${phpStanAccessValueType(shape.additional, registry, visiting, depth + 1)}>`
+        `...<string, ${phpStanAccessValueType(shape.additional, registry, visiting, depth + 1, namedNestedRecords)}>`
       );
     }
     return `array{${fields.join(', ')}}`;
@@ -273,7 +339,8 @@ function phpStanAccessValueType(
   descriptor: Descriptor,
   registry: Readonly<Record<string, Descriptor>>,
   visiting: Set<string>,
-  depth: number
+  depth: number,
+  namedNestedRecords: boolean
 ): string {
   switch (descriptor.kind) {
     case 'any':
@@ -289,22 +356,27 @@ function phpStanAccessValueType(
     case 'literal':
       return phpStanLiteral(descriptor.value);
     case 'list':
-      return `list<${phpStanAccessValueType(descriptor.items, registry, visiting, depth + 1)}>`;
+      return `list<${phpStanAccessValueType(descriptor.items, registry, visiting, depth + 1, namedNestedRecords)}>`;
     case 'tuple':
-      return `array{${descriptor.items.map((item) => phpStanAccessValueType(item, registry, visiting, depth + 1)).join(', ')}}`;
+      return `array{${descriptor.items.map((item) => phpStanAccessValueType(item, registry, visiting, depth + 1, namedNestedRecords)).join(', ')}}`;
     case 'union':
       return phpStanUnion(
-        descriptor.anyOf.map((part) => phpStanAccessValueType(part, registry, visiting, depth))
+        descriptor.anyOf.map((part) =>
+          phpStanAccessValueType(part, registry, visiting, depth, namedNestedRecords)
+        )
       );
     case 'ref': {
       const target = registry[descriptor.name];
       if (!target || visiting.has(descriptor.name)) return 'mixed';
+      if (namedNestedRecords && isRecordDescriptor(target, registry, new Set())) {
+        return `Record<${descriptor.name}Wire, ${descriptor.name}Fields>`;
+      }
       if (isRecordDescriptor(target, registry, new Set())) {
         return 'Record<array<string, mixed>, array<string, mixed>>';
       }
       const next = new Set(visiting);
       next.add(descriptor.name);
-      return phpStanAccessValueType(target, registry, next, depth);
+      return phpStanAccessValueType(target, registry, next, depth, namedNestedRecords);
     }
     case 'map':
     case 'record':
@@ -563,9 +635,36 @@ function phpString(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-function methodName(typeName: string): string {
-  const candidate = typeName.charAt(0).toLowerCase() + typeName.slice(1);
-  return PHP_RESERVED_METHODS.has(candidate.toLowerCase()) ? `${candidate}Type` : candidate;
+export function catalogMethodName(typeName: string): string {
+  const acronym = typeName.match(/^[A-Z]+(?=[A-Z][a-z]|$)/)?.[0];
+  const candidate = acronym
+    ? acronym.toLowerCase() + typeName.slice(acronym.length)
+    : typeName.charAt(0).toLowerCase() + typeName.slice(1);
+  const normalized = candidate.toLowerCase();
+
+  if (PHP_RESERVED_METHODS.has(normalized)) {
+    throw new Error(`Catalog type ${typeName} produces reserved PHP method ${candidate}()`);
+  }
+  if (INHERITED_CATALOG_METHODS.has(normalized)) {
+    throw new Error(`Catalog type ${typeName} collides with inherited method ${candidate}()`);
+  }
+  return candidate;
+}
+
+export function catalogMethodNames(typeNames: readonly string[]): ReadonlyMap<string, string> {
+  const result = new Map<string, string>();
+  const owners = new Map<string, string>();
+  for (const typeName of typeNames) {
+    const method = catalogMethodName(typeName);
+    const normalized = method.toLowerCase();
+    const owner = owners.get(normalized);
+    if (owner) {
+      throw new Error(`Catalog types ${owner} and ${typeName} both produce PHP method ${method}()`);
+    }
+    owners.set(normalized, typeName);
+    result.set(typeName, method);
+  }
+  return result;
 }
 
 function revisionClassName(revision: string): string {

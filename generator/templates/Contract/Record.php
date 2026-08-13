@@ -18,6 +18,13 @@ interface Record extends JsonSerializable
     public function toArray(): array;
 
     /**
+     * Returns a top-level PHP array while preserving nested JSON objects as objects.
+     *
+     * @return array<string, mixed>
+     */
+    public function toWireArray(): array;
+
+    /**
      * @template K of key-of<TFields>
      * @param K $key
      * @return TFields[K]

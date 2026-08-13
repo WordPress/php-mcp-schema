@@ -15,12 +15,13 @@ $result = Schemas::v20260728()->callToolResult()->fromArray([
 ]);
 
 assertType('string', $result->get('resultType'));
-assertType(
-    'array<int, WP\McpSchema\Contract\Record<array<string, mixed>, array<string, mixed>>>',
-    $result->get('content')
-);
+$content = $result->get('content')[0];
+assertType("'audio'|'image'|'resource'|'resource_link'|'text'", $content->get('type'));
 assertType('bool', $result->get('isError'));
 
 $wire = $result->toArray();
 assertType('string', $wire['resultType']);
 assertType('array<int, array<string, mixed>>', $wire['content']);
+
+$wireReady = $result->toWireArray();
+assertType('array<string, mixed>', $wireReady);

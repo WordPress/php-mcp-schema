@@ -78,6 +78,7 @@ export type Descriptor =
 
 export interface CompiledRevision {
   readonly revision: string;
+  readonly constants: Readonly<Record<string, LiteralValue>>;
   readonly descriptors: Readonly<Record<string, Descriptor>>;
   readonly rootRecordTypes: readonly string[];
 }

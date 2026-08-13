@@ -5,6 +5,7 @@ declare(strict_types=1);
 use WP\McpSchema\Revision;
 use WP\McpSchema\Schemas;
 use WP\McpSchema\Contract\Record;
+use WP\McpSchema\Contract\RevisionSchema;
 use WP\McpSchema\Generated\V20251125Constants;
 use WP\McpSchema\Generated\V20260728Constants;
 use WP\McpSchema\Runtime\ValidationException;
@@ -33,6 +34,38 @@ function fixture(string $relativePath): array
     /** @var array<string, mixed> $decoded */
     $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
     return $decoded;
+}
+
+/** @return list<object{type: string, wire: stdClass}> */
+function objectFixtureCases(string $relativePath): array
+{
+    $contents = file_get_contents(__DIR__ . '/fixtures/' . $relativePath);
+    if ($contents === false) {
+        throw new RuntimeException('Unable to read fixture: ' . $relativePath);
+    }
+
+    $decoded = json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('Fixture cases must be a JSON list: ' . $relativePath);
+    }
+
+    /** @var list<object{type: string, wire: stdClass}> $decoded */
+    return $decoded;
+}
+
+/** @param list<object{type: string, wire: stdClass}> $cases */
+function assertFixtureCasesRoundTrip(RevisionSchema $schema, array $cases, string $revision): void
+{
+    foreach ($cases as $index => $case) {
+        $record = $schema->type($case->type)->fromValue($case->wire);
+        $expected = json_encode($case->wire, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        $actual = json_encode($record, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        assertSameValue(
+            $expected,
+            $actual,
+            sprintf('%s fixture %d (%s) did not round trip exactly.', $revision, $index, $case->type)
+        );
+    }
 }
 
 /** @param callable(): void $operation */
@@ -136,6 +169,16 @@ $inputRequestsWire = fixture('V20260728/input-requests.json');
 $inputResponsesWire = fixture('V20260728/input-responses.json');
 $requestMetaWire = fixture('V20260728/request-meta.json');
 $modernSchema = Schemas::v20260728();
+assertFixtureCasesRoundTrip(
+    Schemas::v20251125(),
+    objectFixtureCases('V20251125/adapter-flows.json'),
+    Revision::V20251125
+);
+assertFixtureCasesRoundTrip(
+    $modernSchema,
+    objectFixtureCases('V20260728/adapter-flows.json'),
+    Revision::V20260728
+);
 $inputRequests = $modernSchema->inputRequests()->fromArray($inputRequestsWire);
 $inputResponses = $modernSchema->inputResponses()->fromArray($inputResponsesWire);
 $requestMeta = $modernSchema->requestMetaObject()->fromArray($requestMetaWire);

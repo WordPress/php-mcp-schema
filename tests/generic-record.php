@@ -365,4 +365,6 @@ assertValidationFails(
     'A non-finite number was accepted as a JSON wire value.'
 );
 
+require __DIR__ . '/compatibility-facades.php';
+
 echo "Generic record, dual-revision, union, map, null, identity, and immutability seams passed.\n";

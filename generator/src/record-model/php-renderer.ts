@@ -387,6 +387,9 @@ function phpStanAccessValueType(
 }
 
 function renderSchemas(revisions: readonly CompiledRevision[]): string {
+  const supportedRevisionSchemaType = revisions
+    .map((revision) => `${revisionClassName(revision.revision)}Schema`)
+    .join('|');
   const imports = revisions
     .map(
       (revision) => `use WP\\McpSchema\\Generated\\${revisionClassName(revision.revision)}Schema;`
@@ -427,12 +430,17 @@ use LogicException;
 use WP\\McpSchema\\Contract\\RevisionSchema;
 ${imports}
 
-/** Explicit entry point for immutable revision catalogs. */
+/**
+ * Explicit entry point for immutable revision catalogs.
+ *
+ * @phpstan-type SupportedRevisionSchema ${supportedRevisionSchemaType}
+ */
 final class Schemas
 {
-    /** @var array<string, RevisionSchema> */
+    /** @var array<string, SupportedRevisionSchema> */
     private static array $instances = [];
 
+    /** @return SupportedRevisionSchema */
     public static function revision(string $revision): RevisionSchema
     {
         if (isset(self::$instances[$revision])) {

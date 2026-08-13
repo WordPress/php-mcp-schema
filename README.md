@@ -4,46 +4,87 @@ This branch is a ground-up experiment in representing multiple Model Context Pro
 
 The package currently ships MCP `2025-11-25` and `2026-07-28` as explicit catalogs. The generator compiles 300 revision-bound logical types into 225 structurally unique descriptors and 14 PHP source files.
 
-## Using a revision
+## Using an already-selected revision
 
-Select a revision explicitly, look up a logical MCP type, and hydrate its wire array:
+Protocol negotiation belongs to the consumer. After the consumer maps the negotiated protocol version to an exact schema revision, select that catalog once and reuse it for the lifecycle in which the revision remains fixed, such as a session or stateless request:
 
 ```php
-use WP\McpSchema\Revision;
 use WP\McpSchema\Schemas;
 
-$schema = Schemas::revision(Revision::V20260728);
-$result = $schema->type('CallToolResult')->fromArray([
-    'resultType' => 'complete',
-    'content' => [
-        ['type' => 'text', 'text' => 'Sunny'],
-    ],
+/** @var string $selectedSchemaRevision Exact revision supplied by the consumer's protocol context. */
+$schema = Schemas::revision($selectedSchemaRevision);
+
+$content = $schema->type('TextContent')->fromArray([
+    'type' => 'text',
+    'text' => 'Sunny',
 ]);
 
-$result->revision(); // '2026-07-28'
-$result->typeName(); // 'CallToolResult'
-$result->get('resultType'); // 'complete'
-$result->has('isError'); // false: omitted, not present-null
-$result->toArray(); // plain PHP array; nested objects become arrays
-$result->toWireArray(); // top-level array; nested JSON object/list identity is retained
-json_encode($result, JSON_THROW_ON_ERROR); // JSON wire object
+$content->revision() === $selectedSchemaRevision; // true
+$content->typeName(); // 'TextContent'
+$content->get('text'); // 'Sunny'
+$content->has('annotations'); // false: omitted, not present-null
+$content->toArray(); // plain PHP array; nested objects become arrays
+$content->toWireArray(); // top-level array; nested JSON object/list identity is retained
+json_encode($content, JSON_THROW_ON_ERROR); // JSON wire object
 ```
 
-There is no ambient “current revision.” Records and every nested record retain the revision that hydrated them.
+`Schemas::revision()` exports its return type as the generated `SupportedRevisionSchema` PHPStan alias. The alias is the union of every catalog shipped by the package and updates automatically when the generator adds a revision.
+
+Pass the selected `RevisionSchema` downstream instead of repeatedly selecting a concrete revision:
+
+```php
+use WP\McpSchema\Contract\RevisionSchema;
+use WP\McpSchema\Schemas;
+
+/** @phpstan-import-type SupportedRevisionSchema from Schemas */
+final class ToolResultEncoder
+{
+    /** @var SupportedRevisionSchema */
+    private RevisionSchema $schema;
+
+    /** @param SupportedRevisionSchema $schema */
+    public function __construct(RevisionSchema $schema)
+    {
+        $this->schema = $schema;
+    }
+
+    /**
+     * @param array<string, mixed> $wire
+     * @return array<string, mixed>
+     */
+    public function encode(array $wire): array
+    {
+        return $this->schema
+            ->type('CallToolResult')
+            ->fromArray($wire)
+            ->toWireArray();
+    }
+}
+
+$encoder = new ToolResultEncoder($schema);
+```
+
+There is no ambient “current revision.” The selected catalog is immutable and cached in-process, and every record retains the revision that hydrated it. The package does not map protocol versions to schema revisions because negotiation and compatibility policy remain consumer responsibilities.
 
 Run `composer demo` to print both revisions flowing through the same runtime with separate identities and wire output.
 
-## Discoverable typed catalogs
+## Statically fixed revision catalogs
 
-Generated catalog methods provide top-level wire and hydrated field shapes to PHPStan:
+When code genuinely targets one revision, such as a revision-specific test, fixture, or implementation, generated catalog methods provide its precise top-level wire and hydrated field shapes to PHPStan:
 
 ```php
 $result = Schemas::v20260728()
     ->callToolResult()
-    ->fromArray($wire);
+    ->fromArray([
+        'resultType' => 'complete',
+        'content' => [
+            ['type' => 'text', 'text' => 'Sunny'],
+        ],
+    ]);
 
 $content = $result->get('content');
-// PHPStan: array<int, Record<array<string, mixed>, array<string, mixed>>>
+$content[0]->get('type');
+// PHPStan: 'audio'|'image'|'resource'|'resource_link'|'text'
 ```
 
 `Type<TWire, TFields>` uses separate generic shapes because the accepted wire value and hydrated value are not identical. `content` enters as a list of arrays but is exposed as a list of nested `Record` instances. `Record<TWire, TFields>::toArray()` returns `TWire`, while `get()` reads from `TFields`.
@@ -67,7 +108,7 @@ final class ToolStore
 
 Nested named records retain their own generated wire and field aliases where PHPStan can resolve them safely. Very large aggregate unions use broad nested record types to avoid recursive or unresolvable aliases.
 
-String lookup remains available for dynamic consumers, but returns broad `array<string, mixed>` types. It exposes only record-compatible logical types; scalar aliases remain internal descriptor references. Prefer the catalog method when the logical type is known in code.
+Runtime-selected catalogs use `RevisionSchema::type()` and therefore expose broad `array<string, mixed>` shapes: PHPStan cannot infer an exact revision from a runtime string. Do not replace an already-selected catalog with `Schemas::v20260728()` merely to recover narrower static types, because that turns a negotiated runtime decision into a fixed version assumption. String lookup exposes only record-compatible logical types; scalar aliases remain internal descriptor references.
 
 ## Exact wire behavior
 

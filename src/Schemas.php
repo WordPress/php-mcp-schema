@@ -9,12 +9,17 @@ use WP\McpSchema\Contract\RevisionSchema;
 use WP\McpSchema\Generated\V20251125Schema;
 use WP\McpSchema\Generated\V20260728Schema;
 
-/** Explicit entry point for immutable revision catalogs. */
+/**
+ * Explicit entry point for immutable revision catalogs.
+ *
+ * @phpstan-type SupportedRevisionSchema V20251125Schema|V20260728Schema
+ */
 final class Schemas
 {
-    /** @var array<string, RevisionSchema> */
+    /** @var array<string, SupportedRevisionSchema> */
     private static array $instances = [];
 
+    /** @return SupportedRevisionSchema */
     public static function revision(string $revision): RevisionSchema
     {
         if (isset(self::$instances[$revision])) {

@@ -119,6 +119,8 @@ The shared runtime validates and decodes:
 - string, number, boolean, and numeric or string literals;
 - lists, tuples, indexed maps, inline objects, unions, intersections, and `Omit` inheritance;
 - strict object/map boundaries that reject non-empty sequential arrays instead of silently re-keying them as JSON objects;
+- numeric bounds declared by the schema (`@minimum`/`@maximum`), such as non-negative `ttlMs`;
+- prose-only cross-field presence rules compiled from a curated table, such as `InputRequiredResult` requiring at least one of `inputRequests` or `requestState`;
 - discriminator unions such as `ContentBlock`, `InputRequest`, and `InputResponse`;
 - open records that preserve and re-emit extension keys;
 - closed records that reject unrecognized keys.
@@ -127,7 +129,7 @@ Nested schema objects and maps hydrate to `Record` instances. Values declared as
 
 ### Empty JSON objects and lists
 
-PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. When the value was already decoded elsewhere — `json_decode()` without the assoc flag — use `fromValue()`; it accepts the decoded value as-is, so `stdClass` stays a JSON object and a PHP list stays a JSON list, including objects whose keys are all numeric strings. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
+PHP arrays cannot distinguish an empty JSON object from an empty JSON list. Use `fromJson()` when the original JSON is available; it preserves that distinction. When the value was already decoded elsewhere — `json_decode()` without the assoc flag — use `fromValue()`; it accepts the decoded value as-is, so `stdClass` stays a JSON object and a PHP list stays a JSON list at positions where the schema admits a list, including objects whose keys are all numeric strings. At positions the schema types as object/map, the same empty tolerance as `fromArray()` applies: an empty list hydrates as an empty object, and non-empty lists are rejected. With `fromArray()`, use `new stdClass()` for an empty object and `[]` for an empty list:
 
 ```php
 $object = $type->fromArray([

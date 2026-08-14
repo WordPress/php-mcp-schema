@@ -22,10 +22,12 @@ interface Type
     public function fromJson(string $json): Record;
 
     /**
-     * Hydrates an already-decoded JSON value, preserving object/list
-     * identity: `stdClass` means a JSON object and a PHP list means a
-     * JSON list, exactly as produced by `json_decode()` without the
-     * assoc flag.
+     * Hydrates an already-decoded JSON value, as produced by
+     * `json_decode()` without the assoc flag: `stdClass` means a JSON
+     * object and a PHP list means a JSON list, including objects whose
+     * keys are all numeric strings. At positions the schema types as
+     * object/map the usual empty tolerance still applies — an empty
+     * list hydrates as an empty object; non-empty lists are rejected.
      *
      * @param mixed $value
      * @return Record<TWire, TFields>

@@ -40,8 +40,13 @@ interface CuratedRecordConstraints {
 /**
  * Cross-field rules that schema.ts states only in prose, keyed by revision
  * and type name. Every entry is validated against the compiled descriptors,
- * which come from sources pinned by SCHEMA_SHA256, so adding or bumping a
- * revision forces this table to be re-reviewed against its prose.
+ * which come from sources pinned by SCHEMA_SHA256.
+ *
+ * Re-review is enforced, not assumed: every table key must be a shipping
+ * revision, and once any revision curates a type, every shipping revision
+ * that declares that type must carry its own entry for it. A revision that
+ * genuinely has no such rule declares an explicit empty waiver
+ * (`atLeastOneOf: []`) so the reviewed decision is visible in the table.
  */
 const CURATED_RECORD_CONSTRAINTS: Readonly<
   Record<string, Readonly<Record<string, CuratedRecordConstraints>>>
@@ -52,8 +57,35 @@ const CURATED_RECORD_CONSTRAINTS: Readonly<
   },
 };
 
+export function assertCuratedConstraintCoverage(
+  revisions: ReadonlyMap<string, Readonly<Record<string, Descriptor>>>
+): void {
+  for (const revision of Object.keys(CURATED_RECORD_CONSTRAINTS)) {
+    if (!revisions.has(revision)) {
+      throw new Error(`Curated constraint table keys unknown revision ${revision}`);
+    }
+  }
+
+  const curatedTypeNames = new Set(
+    Object.values(CURATED_RECORD_CONSTRAINTS).flatMap((types) => Object.keys(types))
+  );
+  for (const [revision, descriptors] of revisions) {
+    for (const typeName of curatedTypeNames) {
+      if (descriptors[typeName] && !CURATED_RECORD_CONSTRAINTS[revision]?.[typeName]) {
+        throw new Error(
+          `Revision ${revision} declares ${typeName}, which is curated elsewhere; ` +
+            `add its entry (or an explicit empty waiver) to CURATED_RECORD_CONSTRAINTS`
+        );
+      }
+    }
+  }
+}
+
 export async function compileRevisions(revisions: readonly string[]): Promise<DescriptorBundle> {
   const compiled = await Promise.all(revisions.map(compileRevision));
+  assertCuratedConstraintCoverage(
+    new Map(compiled.map((revision) => [revision.revision, revision.descriptors]))
+  );
   const pool: Record<string, Descriptor> = {};
   const manifests: Record<string, RevisionManifest> = {};
   const compiledByRevision: Record<string, CompiledRevision> = {};

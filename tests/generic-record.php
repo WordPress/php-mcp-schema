@@ -269,6 +269,25 @@ assertValidationFails(
     'fromValue() accepted a non-empty list where a record is required.'
 );
 
+// At object/map positions the documented empty tolerance applies to
+// fromValue() exactly as it does to fromArray(): a genuine JSON [] on the
+// wire hydrates as an empty object rather than being rejected.
+$decodedEmptyMeta = json_decode(
+    '{"resultType":"complete","content":[],"_meta":[]}',
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+$emptyMetaWire = json_decode(
+    json_encode($modernType->fromValue($decodedEmptyMeta), JSON_THROW_ON_ERROR),
+    false,
+    512,
+    JSON_THROW_ON_ERROR
+);
+if (!$emptyMetaWire->_meta instanceof stdClass) {
+    throw new RuntimeException('fromValue() did not apply the empty-object tolerance at an object position.');
+}
+
 $emptyResult = Schemas::v20251125()->emptyResult()->fromArray([]);
 assertSameValue('EmptyResult', $emptyResult->typeName(), 'A direct record alias lost its public logical name.');
 assertSameValue(false, $modernSchema->hasType('ProgressToken'), 'A scalar alias leaked into the record catalog.');

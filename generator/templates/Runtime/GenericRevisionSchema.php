@@ -150,16 +150,16 @@ class GenericRevisionSchema implements RevisionSchema
                 if ((!is_int($value) && !is_float($value)) || (is_float($value) && !is_finite($value))) {
                     throw $this->expected($contextName, $path, 'number', $value);
                 }
-                $minimum = $descriptor['minimum'] ?? null;
-                if ((is_int($minimum) || is_float($minimum)) && $value < $minimum) {
+                $minimum = self::numericBoundEntry($descriptor, 'minimum');
+                if (null !== $minimum && $value < $minimum) {
                     throw $this->error($contextName, $path, sprintf(
                         'expected number >= %s, got %s',
                         var_export($minimum, true),
                         var_export($value, true)
                     ));
                 }
-                $maximum = $descriptor['maximum'] ?? null;
-                if ((is_int($maximum) || is_float($maximum)) && $value > $maximum) {
+                $maximum = self::numericBoundEntry($descriptor, 'maximum');
+                if (null !== $maximum && $value > $maximum) {
                     throw $this->error($contextName, $path, sprintf(
                         'expected number <= %s, got %s',
                         var_export($maximum, true),
@@ -581,6 +581,22 @@ class GenericRevisionSchema implements RevisionSchema
             $result[] = $item;
         }
         return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $descriptor
+     * @return int|float|null
+     */
+    private static function numericBoundEntry(array $descriptor, string $key)
+    {
+        $value = $descriptor[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        if (!is_int($value) && !is_float($value)) {
+            throw new LogicException(sprintf("Descriptor entry '%s' must be a number", $key));
+        }
+        return $value;
     }
 
     /**

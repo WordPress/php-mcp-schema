@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compileRevisions } from '../dist/record-model/compiler.js';
+import {
+  assertCuratedConstraintCoverage,
+  compileRevisions,
+} from '../dist/record-model/compiler.js';
 import {
   catalogMethodName,
   catalogMethodNames,
@@ -98,6 +101,31 @@ test('compiles numeric JSDoc bounds and curated cross-field constraints', async 
     ['inputRequests', 'requestState'],
   ]);
   assert.equal(legacy.descriptors.InputRequiredResult, undefined);
+});
+
+test('curated constraint coverage guard rejects unknown revisions and uncurated declarations', async () => {
+  const bundle = await compileRevisions(revisions);
+  const descriptorsByRevision = new Map(
+    Object.values(bundle.revisions).map((revision) => [revision.revision, revision.descriptors])
+  );
+
+  // The shipping compile passes the guard (compileRevisions already ran it).
+  assertCuratedConstraintCoverage(descriptorsByRevision);
+
+  // A curated table key that is not a compiled revision must throw.
+  assert.throws(
+    () => assertCuratedConstraintCoverage(new Map([['2099-01-01', {}]])),
+    /unknown revision 2026-07-28/
+  );
+
+  // A revision declaring a curated type without its own entry must throw:
+  // simulate a future revision that still declares InputRequiredResult.
+  const future = new Map(descriptorsByRevision);
+  future.set('2027-01-01', bundle.revisions['2026-07-28'].descriptors);
+  assert.throws(
+    () => assertCuratedConstraintCoverage(future),
+    /2027-01-01 declares InputRequiredResult/
+  );
 });
 
 test('renders acronym-aware catalog methods and rejects unsafe names', () => {

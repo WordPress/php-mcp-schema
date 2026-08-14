@@ -353,4 +353,62 @@ assertValidationFails(
     'A priority above the schema @maximum 1 bound was accepted.'
 );
 
+// toJsonArray(): nested arrays that still encode to the exact protocol bytes.
+$emptyPropsTool = $schema->type('Tool')->fromArray([
+    'name' => 'no-arguments',
+    'inputSchema' => ['type' => 'object', 'properties' => []],
+]);
+$jsonArray = $emptyPropsTool->toJsonArray();
+if (!is_array($jsonArray['inputSchema'])) {
+    throw new RuntimeException('toJsonArray() should expose a nested object as an array.');
+}
+assertSameValue(
+    '{"name":"no-arguments","inputSchema":{"type":"object","properties":{}}}',
+    json_encode($jsonArray),
+    'toJsonArray() lost the empty-object identity of an empty properties map.'
+);
+assertSameValue(
+    json_encode($emptyPropsTool->toWireArray()),
+    json_encode($jsonArray),
+    'toJsonArray() and toWireArray() disagreed on the emitted bytes.'
+);
+
+$nestedResult = $schema->type('CallToolResult')->fromArray([
+    'content' => [['type' => 'text', 'text' => 'hi']],
+    'isError' => false,
+]);
+$nestedJson = $nestedResult->toJsonArray();
+if (!is_array($nestedJson['content'][0])) {
+    throw new RuntimeException('toJsonArray() should expose a nested record as an array.');
+}
+assertSameValue(
+    json_encode($nestedResult->toWireArray()),
+    json_encode($nestedJson),
+    'toJsonArray() changed the bytes of a populated nested record.'
+);
+
+// An object whose keys form a list would encode as a JSON array, so it stays an object.
+$numericKeyedMeta = $schema->type('Tool')->fromValue((object) [
+    'name' => 'numeric-keyed-meta',
+    'inputSchema' => (object) ['type' => 'object'],
+    '_meta' => (object) ['0' => 'first', '1' => 'second'],
+]);
+assertSameValue(
+    json_encode($numericKeyedMeta->toWireArray()),
+    json_encode($numericKeyedMeta->toJsonArray()),
+    'toJsonArray() lost object identity for an object with list-shaped keys.'
+);
+
+// An empty _meta object survives as an object rather than becoming [].
+$emptyMeta = $schema->type('Tool')->fromArray([
+    'name' => 'empty-meta',
+    'inputSchema' => ['type' => 'object'],
+    '_meta' => [],
+]);
+assertSameValue(
+    '{"name":"empty-meta","inputSchema":{"type":"object"},"_meta":{}}',
+    json_encode($emptyMeta->toJsonArray()),
+    'toJsonArray() turned an empty _meta object into a list.'
+);
+
 echo "Generic record, dual-revision, union, map, null, identity, immutability, and constraint seams passed.\n";

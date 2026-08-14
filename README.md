@@ -25,6 +25,7 @@ $content->get('text'); // 'Sunny'
 $content->has('annotations'); // false: omitted, not present-null
 $content->toArray(); // plain PHP array; nested objects become arrays
 $content->toWireArray(); // top-level array; nested JSON object/list identity is retained
+$content->toJsonArray(); // nested arrays that still encode to the exact protocol bytes
 json_encode($content, JSON_THROW_ON_ERROR); // JSON wire object
 ```
 
@@ -145,7 +146,11 @@ $list = $type->fromArray([
 ]);
 ```
 
-`toArray()` necessarily normalizes `stdClass` to an array. Use `toWireArray()` when a consumer requires a top-level array but must retain nested JSON objects as `stdClass`; use normal JSON serialization when the top level should also remain an object. Both JSON-ready paths return defensive copies.
+`toArray()` necessarily normalizes `stdClass` to an array. Use `toWireArray()` when a consumer requires a top-level array but must retain nested JSON objects as `stdClass`; use normal JSON serialization when the top level should also remain an object.
+
+Use `toJsonArray()` when a consumer needs to read or rewrite a payload before serializing it. It returns nested arrays, so array access works at every depth, and keeps a declared object as `stdClass` only where a plain array would not encode as a JSON object: when the array is empty, or when its keys form a list. The emitted bytes are identical to `toWireArray()`.
+
+All JSON-ready paths return defensive copies.
 
 For values declared as `unknown`, the schema cannot infer whether an empty PHP array means `{}` or `[]`. Pass `new stdClass()` when caller intent is an object.
 

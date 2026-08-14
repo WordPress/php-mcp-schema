@@ -40,6 +40,14 @@ final class GenericRecord implements Record
         return get_object_vars($this->jsonSerialize());
     }
 
+    /** @return array<string, mixed> */
+    public function toJsonArray(): array
+    {
+        /** @var array<string, mixed> $result */
+        $result = self::toJsonArrayValue($this->data);
+        return $result;
+    }
+
     /** @return mixed */
     public function get(string $key)
     {
@@ -127,6 +135,53 @@ final class GenericRecord implements Record
             $result[$key] = self::toPlainArrayValue($item);
         }
         return $result;
+    }
+
+    /**
+     * Converts to nested arrays, keeping an object as stdClass whenever a plain
+     * array would encode as something other than a JSON object.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function toJsonArrayValue($value)
+    {
+        if ($value instanceof self) {
+            return self::asObjectIfNeeded($value->toJsonArray());
+        }
+        if ($value instanceof stdClass) {
+            $result = [];
+            foreach (get_object_vars($value) as $key => $item) {
+                $result[$key] = self::toJsonArrayValue($item);
+            }
+            return self::asObjectIfNeeded($result);
+        }
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $result = [];
+        foreach ($value as $key => $item) {
+            $result[$key] = self::toJsonArrayValue($item);
+        }
+        return $result;
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     * @return array<array-key, mixed>|stdClass
+     */
+    private static function asObjectIfNeeded(array $value)
+    {
+        if ([] !== $value && array_keys($value) !== range(0, count($value) - 1)) {
+            return $value;
+        }
+
+        $object = new stdClass();
+        foreach ($value as $key => $item) {
+            $object->{(string) $key} = $item;
+        }
+        return $object;
     }
 
     /**

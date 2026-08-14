@@ -25,6 +25,20 @@ interface Record extends JsonSerializable
     public function toWireArray(): array;
 
     /**
+     * Returns nested PHP arrays that still encode to the exact protocol bytes.
+     *
+     * Unlike toArray(), a value the revision declares as an object stays a
+     * stdClass whenever a plain array would not encode as a JSON object, that
+     * is when the array is empty or its keys form a list. Consumers that read
+     * or rewrite a payload before serialising it want this shape: array access
+     * works everywhere it did before, and json_encode still emits {} where the
+     * protocol requires an object.
+     *
+     * @return array<string, mixed>
+     */
+    public function toJsonArray(): array;
+
+    /**
      * @template K of key-of<TFields>
      * @param K $key
      * @return TFields[K]

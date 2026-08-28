@@ -86,37 +86,25 @@ export function effectiveObject(name, definitions, seen = new Set()) {
   const schema = definitions[name];
   if (!schema) throw new Error(`Unknown definition ${name}`);
   const nextSeen = new Set([...seen, name]);
-  const result = {
-    properties: {},
-    required: new Set(),
-    additionalProperties: schema.additionalProperties,
-  };
-
-  if (schema.$ref) {
-    mergeEffective(result, effectiveObject(referenceName(schema.$ref), definitions, nextSeen));
-  }
-  for (const member of schema.allOf || []) {
-    if (member.$ref) {
-      mergeEffective(result, effectiveObject(referenceName(member.$ref), definitions, nextSeen));
-    } else {
-      mergeEffective(result, effectiveInlineObject(member, definitions, nextSeen));
-    }
-  }
-  mergeEffective(result, effectiveInlineObject(schema, definitions, nextSeen));
-  return result;
+  return effectiveInlineObject(schema, definitions, nextSeen);
 }
 
 function effectiveInlineObject(schema, definitions, seen) {
   const result = {
-    properties: { ...(schema.properties || {}) },
-    required: new Set(schema.required || []),
-    additionalProperties: schema.additionalProperties,
+    properties: {},
+    required: new Set(),
+    additionalProperties: undefined,
   };
   if (schema.$ref) mergeEffective(result, effectiveObject(referenceName(schema.$ref), definitions, seen));
   for (const member of schema.allOf || []) {
     if (member.$ref) mergeEffective(result, effectiveObject(referenceName(member.$ref), definitions, seen));
     else mergeEffective(result, effectiveInlineObject(member, definitions, seen));
   }
+  mergeEffective(result, {
+    properties: { ...(schema.properties || {}) },
+    required: new Set(schema.required || []),
+    additionalProperties: schema.additionalProperties,
+  });
   return result;
 }
 

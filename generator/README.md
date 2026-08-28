@@ -1,60 +1,47 @@
-# MCP PHP Schema Generator
+# MCP PHP schema generator
 
-TypeScript generator that creates PHP DTOs from the official MCP TypeScript schema.
+This directory contains the development-only generator for
+`wordpress/php-mcp-schema`. Production installs do not include it or its AJV
+development dependency.
 
-## Setup
+The generator consumes only the commit-pinned canonical files under
+`resources/schema/`. Normal generation is offline. It writes one guarded
+`src/Generated/` subtree containing:
+
+- one complete PHP-literal catalog per exact revision;
+- shared records for compatible named objects;
+- kind-specific record and contract symbols;
+- enum value constants; and
+- exact-revision definition and directional message availability.
+
+Handwritten runtime files live outside `src/Generated/` and are never part of
+the generator's deletion boundary.
+
+## Install and verify
 
 ```bash
+cd generator
 npm install
-npm run build
+npm run verify
 ```
 
-## Running the Generator
+`npm run verify` checks JavaScript syntax, AJV fixtures, pinned source digests,
+the all-pairs compatibility audit, and deterministic generated output.
 
-The generator requires a configuration file that specifies the schema version. Config files are located in `config/`.
-
-**Available versions:**
-- `2024-11-05.json` - Initial MCP release
-- `2025-03-26.json`
-- `2025-06-18.json`
-- `2025-11-25.json` - Latest
-
-**Generate PHP schema:**
+## Update canonical sources
 
 ```bash
-npx mcp-php-generator generate -c config/2025-11-25.json
+cd generator
+npm run schemas:update
+npm run audit
+npm run generate
 ```
 
-**Generate and run PHPStan validation:**
+`schemas:update` downloads only the commit-pinned URLs in
+`schema-sources.json` and rejects a digest mismatch. Adding a revision also
+requires a source-cited compatibility classification for every comparison with
+the still-supported revisions. `audit` fails until every generated difference
+has an explicit classification.
 
-```bash
-npm run generate:check -- -c config/2025-11-25.json
-```
-
-## CLI Options
-
-```bash
-npx mcp-php-generator generate --help
-
-Options:
-  -c, --config <file>      Configuration file (required)
-  -o, --output <dir>       Output directory (overrides config)
-  -n, --namespace <ns>     PHP namespace (overrides config)
-  -p, --php-version <ver>  PHP version (overrides config)
-  --builders               Generate builder classes
-  --no-factories           Disable factory generation
-  --dry-run                Show what would be generated without writing files
-  --fresh                  Force fresh fetch from GitHub (ignore cache)
-  --verbose                Enable verbose output
-```
-
-## Other Commands
-
-```bash
-npm run build                        # Compile TypeScript
-npm run lint                         # Run ESLint
-npm run format                       # Run Prettier
-npx mcp-php-generator info           # Show generator info
-npx mcp-php-generator configs        # List available config files
-npx mcp-php-generator clear-cache    # Clear schema cache
-```
+Review generated changes and run `npm run verify` before committing them. Never
+edit files under `src/Generated/` directly.

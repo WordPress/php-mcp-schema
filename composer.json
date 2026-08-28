@@ -1,12 +1,11 @@
 {
     "name": "wordpress/php-mcp-schema",
-    "description": "PHP DTOs for the Model Context Protocol (MCP) specification",
+    "description": "Exact-revision PHP schema runtime for the Model Context Protocol (MCP)",
     "type": "library",
     "license": "GPL-2.0-or-later",
     "keywords": [
         "mcp",
         "model-context-protocol",
-        "dto",
         "schema",
         "php"
     ],
@@ -25,6 +24,10 @@
     },
     "autoload": {
         "psr-4": {
+            "WP\\McpSchema\\Contract\\": "src/Generated/Contract/",
+            "WP\\McpSchema\\Generated\\": "src/Generated/",
+            "WP\\McpSchema\\Record\\": "src/Generated/Record/",
+            "WP\\McpSchema\\Value\\": "src/Generated/Value/",
             "WP\\McpSchema\\": "src/"
         }
     },

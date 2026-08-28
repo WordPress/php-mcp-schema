@@ -5,8 +5,9 @@
 /.github                export-ignore
 /.idea                  export-ignore
 /generator              export-ignore
-/skill                  export-ignore
 /docs                   export-ignore
+/resources              export-ignore
+/tests                  export-ignore
 
 # Files
 /.gitattributes         export-ignore
@@ -15,6 +16,7 @@
 /composer.lock          export-ignore
 /CONTRIBUTING.md        export-ignore
 /phpstan.neon           export-ignore
+/phpunit.xml.dist       export-ignore
 
 # Patterns
 *.DS_Store              export-ignore

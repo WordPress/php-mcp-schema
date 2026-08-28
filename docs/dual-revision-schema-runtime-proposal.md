@@ -16,8 +16,8 @@ revision-selected runtime. It consumes the canonical `schema.json` files for MCP
 hydrates values into one shared set of concrete logical record classes.
 
 The proposal is not complete until MCP Adapter has switched entirely to the new
-records and its existing tools, resources, prompts, initialization, errors,
-HTTP transport, and STDIO transport work end to end under both revisions.
+records and its revision-valid lifecycle, tools, resources, prompts, errors,
+HTTP transport, and STDIO transport flows work end to end.
 
 This is one proposal across two repositories, not a sequence of separately
 approved prototypes.
@@ -52,23 +52,30 @@ The complete supported set is exactly:
 - `2026-07-28`
 
 MCP Adapter will not advertise or validate `2024-11-05`, `2025-03-26`, or
-`2025-06-18`.
+`2025-06-18`. It never treats an unknown identifier as a compatible range or
+routes it through the newest catalog. Protocol code uses exact revision names;
+it does not group revisions under behavioral labels.
 
-When a client requests an unsupported or unknown revision, MCP Adapter
-counter-proposes `2025-11-25`. The client either accepts that supported revision
-or disconnects. Counter-proposal does not mean the requested revision is
-supported.
+Unsupported-version behavior follows the selected request flow. During a
+`2025-11-25` `initialize` exchange, the server may counter-propose exact
+`2025-11-25`. A request using the `2026-07-28` per-request envelope with an
+unsupported version receives canonical `UnsupportedProtocolVersionError`
+`-32022`, including the requested identifier and exact supported identifiers.
+The client decides whether to retry through another revision's request flow.
 
 ## What completeness means
 
 `php-mcp-schema` supports the complete canonical structural schemas for both
 revisions.
 
-MCP Adapter supports its complete existing server feature set under both
-revisions:
+MCP Adapter never exposes a method outside the selected revision. Its callable
+and advertised surface is the intersection of canonical message availability
+and handlers it actually implements. It preserves the same logical product
+capability only where that concept exists. Its supported product surface
+includes:
 
-- initialization and negotiation;
-- ping;
+- `initialize` and `ping` under `2025-11-25`;
+- `server/discover` and per-request metadata under `2026-07-28`;
 - tool discovery and calls;
 - resource and resource-template discovery;
 - resource reads;
@@ -77,9 +84,13 @@ revisions:
 - HTTP and STDIO transports; and
 - existing execution, permission, filter, and observability behavior.
 
-The proposal does not add new Adapter product capabilities. Sampling,
-elicitation, tasks, continuation, or other optional MCP features remain
-unadvertised unless they already exist and work in `trunk`.
+The schema package remains complete even where MCP Adapter does not implement an
+optional product capability. MCP Adapter implements mandatory mechanisms needed
+to participate in a selected revision and replacements needed for a logical
+capability it already exposes. Sampling, elicitation, tasks, continuation, or
+other optional features remain unadvertised unless they already exist and work
+in `trunk`. A removed method is unavailable even if an old handler still exists;
+a schema definition alone does not advertise an unimplemented feature.
 
 ## Package ownership
 
@@ -88,6 +99,8 @@ unadvertised unless they already exist and work in `trunk`.
 - canonical revision sources and SHA-256 verification;
 - deterministic generated PHP catalogs;
 - exact revision validation;
+- exact definition and directional message availability derived from each
+  catalog;
 - union selection and recursive hydration;
 - omitted versus present-null identity;
 - JSON object versus list identity;
@@ -97,9 +110,12 @@ unadvertised unless they already exist and work in `trunk`.
 
 ### MCP Adapter owns
 
-- protocol negotiation and counter-proposal policy;
+- exact-revision negotiation policy;
 - the lifetime of a selected revision;
+- one immutable request context carrying the selected schema, capabilities,
+  identity, and transport metadata;
 - HTTP, STDIO, headers, and sessions;
+- exact-revision wire profiles and implemented-handler availability;
 - revision-neutral component registration;
 - WordPress Abilities integration;
 - execution and permissions;
@@ -136,8 +152,15 @@ It generates:
 
 - one deterministic PHP catalog for `2025-11-25`;
 - one deterministic PHP catalog for `2026-07-28`;
-- one shared concrete class per named record-compatible MCP type;
-- the small set of meaningful public union interfaces; and
+- one shared concrete class per compatible named record type present in any
+  supported revision;
+- kind-specific record and contract symbols when the same canonical name changes
+  between an object, union, or alias;
+- meaningful public union interfaces for revisions where those unions are
+  canonical;
+- exact definition availability plus request, notification, and embedded-input
+  availability keyed by protocol direction and message kind;
+- a reviewable compatibility manifest; and
 - small constant classes for named scalar values consumers actually use.
 
 Each catalog is a direct PHP-literal translation of the canonical JSON Schema
@@ -147,19 +170,40 @@ language, per-definition fragment graph, generated executable validator,
 revision delta format, or generated PHPStan shape universe.
 
 The generator audits exactly the schema positions, keywords, reference forms,
-and combinations used by the two supported documents. An unknown construct
-fails generation instead of being ignored.
+and combinations used by the supported documents. It compares a newly added
+revision against every still-supported revision. The compatibility manifest
+combines a generated structural diff with a checked-in human classification
+file. The human input cites exact specification sources for lifecycle,
+transport, directional semantics, deprecation, and Adapter projection
+requirements that canonical JSON Schema cannot express. The generator verifies
+that every structural change is classified and emits the merged reviewable
+manifest. An unknown or unclassified construct fails generation instead of
+being ignored.
 
 Generated files live in a dedicated generated subtree. The generator replaces
 only that resolved subtree; handwritten providers, interpreters, exceptions,
 and record infrastructure remain outside its deletion boundary.
 
 Before generating getters, the generator compares every same-named definition
-across both revisions. Additive optional fields share one record. Compatible
-field changes use the narrowest honest union or widened PHPDoc. An incompatible
-meaning or callable getter contract either becomes a genuinely different
-logical record or fails generation for an explicit design decision. It is never
-silently widened to `mixed`.
+across all supported revisions. Compatible objects share one class whose named
+getters cover the union of compatible declared fields. Added, removed, or
+optional fields use the narrowest honest nullable or union PHPDoc. A field is
+never silently widened to `mixed`. An incompatible meaning or callable getter
+contract fails generation for an explicit design decision.
+
+When a canonical name changes kind, the PHP surface remains honest rather than
+inventing a cross-revision structural contract. For example,
+`Contract\ClientNotification` is a valid construction root under `2025-11-25`,
+where the definition is a union, while `Record\ClientNotification` is valid
+under `2026-07-28`, where it is an object. Each symbol is accepted only by the
+catalogs where that kind is canonical.
+
+A `$ref` alias that resolves transitively to an object receives its own nominal
+record class without wrapping the referenced record. For example,
+`Contract\ClientResult` is the 2025 union root and `Record\ClientResult` is the
+2026 object-alias root hydrated directly with fields declared through `Result`.
+Scalar, list, and mixed aliases remain native or internal. This is generated
+nominal construction, not `class_alias`, a proxy, or a facade.
 
 ## Runtime API
 
@@ -217,8 +261,11 @@ WP\McpSchema\Value\Role
 Definition names are globally unique, so recreating the old
 Client/Server/Common/Domain/Subdomain tree adds no runtime meaning.
 
-An abstract `Record` directly owns immutable field values and presence. Concrete
-record classes extend it; they do not wrap another generic-record object.
+An abstract `Record` directly owns immutable field values, actual key presence,
+and a revision-free declared-field mask captured during hydration. Concrete
+record classes extend it; they do not wrap another generic-record object. The
+mask records which instance keys were declared by the selected catalog without
+retaining a revision identifier or schema service.
 
 Records expose:
 
@@ -235,6 +282,11 @@ $record->jsonSerialize();
 - `has()` distinguishes omitted fields from fields explicitly containing null.
 - A declared field or an instance-present extension field is accessible through
   `get()`.
+- A generated named getter reads only a field declared by the schema that
+  hydrated that instance. If another revision removed the field, an identically
+  named open-schema extension does not regain the removed field's typed meaning.
+  For example, a 2026 `Tool` may preserve an opaque `execution` extension through
+  `get('execution')`, while `getExecution()` returns null.
 - An omitted declared field returns null from `get()` and has `has() === false`.
 - An absent undeclared field throws instead of silently returning null.
 - `jsonSerialize()` is the only complete record output.
@@ -257,6 +309,14 @@ Records retain finalized wire keys and values, not a schema service or revision
 reference. A record cannot be silently reinterpreted under another revision. To
 move a value between revisions, reconstruct it through the target schema and
 let that schema validate it.
+
+Canonical objects that permit additional properties retain instance-present
+extension keys exactly. Removed standardized fields may therefore arrive as
+opaque extensions when the newer canonical object remains open. Generic access
+and serialization preserve them, but named getters do not interpret them using
+the removed revision's schema. Adapter-owned projections omit removed
+standardized fields from newer wire output instead of deliberately advertising
+them as extensions.
 
 Programmatic input may contain nested immutable `Record` instances. The common
 hydrator reads their defensive serialized value and validates it again under
@@ -284,15 +344,19 @@ are no generated union factories. Marker interfaces are generated only for real
 object contracts used by consumers, such as content blocks; the generator does
 not create an interface for every structural union.
 
+Definition classes and contracts form the union of every still-supported
+revision's public roster. Revision-exclusive symbols remain while any supported
+catalog needs them. Removing a supported revision, and any symbols used only by
+it, is an explicit package breaking change.
+
 ## Validation
 
 Validation is always on. Every call to `fromArray()`, `fromValue()`, or
 `fromJson()` validates against the complete selected MCP definition before
 returning a record.
 
-This matches the official TypeScript SDK principle: wire codecs validate
-requests before dispatch, responses are parsed against result schemas, and
-declared tool schemas are enforced at tool boundaries. There is no production
+Requests are validated before dispatch, results before encoding, and declared
+tool schemas at their existing Ability-owned boundary. There is no production
 mode in which protocol correctness is disabled.
 
 The PHP interpreter supports exactly the JSON Schema keywords and combinations
@@ -309,6 +373,12 @@ semantic-overlay framework. If an end-to-end test proves one specific normative
 MCP rule is absent from the canonical schema and required for correct behavior,
 that rule is implemented directly, named, sourced, and tested.
 
+Compatibility tolerance is not a validation mode. A wire profile may apply a
+direction-specific receiver rule only when the specification explicitly requires
+it. Senders still produce the selected revision's complete canonical form. Each
+receiver exception is sourced and tested; there is no general coercion or loose
+validation switch.
+
 Validation rejects:
 
 - incorrect object/list identity;
@@ -324,7 +394,7 @@ Validation rejects:
 - resources, closures, and unserializable values; and
 - values beyond the shared depth boundary.
 
-Errors use a small package exception hierarchy. Legacy DTO exception classes and
+Errors use a small package exception hierarchy. Removed DTO exception classes and
 exact constructor error messages are not compatibility requirements.
 
 ## Exact JSON behavior
@@ -354,16 +424,19 @@ callbacks, permissions, and observability data.
 
 During registration, each component:
 
-1. projects its protocol data through the 2025 schema;
-2. projects the same logical component through the 2026 schema;
-3. rejects and logs registration if either projection is invalid; and
-4. caches one immutable record per supported revision.
+1. stores the existing Ability configuration and callbacks without requiring
+   revision-specific changes from the Ability author;
+2. projects the logical component independently through every supported schema;
+3. supplies revision-required protocol fields, translates safe replacements,
+   and omits removed standardized fields from newer wire output;
+4. caches every successful immutable projection; and
+5. records and logs the exact revision and reason for every failed projection.
 
-This proves dual-revision validity when the component is registered instead of
-failing when the first 2026 client arrives. It does not duplicate record classes
-or component source. It is intentionally stricter and earlier than current DTO
-behavior: a component invalid for either supported revision is unavailable to
-both, and its existing registration error/logging path must make that visible.
+A component is exposed only under revisions with a valid projection. Failure in
+one revision does not remove it from revisions where it remains valid. Global
+registration fails only when no supported revision can represent the component.
+This preserves existing Ability behavior while keeping selected-revision wire
+validation exact.
 
 Because Adapter registration projects every component twice, an Adapter process
 intentionally loads both complete revision catalogs during startup. A generic
@@ -375,8 +448,8 @@ constructed.
 
 ### Inbound requests
 
-MCP Adapter owns one minimal JSON decoder because initialization must inspect the
-requested protocol revision before a selected schema can validate the message.
+MCP Adapter owns one minimal JSON decoder because the request flow must identify
+an exact revision before a selected schema can validate the message.
 
 The decoder:
 
@@ -386,22 +459,45 @@ The decoder:
 3. rejects malformed JSON, depth violations, invalid numbers, and unsupported
    batches;
 4. extracts only the envelope data required for negotiation;
-5. selects or counter-proposes a supported revision; and
+5. applies the exact negotiation rule for the request flow and selects a
+   supported revision; and
 6. passes the decoded value to the selected schema's `fromValue()` method.
 
-After initialization, transport or session context supplies the selected
-revision before request hydration. The decoder does not duplicate schema
-validation.
+One immutable request context supplies the exact revision, selected schema,
+client capabilities and identity, and transport metadata before hydration. For
+`2025-11-25`, initialization establishes the values later supplied by session
+context. For `2026-07-28`, each request constructs them from its headers and
+`_meta`. Handlers receive the same context contract without global mutable
+revision state. The decoder does not duplicate schema validation.
 
 ### Handling and output
 
 Handlers receive validated records and continue to own the same execution and
-permission behavior as `trunk`. They construct result records through the
-selected schema.
+permission behavior as `trunk`. Existing Ability callbacks return the same
+logical results. The selected wire profile projects them to the exact revision,
+injects mandatory protocol-owned fields, and constructs the final result through
+the selected schema.
 
-One `WireEncoder` emits both revisions. It receives the selected schema and has
-small explicit branches only where 2025 and 2026 envelopes genuinely differ.
-There is no abstract encoder, encoder factory, or encoder subclass per revision.
+One decoding/encoding orchestrator selects a function-only wire profile by exact
+revision. A profile owns method availability, context construction, required
+headers, lifecycle behavior, envelope transformations, and real transport
+differences. Shared JSON parsing, validation, hydration, dispatch, and
+serialization remain implemented once. Profiles use exact identifiers such as
+`V2025_11_25` and `V2026_07_28`; there is no inheritance hierarchy or behavioral
+revision label.
+
+For existing Adapter capabilities, the `2026-07-28` profile supplies
+`resultType: "complete"`, `ttlMs: 0`, and `cacheScope: "private"` where those
+fields are required. It does not produce `input_required` unless Adapter
+explicitly implements that optional product capability.
+
+The generator derives canonical message availability from aggregate definitions
+and method constants, keyed by sender direction and by request, notification, or
+embedded-input kind. Adapter declares the handlers it implements. Only the
+applicable request/notification availability and handler intersection is
+callable for a selected revision. Embedded 2026 input requests never become
+ordinary client-to-server RPCs. An old handler cannot resurrect a removed method
+and an unimplemented canonical definition is not advertised.
 
 HTTP- and STDIO-specific behavior remains in the existing transports. Required
 2026 headers, envelopes, and negative behavior are implemented from the
@@ -409,13 +505,21 @@ official revision specification without adding unrelated Adapter features.
 
 ## Adapter public surface
 
-The switch is total:
+The schema switch is total while the ordinary Ability surface remains
+compatible:
 
 - no production DTO imports;
 - no DTO aliases, wrappers, proxies, `class_alias`, or dual returns;
 - no Adapter-owned record substitutes;
 - no compatibility mode; and
 - no old DTO generator or DTO documentation in `php-mcp-schema`.
+
+Existing Ability registration data, schemas, permission callbacks, execution
+callbacks, and logical results do not require revision-specific rewrites.
+Existing hook and filter names, ordering, and original arguments remain.
+DTO-specific imports, constructors, factories, serialization methods, and typed
+filter payload assumptions are intentional public breaks documented by the
+migration guide.
 
 Named record getters remain because current MCP Adapter `trunk` uses 42 schema
 getter calls across 11 production files, and its schema-aware tests use hundreds
@@ -451,8 +555,14 @@ disabled. Proven Adapter-specific semantic checks that canonical schemas do not
 own remain at their existing boundary and run unconditionally.
 
 Server creation, transport interfaces, execution hooks, permission callbacks,
-and observability contracts remain unchanged unless an exact 2026 transport
+and observability contracts remain unchanged unless an exact revision
 requirement forces a narrow revision-bound change.
+
+Deprecation is distinct from removal. Canonical deprecated definitions continue
+to validate and already-implemented deprecated Adapter behavior continues to
+work. Generated documentation records the exact deprecation. Adapter does not
+add a deprecated optional capability merely because the schema package models
+it. Only actual removal changes availability.
 
 ## Documentation and migration
 
@@ -481,6 +591,8 @@ The proposal is complete only when all of the following are demonstrated.
   fixtures.
 - AJV and PHP validity results agree for the structural corpus.
 - Every named definition is classified and generated or explicitly internal.
+- Every addition, removal, kind change, field change, and method change is
+  classified by the compatibility manifest.
 - Both revisions hydrate the expected shared concrete classes.
 - Omitted/null, object/list, numeric, depth, copying, and serialization behavior
   is exact.
@@ -496,8 +608,12 @@ The proposal is complete only when all of the following are demonstrated.
   change to its shared-record representation, any explicit Adapter branch, a
   positive wire test, and a negative cross-revision test.
 - Existing 2025 behavior conforms to the 2025 specification.
-- Every existing Adapter capability works under 2026.
-- Unsupported revisions counter-propose 2025.
+- Each selected revision exposes only its canonical methods intersected with
+  Adapter's implemented handlers.
+- Existing logical Adapter capabilities work without Ability-author changes
+  wherever the selected revision still defines or replaces them.
+- `2025-11-25` counter-proposal and `2026-07-28` unsupported-version error flows
+  match their exact specifications.
 - Invalid requests fail before handlers execute.
 - Invalid results fail before encoding.
 - HTTP and STDIO raw-wire corpora cover both revisions and negative cases.
@@ -549,23 +665,31 @@ Delete or do not introduce:
 - multiple full-record serialization methods;
 - unchecked record constructors;
 - validation-disabled modes;
-- per-revision encoder hierarchies;
+- inheritance-based encoder hierarchies or behavioral revision labels;
 - runtime loading of canonical JSON;
 - production validation dependencies;
 - new MCP Adapter capabilities unrelated to the revision switch; and
 - release work before the proposal is accepted.
 
+Canonical identifiers are preserved verbatim even when an upstream definition
+name contains a word that project-authored revision categories may not use, such
+as `LegacyTitledEnumSchema`. The naming prohibition applies to project-authored
+revision groupings, variables, classes, and profiles; it never renames canonical
+schema definitions.
+
 ## Why this is future-proof enough
 
-A future MCP revision adds one canonical source and one generated catalog. It
-reuses existing logical records when their public getter contracts remain
-compatible and adds new records only for genuinely new named concepts.
+A future MCP revision adds one canonical source, one generated catalog, and one
+exact-revision wire profile. It reuses existing logical records when their
+public getter contracts remain compatible, adds new records only for genuinely
+new named concepts, and makes removals explicit through availability maps.
 
 The package does not promise that every future breaking schema can fit a minor
 release. If a revision requires an incompatible getter contract, normal package
-versioning applies. The important property is that revision support is expressed
-through catalogs and validation rather than mechanically duplicating the full
-class tree.
+versioning applies. The important property is that breaking changes fail during
+the generated compatibility audit and are localized to catalogs, availability,
+projection, and wire profiles rather than mechanically duplicating the full
+class tree or shifting failures to every consumer.
 
 This proposal intentionally avoids speculative extension points. Future
 requirements should change the design only when an actual canonical revision or

@@ -1,15 +1,18 @@
 # PHP MCP Schema
 
-A PHP representation of the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) schema types.
+A dependency-free PHP 7.4+ runtime for the canonical
+[Model Context Protocol](https://modelcontextprotocol.io/) schemas.
 
-This package provides Data Transfer Objects (DTOs), Enums, and Unions that mirror the official MCP TypeScript schema.
-It is **not** an SDK, client, or server implementation;
-just the type definitions for building your own MCP-compatible applications in PHP.
+The package validates and hydrates exact MCP revisions into immutable shared
+records. It is a schema package, not an MCP client, server, or transport SDK.
 
-> **Development proposal:** The `feature/dual-revision-schema-runtime` branch
-> proposes replacing this DTO implementation with one revision-selected runtime
-> for MCP `2025-11-25` and `2026-07-28`, together with a complete MCP Adapter
-> switch. See [the proposal](docs/dual-revision-schema-runtime-proposal.md).
+Supported revisions:
+
+- `2025-11-25`
+- `2026-07-28`
+
+Unknown identifiers are rejected. The runtime never selects a revision by a
+range or nearest-version rule.
 
 ## Installation
 
@@ -17,124 +20,128 @@ just the type definitions for building your own MCP-compatible applications in P
 composer require wordpress/php-mcp-schema
 ```
 
-Requires PHP 7.4 or higher.
+## Select and use a schema
 
-## Usage
-
-### Creating a Tool Definition
+Choose the exact revision before constructing any protocol value:
 
 ```php
-use WP\McpSchema\Server\Tools\DTO\Tool;
+use WP\McpSchema\Record\Tool;
+use WP\McpSchema\Schemas;
 
-$tool = Tool::fromArray([
+$schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+
+$tool = $schema->fromArray(Tool::class, array(
     'name' => 'get_weather',
     'description' => 'Get current weather for a location',
-    'inputSchema' => [
+    'inputSchema' => array(
         'type' => 'object',
-        'properties' => [
-            'location' => ['type' => 'string', 'description' => 'City name'],
-        ],
-        'required' => ['location'],
-    ],
-]);
+        'properties' => array(
+            'location' => array('type' => 'string'),
+        ),
+        'required' => array('location'),
+    ),
+));
+
+echo $tool->getName();
+echo json_encode($tool, JSON_THROW_ON_ERROR);
 ```
 
-### Serialization (toArray)
-
-Convert a DTO to a plain array for JSON encoding:
-
-```php
-use WP\McpSchema\Server\Tools\DTO\Tool;
-
-$tool = Tool::fromArray([
-    'name' => 'get_weather',
-    'description' => 'Get current weather for a location',
-    'inputSchema' => ['type' => 'object', 'properties' => []],
-]);
-
-$array = $tool->toArray();
-$json  = json_encode($array); // Ready to send over the wire
-```
-
-### Deserialization (fromArray)
-
-Decode incoming JSON into a fully typed DTO:
+`fromArray()` is for PHP associative-array construction. `fromValue()` accepts
+decoded `stdClass`/list graphs and existing immutable records. `fromJson()`
+accepts raw JSON and preserves object/list identity and numeric-string object
+keys:
 
 ```php
-use WP\McpSchema\Server\Tools\DTO\CallToolRequest;
+use WP\McpSchema\Contract\ClientRequest;
+use WP\McpSchema\Record\CallToolRequest;
+use WP\McpSchema\Schemas;
 
-$json = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_weather","arguments":{"location":"Paris"}}}';
-$data = json_decode($json, true);
+$schema = Schemas::create()->forVersion(Schemas::V2025_11_25);
+$request = $schema->fromJson(
+    ClientRequest::class,
+    '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_weather","arguments":{"location":"Paris"}}}'
+);
 
-$request   = CallToolRequest::fromArray($data);
-$tool_name = $request->getTypedParams()->getName(); // "get_weather"
-$arguments = $request->getTypedParams()->getArguments(); // ['location' => 'Paris']
-```
-
-### Factory / Union Types
-
-Use a factory to resolve polymorphic content blocks without knowing the concrete type up front:
-
-```php
-use WP\McpSchema\Common\Protocol\Factory\ContentBlockFactory;
-use WP\McpSchema\Common\Content\DTO\TextContent;
-
-$block = ContentBlockFactory::fromArray(['type' => 'text', 'text' => 'Hello, world!']);
-
-// $block implements ContentBlockInterface; cast when you need the concrete API
-if ($block instanceof TextContent) {
-    echo $block->getText(); // "Hello, world!"
+if ($request instanceof CallToolRequest) {
+    echo $request->getParams()->getName();
+    $arguments = $request->getParams()->getArguments();
+    if ($arguments !== null) {
+        echo $arguments->location;
+    }
 }
 ```
 
-### JSON-RPC Messages
+Useful union construction roots live under `WP\McpSchema\Contract`. Official
+union order determines which concrete `WP\McpSchema\Record` is returned.
 
-Construct a generic JSON-RPC request for any MCP method:
+## Records and wire identity
+
+Records are immutable. Named getters read fields declared by the selected
+revision. Generic access preserves open-schema extension data:
 
 ```php
-use WP\McpSchema\Common\JsonRpc\DTO\JSONRPCRequest;
-
-$request = JSONRPCRequest::fromArray([
-    'jsonrpc' => '2.0',
-    'id'      => 1,
-    'method'  => 'tools/list',
-]);
-
-$json = json_encode($request->toArray());
+$hasDescription = $tool->has('description');
+$description = $tool->get('description');
+$wireObject = $tool->jsonSerialize();
 ```
 
-## Available Types
+`has()` distinguishes omission from an explicit `null`. `get()` reads declared
+fields and present extension keys, and rejects unknown absent keys.
+`jsonSerialize()` returns a defensive `stdClass` and is the complete wire-output
+API.
 
-### Server Types (`WP\McpSchema\Server\`)
+Sequential PHP arrays are JSON lists. Associative arrays are JSON objects. Use
+`new stdClass()` when an unconstrained empty JSON object must be unambiguous.
 
-- **Tools** - `Tool`, `CallToolRequest`, `CallToolResult`, `ListToolsRequest`, `ListToolsResult`
-- **Resources** - `Resource`, `ResourceTemplate`, `ReadResourceRequest`, `ReadResourceResult`
-- **Prompts** - `Prompt`, `PromptMessage`, `GetPromptRequest`, `GetPromptResult`
-- **Logging** - `LoggingMessageNotification`, `SetLevelRequest`
+## Exact message availability
 
-### Client Types (`WP\McpSchema\Client\`)
+The selected schema exposes generated directional checks:
 
-- **Sampling** - `CreateMessageRequest`, `CreateMessageResult`, `SamplingMessage`
-- **Elicitation** - `ElicitRequest`, `ElicitResult`
-- **Roots** - `ListRootsRequest`, `ListRootsResult`, `Root`
+```php
+$schema->allowsClientRequest('ping');
+$schema->allowsClientNotification('notifications/initialized');
+$schema->allowsServerRequest('sampling/createMessage');
+$schema->allowsServerNotification('notifications/tools/list_changed');
+$schema->allowsEmbeddedInput('elicitation/create');
+```
 
-### Common Types (`WP\McpSchema\Common\`)
+For example, `ping` is valid under `2025-11-25` and absent under `2026-07-28`;
+`server/discover` is valid under `2026-07-28` and absent under `2025-11-25`.
 
-- **Protocol** - `InitializeRequest`, `InitializeResult`, `PingRequest`
-- **Content** - `TextContent`, `ImageContent`, `AudioContent`
-- **JSON-RPC** - `JSONRPCRequest`, `JSONRPCNotification`, `JSONRPCResultResponse`, `JSONRPCErrorResponse`
+## Public namespaces
 
-## Generator
+- `WP\McpSchema\Schemas` and `WP\McpSchema\Schema` — exact revision selection
+  and construction.
+- `WP\McpSchema\Record` — immutable named objects shared where compatible.
+- `WP\McpSchema\Contract` — useful union construction roots.
+- `WP\McpSchema\Value` — string constants for canonical enum-like values.
+- `WP\McpSchema\Exception` — stable selection, validation, JSON, availability,
+  and field-access failures.
 
-The PHP code in `src/` is auto-generated from the official MCP TypeScript schema. The generator is located in the `generator/` directory and is not included in the Composer package.
+See [the migration guide](docs/MIGRATION.md) when moving from the removed DTO
+API.
 
-See [generator/README.md](generator/README.md) for setup and usage instructions.
+## Development
+
+Canonical schemas are pinned under `resources/schema/`. The development-only
+plain Node generator writes the guarded `src/Generated/` subtree; handwritten
+runtime code lives elsewhere in `src/`.
+
+```bash
+composer install
+composer test
+composer analyse
+composer validate --strict
+
+cd generator
+npm install
+npm run verify
+```
+
+Never edit `src/Generated/` directly. See
+[the generator guide](generator/README.md) and
+[the architecture proposal](docs/dual-revision-schema-runtime-proposal.md).
 
 ## License
 
-GPL-2.0-or-later - see [LICENSE.md](LICENSE.md) for details.
-
-## Links
-
-- [Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)
-- [MCP GitHub Repository](https://github.com/modelcontextprotocol/modelcontextprotocol)
+GPL-2.0-or-later. See [LICENSE.md](LICENSE.md).

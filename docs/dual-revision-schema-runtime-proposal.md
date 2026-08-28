@@ -1,16 +1,20 @@
 # Proposal: one PHP schema runtime for MCP 2025 and 2026
 
-Status: approved for end-to-end implementation on the proposal branches. This
-document describes proposed behavior, not the currently released package.
+Status: approved for end-to-end implementation on the proposal branches. The
+schema-package half is implemented on its proposal branch; MCP Adapter and final
+cross-repository artifact evidence remain incomplete. This is not currently
+released package behavior.
 
 ## Executive summary
 
-`php-mcp-schema` currently generates a concrete DTO tree from one MCP revision.
-MCP `2026-07-28` introduces breaking schema and wire changes. Generating a
-second revision-specific DTO tree would duplicate a large number of files and
-make every future breaking revision progressively harder to maintain.
+At the proposal baseline, `php-mcp-schema` generated a concrete DTO tree from
+one MCP revision. MCP `2026-07-28` introduces breaking schema and wire changes.
+Generating a second revision-specific DTO tree would duplicate a large number
+of files and make every future breaking revision progressively harder to
+maintain.
 
-This proposal replaces the DTO system with one small, dependency-free,
+The schema proposal branch replaces the DTO system with one small,
+dependency-free,
 revision-selected runtime. It consumes the canonical `schema.json` files for MCP
 `2025-11-25` and `2026-07-28`, generates one PHP catalog per revision, and
 hydrates values into one shared set of concrete logical record classes.

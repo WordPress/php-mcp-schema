@@ -6,6 +6,11 @@ This package provides Data Transfer Objects (DTOs), Enums, and Unions that mirro
 It is **not** an SDK, client, or server implementation;
 just the type definitions for building your own MCP-compatible applications in PHP.
 
+> **Development proposal:** The `feature/dual-revision-schema-runtime` branch
+> proposes replacing this DTO implementation with one revision-selected runtime
+> for MCP `2025-11-25` and `2026-07-28`, together with a complete MCP Adapter
+> switch. See [the proposal](docs/dual-revision-schema-runtime-proposal.md).
+
 ## Installation
 
 ```bash

@@ -6,6 +6,7 @@
 /.idea                  export-ignore
 /generator              export-ignore
 /skill                  export-ignore
+/docs                   export-ignore
 
 # Files
 /.gitattributes         export-ignore

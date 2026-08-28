@@ -1,17 +1,31 @@
 # Exclude dev-only files and directories from Composer package distribution
 
 # Directories
+/.agents                export-ignore
+/.cache                 export-ignore
 /.claude                export-ignore
 /.github                export-ignore
+/.hyper                 export-ignore
 /.idea                  export-ignore
+/.vscode                export-ignore
+/_notes                 export-ignore
 /generator              export-ignore
 /docs                   export-ignore
+/node_modules           export-ignore
 /resources              export-ignore
 /tests                  export-ignore
+/vendor                 export-ignore
 
 # Files
+/.DS_Store              export-ignore
+/.agentworkbench.json   export-ignore
 /.gitattributes         export-ignore
 /.gitignore             export-ignore
+/.mcp.json              export-ignore
+/.phpactor.json         export-ignore
+/.phpunit.result.cache  export-ignore
+/AGENTS.local.md        export-ignore
+/AGENTS.md              export-ignore
 /CLAUDE.md              export-ignore
 /composer.lock          export-ignore
 /CONTRIBUTING.md        export-ignore

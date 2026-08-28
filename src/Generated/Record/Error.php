@@ -13,11 +13,11 @@ final class Error extends \WP\McpSchema\Record
     public const DEFINITION = 'Error';
 
     /**
-     * @return int
+     * @return float|int
      */
-    public function getCode(): int
+    public function getCode()
     {
-        /** @var int $value */
+        /** @var float|int $value */
         $value = $this->declaredValue('code');
 
         return $value;

@@ -57,11 +57,11 @@ final class RequestMetaObject extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int|null|string
+     * @return float|int|null|string
      */
     public function getProgressToken()
     {
-        /** @var int|null|string $value */
+        /** @var float|int|null|string $value */
         $value = $this->declaredValue('progressToken');
 
         return $value;

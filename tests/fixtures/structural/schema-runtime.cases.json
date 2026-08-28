@@ -157,6 +157,22 @@
       ]
     },
     {
+      "id": "all-of-primitive-refinement",
+      "schema": {
+        "allOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "const": -32022,
+            "type": "integer"
+          }
+        ]
+      },
+      "valid": [-32022],
+      "invalid": [-32021, "-32022", {}]
+    },
+    {
       "id": "typed-additional-properties",
       "schema": {
         "type": "object",

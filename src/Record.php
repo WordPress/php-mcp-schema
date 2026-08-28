@@ -55,6 +55,7 @@ abstract class Record implements \JsonSerializable
     /**
      * @return \stdClass
      */
+    #[\ReturnTypeWillChange]
     final public function jsonSerialize()
     {
         $output = new \stdClass();

@@ -57,11 +57,11 @@ final class ReadResourceResult extends \WP\McpSchema\Record implements \WP\McpSc
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getTtlMs(): ?int
+    public function getTtlMs()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('ttlMs');
 
         return $value;

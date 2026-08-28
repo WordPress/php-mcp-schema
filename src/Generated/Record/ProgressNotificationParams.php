@@ -46,11 +46,11 @@ final class ProgressNotificationParams extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int|string
+     * @return float|int|string
      */
     public function getProgressToken()
     {
-        /** @var int|string $value */
+        /** @var float|int|string $value */
         $value = $this->declaredValue('progressToken');
 
         return $value;

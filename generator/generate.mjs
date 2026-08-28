@@ -81,7 +81,7 @@ function docTypes(schema, definitions, seen = new Set()) {
   if (types.length === 0) return ['mixed'];
   return [...new Set(types.flatMap((type) => {
     if (type === 'string') return ['string'];
-    if (type === 'integer') return ['int'];
+    if (type === 'integer') return ['float', 'int'];
     if (type === 'number') return ['float', 'int'];
     if (type === 'boolean') return ['bool'];
     if (type === 'null') return ['null'];
@@ -142,7 +142,7 @@ function enumConstants(values) {
 }
 
 function catalogBody(version, document, availability) {
-  return `final class ${versionClass(version)}\n{\n    public const VERSION = ${phpString(version)};\n\n    /**\n     * @return array<string, mixed>\n     */\n    public static function document(): array\n    {\n        return ${phpLiteral(stableValue(document), 2)};\n    }\n\n    /**\n     * @return array<string, mixed>\n     */\n    public static function messageAvailability(): array\n    {\n        return ${phpLiteral(stableValue(availability), 2)};\n    }\n}`;
+  return `final class ${versionClass(version)}\n{\n    public const VERSION = ${phpString(version)};\n\n    /**\n     * @return array<string, mixed>\n     */\n    public static function document(): array\n    {\n        return ${phpLiteral(stableValue(document), 2)};\n    }\n\n    /**\n     * @return array{\n     *   clientToServer: array{requests: array<string, string>, notifications: array<string, string>},\n     *   serverToClient: array{requests: array<string, string>, notifications: array<string, string>},\n     *   embeddedInputs: array<string, string>\n     * }\n     */\n    public static function messageAvailability(): array\n    {\n        return ${phpLiteral(stableValue(availability), 2)};\n    }\n}`;
 }
 
 function messageAvailability(definitions) {

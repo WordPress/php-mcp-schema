@@ -13,11 +13,11 @@ final class JSONRPCRequest extends \WP\McpSchema\Record implements \WP\McpSchema
     public const DEFINITION = 'JSONRPCRequest';
 
     /**
-     * @return int|string
+     * @return float|int|string
      */
     public function getId()
     {
-        /** @var int|string $value */
+        /** @var float|int|string $value */
         $value = $this->declaredValue('id');
 
         return $value;

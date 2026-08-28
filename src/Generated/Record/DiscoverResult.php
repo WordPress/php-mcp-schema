@@ -79,11 +79,11 @@ final class DiscoverResult extends \WP\McpSchema\Record implements \WP\McpSchema
     }
 
     /**
-     * @return int
+     * @return float|int
      */
-    public function getTtlMs(): int
+    public function getTtlMs()
     {
-        /** @var int $value */
+        /** @var float|int $value */
         $value = $this->declaredValue('ttlMs');
 
         return $value;

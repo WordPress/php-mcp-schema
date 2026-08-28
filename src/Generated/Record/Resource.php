@@ -79,11 +79,11 @@ final class Resource extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getSize(): ?int
+    public function getSize()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('size');
 
         return $value;

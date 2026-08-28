@@ -13,11 +13,11 @@ final class TaskMetadata extends \WP\McpSchema\Record
     public const DEFINITION = 'TaskMetadata';
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getTtl(): ?int
+    public function getTtl()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('ttl');
 
         return $value;

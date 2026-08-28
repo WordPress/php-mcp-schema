@@ -13,11 +13,11 @@ final class NotificationMetaObject extends \WP\McpSchema\Record
     public const DEFINITION = 'NotificationMetaObject';
 
     /**
-     * @return int|null|string
+     * @return float|int|null|string
      */
     public function getIoModelcontextprotocolSubscriptionId()
     {
-        /** @var int|null|string $value */
+        /** @var float|int|null|string $value */
         $value = $this->declaredValue('io.modelcontextprotocol/subscriptionId');
 
         return $value;

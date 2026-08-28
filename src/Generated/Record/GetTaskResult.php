@@ -46,11 +46,11 @@ final class GetTaskResult extends \WP\McpSchema\Record implements \WP\McpSchema\
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getPollInterval(): ?int
+    public function getPollInterval()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('pollInterval');
 
         return $value;
@@ -90,11 +90,11 @@ final class GetTaskResult extends \WP\McpSchema\Record implements \WP\McpSchema\
     }
 
     /**
-     * @return int
+     * @return float|int
      */
-    public function getTtl(): int
+    public function getTtl()
     {
-        /** @var int $value */
+        /** @var float|int $value */
         $value = $this->declaredValue('ttl');
 
         return $value;

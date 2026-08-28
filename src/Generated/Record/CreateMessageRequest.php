@@ -13,11 +13,11 @@ final class CreateMessageRequest extends \WP\McpSchema\Record implements \WP\Mcp
     public const DEFINITION = 'CreateMessageRequest';
 
     /**
-     * @return int|null|string
+     * @return float|int|null|string
      */
     public function getId()
     {
-        /** @var int|null|string $value */
+        /** @var float|int|null|string $value */
         $value = $this->declaredValue('id');
 
         return $value;

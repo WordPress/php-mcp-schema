@@ -35,11 +35,11 @@ final class CancelledNotificationParams extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int|null|string
+     * @return float|int|null|string
      */
     public function getRequestId()
     {
-        /** @var int|null|string $value */
+        /** @var float|int|null|string $value */
         $value = $this->declaredValue('requestId');
 
         return $value;

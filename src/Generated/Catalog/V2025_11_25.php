@@ -4429,7 +4429,11 @@ This ID is used to match tool results to their corresponding tool uses.',
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *   clientToServer: array{requests: array<string, string>, notifications: array<string, string>},
+     *   serverToClient: array{requests: array<string, string>, notifications: array<string, string>},
+     *   embeddedInputs: array<string, string>
+     * }
      */
     public static function messageAvailability(): array
     {

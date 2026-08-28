@@ -46,22 +46,22 @@ final class UntitledMultiSelectEnumSchema extends \WP\McpSchema\Record implement
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMaxItems(): ?int
+    public function getMaxItems()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('maxItems');
 
         return $value;
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMinItems(): ?int
+    public function getMinItems()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('minItems');
 
         return $value;

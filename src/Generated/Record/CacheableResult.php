@@ -46,11 +46,11 @@ final class CacheableResult extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int
+     * @return float|int
      */
-    public function getTtlMs(): int
+    public function getTtlMs()
     {
-        /** @var int $value */
+        /** @var float|int $value */
         $value = $this->declaredValue('ttlMs');
 
         return $value;

@@ -13,11 +13,11 @@ final class GetPromptRequest extends \WP\McpSchema\Record implements \WP\McpSche
     public const DEFINITION = 'GetPromptRequest';
 
     /**
-     * @return int|string
+     * @return float|int|string
      */
     public function getId()
     {
-        /** @var int|string $value */
+        /** @var float|int|string $value */
         $value = $this->declaredValue('id');
 
         return $value;

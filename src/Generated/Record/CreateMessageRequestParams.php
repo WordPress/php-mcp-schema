@@ -35,11 +35,11 @@ final class CreateMessageRequestParams extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int
+     * @return float|int
      */
-    public function getMaxTokens(): int
+    public function getMaxTokens()
     {
-        /** @var int $value */
+        /** @var float|int $value */
         $value = $this->declaredValue('maxTokens');
 
         return $value;

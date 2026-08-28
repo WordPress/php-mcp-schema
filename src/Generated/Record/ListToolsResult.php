@@ -68,11 +68,11 @@ final class ListToolsResult extends \WP\McpSchema\Record implements \WP\McpSchem
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getTtlMs(): ?int
+    public function getTtlMs()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('ttlMs');
 
         return $value;

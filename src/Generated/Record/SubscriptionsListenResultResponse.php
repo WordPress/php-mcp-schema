@@ -13,11 +13,11 @@ final class SubscriptionsListenResultResponse extends \WP\McpSchema\Record
     public const DEFINITION = 'SubscriptionsListenResultResponse';
 
     /**
-     * @return int|string
+     * @return float|int|string
      */
     public function getId()
     {
-        /** @var int|string $value */
+        /** @var float|int|string $value */
         $value = $this->declaredValue('id');
 
         return $value;

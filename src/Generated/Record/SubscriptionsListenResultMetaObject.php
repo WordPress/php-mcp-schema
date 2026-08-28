@@ -24,11 +24,11 @@ final class SubscriptionsListenResultMetaObject extends \WP\McpSchema\Record
     }
 
     /**
-     * @return int|string
+     * @return float|int|string
      */
     public function getIoModelcontextprotocolSubscriptionId()
     {
-        /** @var int|string $value */
+        /** @var float|int|string $value */
         $value = $this->declaredValue('io.modelcontextprotocol/subscriptionId');
 
         return $value;

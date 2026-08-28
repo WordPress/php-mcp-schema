@@ -4649,7 +4649,11 @@ mutually supported version from this list and retry.',
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *   clientToServer: array{requests: array<string, string>, notifications: array<string, string>},
+     *   serverToClient: array{requests: array<string, string>, notifications: array<string, string>},
+     *   embeddedInputs: array<string, string>
+     * }
      */
     public static function messageAvailability(): array
     {

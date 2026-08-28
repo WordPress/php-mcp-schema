@@ -46,22 +46,22 @@ final class StringSchema extends \WP\McpSchema\Record implements \WP\McpSchema\C
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMaxLength(): ?int
+    public function getMaxLength()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('maxLength');
 
         return $value;
     }
 
     /**
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMinLength(): ?int
+    public function getMinLength()
     {
-        /** @var int|null $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('minLength');
 
         return $value;

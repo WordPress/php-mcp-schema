@@ -9,6 +9,9 @@
     "mcp-php-generator": "dist/cli/index.js"
   },
   "scripts": {
+    "audit": "node audit-schemas.mjs",
+    "audit:check": "node audit-schemas.mjs --check",
+    "test": "node --test test/*.test.mjs",
     "build": "tsc",
     "generate": "rm -rf ../src && node dist/cli/index.js generate",
     "generate:check": "bash -c 'rm -rf ../src && node dist/cli/index.js generate \"$@\" && cd .. && composer analyse' --",
@@ -16,7 +19,9 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "schemas:update": "node update-schemas.mjs",
+    "schemas:check": "node update-schemas.mjs --check"
   },
   "keywords": [
     "mcp",
@@ -55,6 +60,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.1",
+    "ajv": "8.17.1",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "eslint": "^9.16.0",

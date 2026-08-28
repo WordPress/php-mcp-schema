@@ -18,3 +18,6 @@
 
 # Patterns
 *.DS_Store              export-ignore
+
+# Canonical sources are vendored byte-for-byte; preserve upstream EOF bytes.
+/resources/schema/*/schema.json whitespace=-blank-at-eof

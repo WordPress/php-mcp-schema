@@ -1,0 +1,12 @@
+{
+  "2025-11-25": {
+    "commit": "38c84e9f93ad191d9eb26d92b945d17bd0efcaf3",
+    "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a",
+    "url": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.json"
+  },
+  "2026-07-28": {
+    "commit": "5f5440bb26a62e2cf3440b92da5a667efa03b267",
+    "sha256": "ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203",
+    "url": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.json"
+  }
+}

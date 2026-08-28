@@ -16,6 +16,13 @@ range or nearest-version rule.
 
 ## Installation
 
+> **Unreleased branch API:** the examples below describe the proposal branch.
+> The latest tagged Composer release still exposes the previous public API.
+> Until this work is released, consume only an exact reviewed branch commit
+> through a VCS repository reference.
+
+After the runtime is released:
+
 ```bash
 composer require wordpress/php-mcp-schema
 ```
@@ -118,8 +125,8 @@ For example, `ping` is valid under `2025-11-25` and absent under `2026-07-28`;
 - `WP\McpSchema\Exception` — stable selection, validation, JSON, availability,
   and field-access failures.
 
-See [the migration guide](docs/MIGRATION.md) when moving from the removed DTO
-API.
+See [the migration guide](https://github.com/WordPress/php-mcp-schema/blob/feature/dual-revision-schema-runtime/docs/MIGRATION.md)
+when moving from the removed DTO API.
 
 ## Development
 
@@ -139,8 +146,9 @@ npm run verify
 ```
 
 Never edit `src/Generated/` directly. See
-[the generator guide](generator/README.md) and
-[the architecture proposal](docs/dual-revision-schema-runtime-proposal.md).
+[the generator guide](https://github.com/WordPress/php-mcp-schema/blob/feature/dual-revision-schema-runtime/generator/README.md)
+and
+[the architecture proposal](https://github.com/WordPress/php-mcp-schema/blob/feature/dual-revision-schema-runtime/docs/dual-revision-schema-runtime-proposal.md).
 
 ## License
 

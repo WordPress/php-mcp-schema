@@ -51,3 +51,19 @@ jobs:
 
       - run: npm run verify
         working-directory: generator
+
+  artifact:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.4']
+    name: Composer artifact - PHP ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer artifact:verify

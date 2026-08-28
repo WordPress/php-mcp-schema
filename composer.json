@@ -40,6 +40,7 @@
     },
     "scripts": {
         "analyse": "phpstan analyse",
+        "artifact:verify": "tests/artifact/verify.sh",
         "phpstan": "@analyse",
         "test": "phpunit"
     }

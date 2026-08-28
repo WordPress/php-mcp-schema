@@ -195,3 +195,28 @@ Remove consumer references to:
 
 Then select an exact schema, construct through `Schema`, use generated getters
 or `get()`/`has()`, and serialize with `jsonSerialize()`.
+
+## WordPress MCP Adapter migration
+
+The Adapter consumes the new runtime at the raw transport boundary. It selects
+one exact revision, passes the matching `Schema` in an immutable request
+context, hydrates the incoming request before dispatch, and hydrates the exact
+result and JSON-RPC response before encoding.
+
+Adapter component definitions remain backward compatible at their logical
+Ability-facing input boundary. Each component is projected independently into
+the 2025 and 2026 catalogs. A revision-specific projection failure removes only
+that projection; registration is rejected globally only when no supported
+projection succeeds. Adapter supplies conservative 2026 protocol-owned defaults
+of `resultType: "complete"`, `ttlMs: 0`, and `cacheScope: "private"` when the
+logical component does not provide revision-specific values.
+
+The migration removes Adapter DTO factories, DTO serialization helpers,
+validation-mode filters, and protocol DTO accessors literally. There are no
+aliases, facades, class aliases, or revision-neutral substitute DTOs.
+
+The completed Adapter integration is reviewable on branch
+`feature/dual-revision-schema-runtime` at exact commit
+`2b98fee235220c3771f3726e294a9bba5be6546a`. Its Composer lock deliberately
+pins this schema runtime to exact implementation ref `a0fb1ee`; later
+documentation-only schema commits do not change that runtime dependency.

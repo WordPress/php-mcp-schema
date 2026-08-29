@@ -82,6 +82,49 @@ final class InputSafetyTest extends TestCase
         ));
     }
 
+    public function test_object_graph_normalization_is_deprecation_free_and_preserves_cycle_detection(): void
+    {
+        $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+        $shared = (object) array('value' => 'shared');
+        $graph  = (object) array(
+            'left'  => $shared,
+            'right' => $shared,
+        );
+
+        set_error_handler(
+            static function (int $severity, string $message, string $file, int $line): bool {
+                if (($severity & (E_DEPRECATED | E_USER_DEPRECATED)) !== 0) {
+                    throw new \ErrorException($message, 0, $severity, $file, $line);
+                }
+
+                return false;
+            }
+        );
+
+        try {
+            $normalized = $schema->fromValue(JSONObject::class, $graph);
+            $left       = $normalized->get('left');
+            $right      = $normalized->get('right');
+            self::assertInstanceOf(JSONObject::class, $left);
+            self::assertInstanceOf(JSONObject::class, $right);
+            self::assertNotSame($left, $right);
+            self::assertSame('shared', $left->get('value'));
+            self::assertSame('shared', $right->get('value'));
+
+            $cycle       = new \stdClass();
+            $cycle->self = $cycle;
+
+            try {
+                $schema->fromValue(JSONObject::class, $cycle);
+                self::fail('Cyclic object was accepted.');
+            } catch (ValidationException $exception) {
+                self::assertStringContainsString('Cyclic', $exception->getMessage());
+            }
+        } finally {
+            restore_error_handler();
+        }
+    }
+
     public function test_programmatic_values_reject_malformed_utf8_resources_and_excessive_depth(): void
     {
         $schema = Schemas::create()->forVersion(Schemas::V2025_11_25);

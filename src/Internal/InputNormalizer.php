@@ -121,10 +121,10 @@ final class InputNormalizer
 
     private function normalizeObject(\stdClass $value, string $pointer, int $depth): \stdClass
     {
-        if ($this->activeObjects->contains($value)) {
+        if ($this->activeObjects->offsetExists($value)) {
             throw new ValidationException($pointer, 'Cyclic objects are not supported.');
         }
-        $this->activeObjects->attach($value, true);
+        $this->activeObjects->offsetSet($value, true);
 
         $output = new \stdClass();
         foreach (get_object_vars($value) as $key => $item) {
@@ -138,7 +138,7 @@ final class InputNormalizer
             );
         }
 
-        $this->activeObjects->detach($value);
+        $this->activeObjects->offsetUnset($value);
 
         return $output;
     }

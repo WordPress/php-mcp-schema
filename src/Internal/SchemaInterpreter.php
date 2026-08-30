@@ -32,7 +32,7 @@ final class SchemaInterpreter
      */
     public function __construct(array $definitions, string $revision, array $records)
     {
-        $this->definitions = $definitions;
+        $this->definitions = $this->applyElicitationNumberRule($definitions, $revision);
         $this->revision    = $revision;
         $this->records     = $records;
 
@@ -55,6 +55,49 @@ final class SchemaInterpreter
             throw new \LogicException('Unable to bind the private record hydrator.');
         }
         $this->recordFactory = $factory;
+    }
+
+    /**
+     * Preserve fractional elicitation answers required by the exact 2026 revision.
+     *
+     * Its canonical JSON incorrectly narrows ElicitResult.content to integers,
+     * while the authoritative TypeScript and form specification permit numbers:
+     * https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ca4ab3027f7c844cd3039c956438d72e8253f7f5/schema/2026-07-28/schema.ts#L3148
+     * https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation#requested-schema
+     * Remove this named rule when the pinned canonical JSON is corrected.
+     *
+     * @param array<string, array<string, mixed>> $definitions
+     * @return array<string, array<string, mixed>>
+     */
+    private function applyElicitationNumberRule(array $definitions, string $revision): array
+    {
+        if ('2026-07-28' !== $revision) {
+            return $definitions;
+        }
+        $definition = $definitions['ElicitResult'] ?? array();
+        $properties = isset($definition['properties']) && is_array($definition['properties'])
+            ? $definition['properties']
+            : array();
+        $content = isset($properties['content']) && is_array($properties['content'])
+            ? $properties['content']
+            : array();
+        $additional = isset($content['additionalProperties']) && is_array($content['additionalProperties'])
+            ? $content['additionalProperties']
+            : array();
+        $union = isset($additional['anyOf']) && is_array($additional['anyOf']) ? $additional['anyOf'] : array();
+        $scalar = isset($union[1]) && is_array($union[1]) ? $union[1] : array();
+        $types = $scalar['type'] ?? null;
+        if (array('string', 'integer', 'boolean') === $types) {
+            $scalar['type']                    = array('string', 'number', 'boolean');
+            $union[1]                          = $scalar;
+            $additional['anyOf']               = $union;
+            $content['additionalProperties']   = $additional;
+            $properties['content']             = $content;
+            $definition['properties']          = $properties;
+            $definitions['ElicitResult']       = $definition;
+        }
+
+        return $definitions;
     }
 
     /**

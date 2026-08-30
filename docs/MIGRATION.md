@@ -220,3 +220,18 @@ The completed Adapter integration is reviewable on branch
 `2b98fee235220c3771f3726e294a9bba5be6546a`. Its Composer lock deliberately
 pins this schema runtime to exact implementation ref `a0fb1ee`; later
 documentation-only schema commits do not change that runtime dependency.
+
+## Numeric elicitation answers in 2026-07-28
+
+The runtime preserves fractional values in `ElicitResult.content`, including
+answers nested in `InputResponses` and retried tool requests. It does not convert
+them to strings or integers. Other integer-only fields and 2025-11-25 behavior
+are unchanged.
+
+This is one named protocol correction: the pinned canonical JSON limits these
+answer values to integers, but the same revision's
+[official TypeScript](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ca4ab3027f7c844cd3039c956438d72e8253f7f5/schema/2026-07-28/schema.ts#L3148)
+and [form specification](https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation#requested-schema)
+permit numbers. The handwritten interpreter corrects only this definition;
+canonical source files, their digests, and generated catalogs remain unchanged.
+The correction can be removed after an upstream fix is pinned.

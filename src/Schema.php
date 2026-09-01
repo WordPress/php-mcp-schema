@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace WP\McpSchema;
 
 use WP\McpSchema\Exception\UnavailableTypeException;
-use WP\McpSchema\Generated\Registry;
 use WP\McpSchema\Internal\JsonDecoder;
 use WP\McpSchema\Internal\SchemaInterpreter;
+use WP\McpSchema\Internal\TypeRegistry;
 
 /**
  * One immutable, exact MCP revision schema.
@@ -54,8 +54,8 @@ final class Schema
         $this->version             = $version;
         $this->definitions         = $document['$defs'];
         $this->messageAvailability = $messageAvailability;
-        $this->records             = Registry::records();
-        $this->contracts           = Registry::contracts();
+        $this->records             = TypeRegistry::records();
+        $this->contracts           = TypeRegistry::contracts();
         $this->interpreter         = new SchemaInterpreter($this->definitions, $version, $this->records);
     }
 

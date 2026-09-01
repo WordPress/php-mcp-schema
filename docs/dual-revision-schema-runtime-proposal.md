@@ -184,9 +184,17 @@ that every structural change is classified and emits the merged reviewable
 manifest. An unknown or unclassified construct fails generation instead of
 being ignored.
 
-Generated files live in a dedicated generated subtree. The generator replaces
-only that resolved subtree; handwritten providers, interpreters, exceptions,
-and record infrastructure remain outside its deletion boundary.
+Generated public symbols live at their PSR-4 domain paths under `src/Record/`,
+`src/Contract/`, and `src/Value/`. Generated runtime metadata uses role-based
+internal paths under `src/Internal/Catalog/` and
+`src/Internal/TypeRegistry.php`. Composer maps only `WP\McpSchema\` to `src/`.
+There is no `WP\McpSchema\Generated` namespace: generation is provenance, while
+namespaces and paths describe domain or runtime responsibility.
+
+The generator writes a complete staging tree before replacing only those five
+allowlisted paths. Handwritten providers, interpreters, exceptions,
+`src/Record.php`, `src/Schema.php`, and other handwritten runtime files remain
+outside its deletion boundary.
 
 Before generating getters, the generator compares every same-named definition
 across all supported revisions. Compatible objects share one class whose named

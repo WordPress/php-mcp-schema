@@ -5,17 +5,21 @@ This directory contains the development-only generator for
 development dependency.
 
 The generator consumes only the commit-pinned canonical files under
-`resources/schema/`. Normal generation is offline. It writes one guarded
-`src/Generated/` subtree containing:
+`resources/schema/`. Normal generation is offline. It writes:
 
-- one complete PHP-literal catalog per exact revision;
-- shared records for compatible named objects;
-- kind-specific record and contract symbols;
-- enum value constants; and
-- exact-revision definition and directional message availability.
+- public records under `src/Record/`;
+- public union contracts under `src/Contract/`;
+- public enum value constants under `src/Value/`;
+- one complete PHP-literal catalog per exact revision under
+  `src/Internal/Catalog/`; and
+- exact-revision type metadata in `src/Internal/TypeRegistry.php`.
 
-Handwritten runtime files live outside `src/Generated/` and are never part of
-the generator's deletion boundary.
+The generator completes all writes in a staging tree, then replaces only those
+five allowlisted paths. Handwritten siblings such as `src/Record.php`,
+`src/Schema.php`, and other files under `src/Internal/` are never part of the
+deletion boundary. The legacy `src/Generated/` path is removed during generation
+and must not be recreated. Generated provenance is carried by the file header
+and this ownership allowlist, not by a `Generated` namespace layer.
 
 ## Install and verify
 
@@ -44,4 +48,4 @@ the still-supported revisions. `audit` fails until every generated difference
 has an explicit classification.
 
 Review generated changes and run `npm run verify` before committing them. Never
-edit files under `src/Generated/` directly.
+edit generated PHP directly.

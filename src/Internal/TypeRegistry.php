@@ -6,9 +6,9 @@
 
 declare(strict_types=1);
 
-namespace WP\McpSchema\Generated;
+namespace WP\McpSchema\Internal;
 
-final class Registry
+final class TypeRegistry
 {
     /**
      * @return array<class-string, array{definition: string, versions: array<int, string>}>

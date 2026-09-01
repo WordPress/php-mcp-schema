@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname, resolve } from 'node:path';
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+  GENERATED_DIRECTORIES,
+  GENERATED_FILES,
+  LEGACY_GENERATED_PATHS,
+} from './lib/generated-layout.mjs';
 import { phpFile, phpLiteral, phpString } from './lib/php-code.mjs';
 import {
   aggregateMethods,
@@ -159,132 +164,172 @@ function messageAvailability(definitions) {
   };
 }
 
-async function writeGenerated(output, relative, contents) {
-  const target = resolve(output, relative);
-  if (!target.startsWith(`${output}/`)) throw new Error(`Generated path escapes output: ${relative}`);
+function resolveWithin(root, path) {
+  const target = resolve(root, path);
+  const relativePath = relative(root, target);
+  if (relativePath === '' || relativePath === '..' || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
+    throw new Error(`Generated path escapes output: ${path}`);
+  }
+
+  return target;
+}
+
+async function writeGenerated(output, path, contents) {
+  const target = resolveWithin(output, path);
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, contents);
 }
 
-export async function generate(outputDirectory = resolve(repositoryDirectory, 'src', 'Generated')) {
+async function replaceGeneratedOutput(staging, output) {
+  for (const path of GENERATED_DIRECTORIES) {
+    const source = resolveWithin(staging, path);
+    const target = resolveWithin(output, path);
+    await rm(target, { recursive: true, force: true });
+    await mkdir(dirname(target), { recursive: true });
+    await rename(source, target);
+  }
+
+  for (const path of GENERATED_FILES) {
+    const source = resolveWithin(staging, path);
+    const target = resolveWithin(output, path);
+    await rm(target, { force: true });
+    await mkdir(dirname(target), { recursive: true });
+    await rename(source, target);
+  }
+
+  for (const path of LEGACY_GENERATED_PATHS) {
+    await rm(resolveWithin(output, path), { recursive: true, force: true });
+  }
+}
+
+export async function generate(outputDirectory = repositoryDirectory) {
   const output = resolve(outputDirectory);
-  if (basename(output) !== 'Generated') throw new Error(`Generator output must end in Generated: ${output}`);
-  await rm(output, { recursive: true, force: true });
+  if (dirname(output) === output) throw new Error(`Generator output cannot be a filesystem root: ${output}`);
   await mkdir(output, { recursive: true });
+  const staging = await mkdtemp(resolve(output, '.php-mcp-schema-stage-'));
 
-  const documents = {};
-  for (const version of Object.keys(sourceManifest)) {
-    documents[version] = JSON.parse(
-      await readFile(resolve(repositoryDirectory, 'resources', 'schema', version, 'schema.json'), 'utf8'),
+  try {
+    const documents = {};
+    for (const version of Object.keys(sourceManifest)) {
+      documents[version] = JSON.parse(
+        await readFile(resolve(repositoryDirectory, 'resources', 'schema', version, 'schema.json'), 'utf8'),
+      );
+    }
+
+    const expectedComparisonCount = (Object.keys(sourceManifest).length * (Object.keys(sourceManifest).length - 1)) / 2;
+    if (Object.keys(compatibility.comparisons).length !== expectedComparisonCount) {
+      throw new Error('Compatibility manifest does not cover every supported revision pair');
+    }
+    const availabilityByVersion = Object.fromEntries(
+      Object.entries(documents).map(([version, document]) => [version, messageAvailability(document.$defs)]),
     );
-  }
 
-  const expectedComparisonCount = (Object.keys(sourceManifest).length * (Object.keys(sourceManifest).length - 1)) / 2;
-  if (Object.keys(compatibility.comparisons).length !== expectedComparisonCount) {
-    throw new Error('Compatibility manifest does not cover every supported revision pair');
-  }
-  const availabilityByVersion = Object.fromEntries(
-    Object.entries(documents).map(([version, document]) => [version, messageAvailability(document.$defs)]),
-  );
+    for (const [version, document] of Object.entries(documents)) {
+      await writeGenerated(
+        staging,
+        `src/Internal/Catalog/${versionClass(version)}.php`,
+        phpFile('WP\\McpSchema\\Internal\\Catalog', catalogBody(version, document, availabilityByVersion[version])),
+      );
+    }
 
-  for (const [version, document] of Object.entries(documents)) {
-    await writeGenerated(
-      output,
-      `Catalog/${versionClass(version)}.php`,
-      phpFile('WP\\McpSchema\\Generated\\Catalog', catalogBody(version, document, availabilityByVersion[version])),
-    );
-  }
+    const recordAvailability = {};
+    const contractAvailability = {};
+    const valueAvailability = {};
+    const recordFields = {};
+    const recordContracts = {};
+    const enumValues = {};
 
-  const recordAvailability = {};
-  const contractAvailability = {};
-  const valueAvailability = {};
-  const recordFields = {};
-  const recordContracts = {};
-  const enumValues = {};
-
-  for (const [version, document] of Object.entries(documents)) {
-    const definitions = document.$defs;
-    for (const name of Object.keys(definitions).sort()) {
-      const symbol = publicSymbol(name, definitions);
-      if (symbol === 'record') {
-        recordAvailability[name] ||= [];
-        recordAvailability[name].push(version);
-        recordFields[name] ||= {};
-        const object = effectiveObject(name, definitions);
-        for (const [field, schema] of Object.entries(object.properties)) {
-          recordFields[name][field] ||= { types: [], requiredEverywhere: true, appearances: 0 };
-          const entry = recordFields[name][field];
-          entry.types.push(...docTypes(schema, definitions));
-          entry.requiredEverywhere = entry.requiredEverywhere && object.required.has(field);
-          entry.appearances += 1;
+    for (const [version, document] of Object.entries(documents)) {
+      const definitions = document.$defs;
+      for (const name of Object.keys(definitions).sort()) {
+        const symbol = publicSymbol(name, definitions);
+        if (symbol === 'record') {
+          recordAvailability[name] ||= [];
+          recordAvailability[name].push(version);
+          recordFields[name] ||= {};
+          const object = effectiveObject(name, definitions);
+          for (const [field, schema] of Object.entries(object.properties)) {
+            recordFields[name][field] ||= { types: [], requiredEverywhere: true, appearances: 0 };
+            const entry = recordFields[name][field];
+            entry.types.push(...docTypes(schema, definitions));
+            entry.requiredEverywhere = entry.requiredEverywhere && object.required.has(field);
+            entry.appearances += 1;
+          }
+        } else if (symbol === 'contract') {
+          contractAvailability[name] ||= [];
+          contractAvailability[name].push(version);
+          for (const member of contractMembers(name, definitions)) {
+            recordContracts[member] ||= new Set();
+            recordContracts[member].add(name);
+          }
+        } else if (symbol === 'value') {
+          valueAvailability[name] ||= [];
+          valueAvailability[name].push(version);
+          enumValues[name] ||= [];
+          enumValues[name].push(...definitions[name].enum);
         }
-      } else if (symbol === 'contract') {
-        contractAvailability[name] ||= [];
-        contractAvailability[name].push(version);
-        for (const member of contractMembers(name, definitions)) {
-          recordContracts[member] ||= new Set();
-          recordContracts[member].add(name);
-        }
-      } else if (symbol === 'value') {
-        valueAvailability[name] ||= [];
-        valueAvailability[name].push(version);
-        enumValues[name] ||= [];
-        enumValues[name].push(...definitions[name].enum);
       }
     }
-  }
 
-  for (const [name, versions] of Object.entries(recordAvailability).sort(([a], [b]) => a.localeCompare(b))) {
-    const methods = [];
-    const getterNames = new Map();
-    for (const [field, entry] of Object.entries(recordFields[name] || {}).sort(([a], [b]) => a.localeCompare(b))) {
-      if (entry.appearances !== versions.length || !entry.requiredEverywhere) entry.types.push('null');
-      const method = getterName(field).toLowerCase();
-      if (getterNames.has(method)) throw new Error(`${name} getter collision: ${field} and ${getterNames.get(method)}`);
-      getterNames.set(method, field);
-      methods.push(renderGetter(field, entry.types));
+    for (const [name, versions] of Object.entries(recordAvailability).sort(([a], [b]) => a.localeCompare(b))) {
+      const methods = [];
+      const getterNames = new Map();
+      for (const [field, entry] of Object.entries(recordFields[name] || {}).sort(([a], [b]) => a.localeCompare(b))) {
+        if (entry.appearances !== versions.length || !entry.requiredEverywhere) entry.types.push('null');
+        const method = getterName(field).toLowerCase();
+        if (getterNames.has(method)) throw new Error(`${name} getter collision: ${field} and ${getterNames.get(method)}`);
+        getterNames.set(method, field);
+        methods.push(renderGetter(field, entry.types));
+      }
+      const implementsList = [...(recordContracts[name] || new Set())]
+        .sort()
+        .map((contract) => `\\WP\\McpSchema\\Contract\\${contract}`);
+      const implementsClause = implementsList.length > 0 ? ` implements ${implementsList.join(', ')}` : '';
+      const body = `final class ${className(name)} extends \\WP\\McpSchema\\Record${implementsClause}\n{\n    public const DEFINITION = ${phpString(name)};${methods.length > 0 ? `\n\n${methods.join('\n\n')}` : ''}\n}`;
+      await writeGenerated(staging, `src/Record/${name}.php`, phpFile('WP\\McpSchema\\Record', body));
     }
-    const implementsList = [...(recordContracts[name] || new Set())]
-      .sort()
-      .map((contract) => `\\WP\\McpSchema\\Contract\\${contract}`);
-    const implementsClause = implementsList.length > 0 ? ` implements ${implementsList.join(', ')}` : '';
-    const body = `final class ${className(name)} extends \\WP\\McpSchema\\Record${implementsClause}\n{\n    public const DEFINITION = ${phpString(name)};${methods.length > 0 ? `\n\n${methods.join('\n\n')}` : ''}\n}`;
-    await writeGenerated(output, `Record/${name}.php`, phpFile('WP\\McpSchema\\Record', body));
+
+    for (const name of Object.keys(contractAvailability).sort()) {
+      const body = `interface ${className(name)} extends \\JsonSerializable\n{\n}`;
+      await writeGenerated(staging, `src/Contract/${name}.php`, phpFile('WP\\McpSchema\\Contract', body));
+    }
+
+    for (const name of Object.keys(valueAvailability).sort()) {
+      const constants = enumConstants([...new Set(enumValues[name].map((value) => JSON.stringify(value)))]
+        .map((value) => JSON.parse(value)));
+      const body = `final class ${className(name)}\n{\n${constants.join('\n')}\n\n    private function __construct()\n    {\n    }\n}`;
+      await writeGenerated(staging, `src/Value/${name}.php`, phpFile('WP\\McpSchema\\Value', body));
+    }
+
+    const recordMap = Object.fromEntries(
+      Object.entries(recordAvailability)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, versions]) => [`WP\\McpSchema\\Record\\${name}`, { definition: name, versions }]),
+    );
+    const contractMap = Object.fromEntries(
+      Object.entries(contractAvailability)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, versions]) => [`WP\\McpSchema\\Contract\\${name}`, { definition: name, versions }]),
+    );
+    const registryBody = `final class TypeRegistry\n{\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function records(): array\n    {\n        return ${phpLiteral(recordMap, 2)};\n    }\n\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function contracts(): array\n    {\n        return ${phpLiteral(contractMap, 2)};\n    }\n}`;
+    await writeGenerated(
+      staging,
+      'src/Internal/TypeRegistry.php',
+      phpFile('WP\\McpSchema\\Internal', registryBody),
+    );
+
+    await replaceGeneratedOutput(staging, output);
+
+    return {
+      output,
+      catalogs: Object.keys(documents).length,
+      records: Object.keys(recordAvailability).length,
+      contracts: Object.keys(contractAvailability).length,
+      values: Object.keys(valueAvailability).length,
+    };
+  } finally {
+    await rm(staging, { recursive: true, force: true });
   }
-
-  for (const name of Object.keys(contractAvailability).sort()) {
-    const body = `interface ${className(name)} extends \\JsonSerializable\n{\n}`;
-    await writeGenerated(output, `Contract/${name}.php`, phpFile('WP\\McpSchema\\Contract', body));
-  }
-
-  for (const name of Object.keys(valueAvailability).sort()) {
-    const constants = enumConstants([...new Set(enumValues[name].map((value) => JSON.stringify(value)))]
-      .map((value) => JSON.parse(value)));
-    const body = `final class ${className(name)}\n{\n${constants.join('\n')}\n\n    private function __construct()\n    {\n    }\n}`;
-    await writeGenerated(output, `Value/${name}.php`, phpFile('WP\\McpSchema\\Value', body));
-  }
-
-  const registry = {
-    records: Object.fromEntries(Object.entries(recordAvailability).sort(([a], [b]) => a.localeCompare(b))),
-    contracts: Object.fromEntries(Object.entries(contractAvailability).sort(([a], [b]) => a.localeCompare(b))),
-    values: Object.fromEntries(Object.entries(valueAvailability).sort(([a], [b]) => a.localeCompare(b))),
-  };
-  const recordMap = Object.fromEntries(
-    Object.entries(registry.records).map(([name, versions]) => [`WP\\McpSchema\\Record\\${name}`, { definition: name, versions }]),
-  );
-  const contractMap = Object.fromEntries(
-    Object.entries(registry.contracts).map(([name, versions]) => [`WP\\McpSchema\\Contract\\${name}`, { definition: name, versions }]),
-  );
-  const registryBody = `final class Registry\n{\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function records(): array\n    {\n        return ${phpLiteral(recordMap, 2)};\n    }\n\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function contracts(): array\n    {\n        return ${phpLiteral(contractMap, 2)};\n    }\n}`;
-  await writeGenerated(output, 'Registry.php', phpFile('WP\\McpSchema\\Generated', registryBody));
-
-  return {
-    output,
-    catalogs: Object.keys(documents).length,
-    records: Object.keys(recordAvailability).length,
-    contracts: Object.keys(contractAvailability).length,
-    values: Object.keys(valueAvailability).length,
-  };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

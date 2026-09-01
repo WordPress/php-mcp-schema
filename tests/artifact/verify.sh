@@ -50,6 +50,13 @@ COMPOSER_DISABLE_NETWORK=1 "$php_executable" "$composer_executable" --no-cache i
     --no-security-blocking \
     --no-interaction \
     --no-progress
+"$php_executable" "$composer_executable" dump-autoload \
+    --working-dir="$extracted" \
+    --no-dev \
+    --optimize \
+    --strict-psr \
+    --strict-ambiguous \
+    --no-interaction
 "$php_executable" "$composer_executable" check-platform-reqs \
     --working-dir="$extracted" \
     --no-dev
@@ -59,6 +66,7 @@ COMPOSER_DISABLE_NETWORK=1 "$php_executable" "$composer_executable" --no-cache i
 for forbidden in \
     'WP\\McpSchema\\Client\\' \
     'WP\\McpSchema\\Common\\' \
+    'WP\\McpSchema\\Generated\\' \
     'WP\\McpSchema\\Server\\' \
     'AbstractDataTransferObject' \
     'AbstractEnum'

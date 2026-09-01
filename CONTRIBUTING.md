@@ -5,15 +5,19 @@ API change.
 
 ## Architecture
 
-The package has two source boundaries:
+The package has explicit source boundaries:
 
 - `resources/schema/` contains commit-pinned canonical MCP JSON Schemas.
-- `src/Generated/` contains deterministic catalogs, records, contracts, value
-  constants, and the registry produced from those schemas.
+- `src/Record/`, `src/Contract/`, and `src/Value/` contain deterministic public
+  symbols produced from those schemas.
+- `src/Internal/Catalog/` and `src/Internal/TypeRegistry.php` contain generated
+  revision and type metadata used by the handwritten runtime.
 
 Handwritten revision selection, validation, hydration, immutable storage, and
-exceptions live outside `src/Generated/`. The generator may replace only the
-resolved generated subtree.
+exceptions live outside those generated paths. The generator stages a complete
+output before replacing only that explicit allowlist; handwritten siblings such
+as `src/Record.php`, `src/Schema.php`, and other `src/Internal/` files are never
+part of its deletion boundary.
 
 Read [the architecture proposal](docs/dual-revision-schema-runtime-proposal.md)
 before changing the public record model, revision availability, schema
@@ -38,11 +42,12 @@ only to audit canonical inputs and generated output.
 
 ## Generated output changes
 
-Do not edit `src/Generated/` directly. Change the plain Node generator or its
+Do not edit generated PHP directly. Change the plain Node generator or its
 reviewed inputs, then run:
 
 ```bash
 cd generator
+npm run generate
 npm run verify
 ```
 
@@ -72,6 +77,7 @@ Run from the repository root:
 composer test
 composer analyse
 composer validate --strict
+composer autoload:verify
 git diff --check
 ```
 

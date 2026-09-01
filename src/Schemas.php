@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WP\McpSchema;
 
 use WP\McpSchema\Exception\UnsupportedRevisionException;
-use WP\McpSchema\Generated\Catalog\V2025_11_25;
-use WP\McpSchema\Generated\Catalog\V2026_07_28;
+use WP\McpSchema\Internal\Catalog\V2025_11_25;
+use WP\McpSchema\Internal\Catalog\V2026_07_28;
 
 /**
  * Lazy provider for supported exact MCP revisions.

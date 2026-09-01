@@ -25,10 +25,6 @@
     },
     "autoload": {
         "psr-4": {
-            "WP\\McpSchema\\Contract\\": "src/Generated/Contract/",
-            "WP\\McpSchema\\Generated\\": "src/Generated/",
-            "WP\\McpSchema\\Record\\": "src/Generated/Record/",
-            "WP\\McpSchema\\Value\\": "src/Generated/Value/",
             "WP\\McpSchema\\": "src/"
         }
     },
@@ -41,6 +37,7 @@
     "scripts": {
         "analyse": "phpstan analyse",
         "artifact:verify": "tests/artifact/verify.sh",
+        "autoload:verify": "@composer dump-autoload --optimize --strict-psr --strict-ambiguous",
         "phpstan": "@analyse",
         "test": "phpunit"
     }

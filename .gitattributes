@@ -20,6 +20,7 @@
 /.DS_Store              export-ignore
 /.agentworkbench.json   export-ignore
 /.gitattributes         export-ignore
+/.git                   export-ignore
 /.gitignore             export-ignore
 /.mcp.json              export-ignore
 /.phpactor.json         export-ignore

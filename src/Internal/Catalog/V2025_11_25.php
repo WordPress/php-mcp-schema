@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace WP\McpSchema\Generated\Catalog;
+namespace WP\McpSchema\Internal\Catalog;
 
 final class V2025_11_25
 {

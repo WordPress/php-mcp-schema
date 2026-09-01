@@ -31,6 +31,8 @@ jobs:
 
       - run: composer validate --strict
 
+      - run: composer autoload:verify
+
       - run: composer test
 
       - run: composer analyse

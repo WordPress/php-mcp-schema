@@ -131,21 +131,25 @@ when moving from the removed DTO API.
 ## Development
 
 Canonical schemas are pinned under `resources/schema/`. The development-only
-plain Node generator writes the guarded `src/Generated/` subtree; handwritten
-runtime code lives elsewhere in `src/`.
+plain Node generator stages and replaces only `src/Record/`, `src/Contract/`,
+`src/Value/`, `src/Internal/Catalog/`, and
+`src/Internal/TypeRegistry.php`. Handwritten runtime files remain separate,
+including `src/Record.php` and the other files under `src/Internal/`.
 
 ```bash
 composer install
 composer test
 composer analyse
 composer validate --strict
+composer autoload:verify
 
 cd generator
 npm install
+npm run generate
 npm run verify
 ```
 
-Never edit `src/Generated/` directly. See
+Never edit generated PHP directly. See
 [the generator guide](https://github.com/WordPress/php-mcp-schema/blob/feature/dual-revision-schema-runtime/generator/README.md)
 and
 [the architecture proposal](https://github.com/WordPress/php-mcp-schema/blob/feature/dual-revision-schema-runtime/docs/dual-revision-schema-runtime-proposal.md).

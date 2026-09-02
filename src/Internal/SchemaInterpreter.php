@@ -522,7 +522,14 @@ final class SchemaInterpreter
             if ($type === 'number' && (is_int($value) || is_float($value))) return true;
             if (
                 $type === 'integer' &&
-                (is_int($value) || is_float($value) && is_finite($value) && floor($value) === $value)
+                (
+                    is_int($value) ||
+                    is_float($value) &&
+                    is_finite($value) &&
+                    floor($value) === $value &&
+                    $value >= (float) PHP_INT_MIN &&
+                    $value < -((float) PHP_INT_MIN)
+                )
             ) {
                 return true;
             }

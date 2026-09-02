@@ -16,6 +16,8 @@ final class InputNormalizer
 {
     public const MAX_DEPTH = 512;
 
+    private const MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH = 80;
+
     /** @var \SplObjectStorage<object, true> */
     private $activeObjects;
 
@@ -89,31 +91,61 @@ final class InputNormalizer
      */
     private function normalizeArray(array &$value, string $pointer, int $depth): array
     {
-        $output = array();
-        foreach (array_keys($value) as $key) {
-            if (is_string($key) && preg_match('//u', $key) !== 1) {
-                throw new ValidationException($pointer, 'Object key contains malformed UTF-8.');
+        foreach ($value as $key => $item) {
+            if (is_string($key)) {
+                self::assertSafeObjectKey($key, $pointer);
             }
             $reference = \ReflectionReference::fromArrayElement($value, $key);
-            $referenceId = $reference ? $reference->getId() : null;
-            if ($referenceId !== null && isset($this->activeArrayReferences[$referenceId])) {
-                throw new ValidationException(self::appendPointer($pointer, (string) $key), 'Cyclic arrays are not supported.');
-            }
-            if ($referenceId !== null) {
-                $this->activeArrayReferences[$referenceId] = true;
+            if ($reference !== null) {
+                return $this->normalizeArrayWithReferences($value, $pointer, $depth);
             }
 
-            $item =& $value[$key];
+            $value[$key] = $this->normalizeValue(
+                $item,
+                self::appendPointer($pointer, (string) $key),
+                $depth + 1
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Preserve caller-owned PHP reference semantics on the uncommon reference
+     * path while retaining cycle detection.
+     *
+     * @param array<mixed> $value
+     * @return array<mixed>
+     */
+    private function normalizeArrayWithReferences(array &$value, string $pointer, int $depth): array
+    {
+        $output = array();
+        foreach ($value as $key => $item) {
+            if (is_string($key)) {
+                self::assertSafeObjectKey($key, $pointer);
+            }
+            $reference = \ReflectionReference::fromArrayElement($value, $key);
+            if ($reference === null) {
+                $output[$key] = $this->normalizeValue(
+                    $item,
+                    self::appendPointer($pointer, (string) $key),
+                    $depth + 1
+                );
+                continue;
+            }
+
+            $referenceId = $reference->getId();
+            if (isset($this->activeArrayReferences[$referenceId])) {
+                throw new ValidationException(self::appendPointer($pointer, (string) $key), 'Cyclic arrays are not supported.');
+            }
+            $this->activeArrayReferences[$referenceId] = true;
             $output[$key] = $this->normalizeValue(
                 $item,
                 self::appendPointer($pointer, (string) $key),
                 $depth + 1
             );
-            unset($item);
 
-            if ($referenceId !== null) {
-                unset($this->activeArrayReferences[$referenceId]);
-            }
+            unset($this->activeArrayReferences[$referenceId]);
         }
 
         return $output;
@@ -128,8 +160,8 @@ final class InputNormalizer
 
         $output = new \stdClass();
         foreach (get_object_vars($value) as $key => $item) {
-            if (is_string($key) && preg_match('//u', $key) !== 1) {
-                throw new ValidationException($pointer, 'Object key contains malformed UTF-8.');
+            if (is_string($key)) {
+                self::assertSafeObjectKey($key, $pointer);
             }
             $output->{$key} = $this->normalizeValue(
                 $item,
@@ -161,6 +193,22 @@ final class InputNormalizer
 
     public static function appendPointer(string $pointer, string $segment): string
     {
+        if (strlen($segment) > self::MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH) {
+            $segment = substr($segment, 0, self::MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH) . '...';
+        }
+        $segment = addcslashes($segment, "\0..\37\177..\377");
+
         return $pointer . '/' . str_replace(array('~', '/'), array('~0', '~1'), $segment);
+    }
+
+    private static function assertSafeObjectKey(string $key, string $pointer): void
+    {
+        $keyPointer = self::appendPointer($pointer, $key);
+        if ($key !== '' && $key[0] === "\0") {
+            throw new ValidationException($keyPointer, 'Object keys must not start with a NUL byte.');
+        }
+        if (preg_match('//u', $key) !== 1) {
+            throw new ValidationException($keyPointer, 'Object key contains malformed UTF-8.');
+        }
     }
 }

@@ -1,0 +1,286 @@
+{
+  "formatVersion": 1,
+  "cases": [
+    {
+      "id": "2025-elicit-result",
+      "revision": "2025-11-25",
+      "definition": "ElicitResult",
+      "rootClass": "WP\\McpSchema\\Record\\ElicitResult",
+      "valid": [
+        {"action": "accept", "content": {"quantity": 1.5, "count": 2}},
+        {"action": "accept", "content": {"labels": ["one", "two"]}},
+        {"action": "decline"}
+      ],
+      "invalid": [
+        {"action": "other"},
+        {"action": "accept", "content": {"quantity": null}},
+        {"action": "accept", "content": {"quantity": {"nested": true}}}
+      ]
+    },
+    {
+      "id": "2026-elicit-result",
+      "revision": "2026-07-28",
+      "definition": "ElicitResult",
+      "rootClass": "WP\\McpSchema\\Record\\ElicitResult",
+      "valid": [
+        {"action": "accept", "content": {"quantity": 1.5, "count": 2}},
+        {"action": "accept", "content": {"labels": ["one", "two"]}},
+        {"action": "cancel"}
+      ],
+      "invalid": [
+        {"action": "accept", "content": {"quantity": null}},
+        {"action": "accept", "content": {"quantity": [1, 2]}},
+        {"content": {"quantity": 1.5}}
+      ]
+    },
+    {
+      "id": "2026-json-value",
+      "revision": "2026-07-28",
+      "definition": "ClientCapabilities",
+      "rootClass": "WP\\McpSchema\\Record\\ClientCapabilities",
+      "valid": [
+        {"experimental": {"vendor": {"fractional": 1.5, "nullable": null}}},
+        {"experimental": {"vendor": {"nested": [true, {"value": 2.5}]}}},
+        {"extensions": {"vendor": {"enabled": true}}}
+      ],
+      "invalid": [
+        {"experimental": {"vendor": 1.5}},
+        {"experimental": []}
+      ]
+    },
+    {
+      "id": "2025-number-schema",
+      "revision": "2025-11-25",
+      "definition": "NumberSchema",
+      "rootClass": "WP\\McpSchema\\Record\\NumberSchema",
+      "valid": [
+        {"type": "number", "default": 1.5, "minimum": 0.5, "maximum": 2.5},
+        {"type": "integer", "default": 1.5},
+        {"type": "number"}
+      ],
+      "invalid": [
+        {"type": "number", "default": "1.5"},
+        {"type": "decimal"}
+      ]
+    },
+    {
+      "id": "2026-number-schema",
+      "revision": "2026-07-28",
+      "definition": "NumberSchema",
+      "rootClass": "WP\\McpSchema\\Record\\NumberSchema",
+      "valid": [
+        {"type": "number", "default": 1.5, "minimum": 0.5, "maximum": 2.5},
+        {"type": "integer", "minimum": -2.5},
+        {"type": "number"}
+      ],
+      "invalid": [
+        {"type": "number", "maximum": "2.5"},
+        {"type": true}
+      ]
+    },
+    {
+      "id": "2025-tool",
+      "revision": "2025-11-25",
+      "definition": "Tool",
+      "rootClass": "WP\\McpSchema\\Record\\Tool",
+      "valid": [
+        {"name": "echo", "inputSchema": {"type": "object", "properties": {}}},
+        {"name": "echo", "inputSchema": {"type": "object"}, "outputSchema": {"type": "object"}}
+      ],
+      "invalid": [
+        {"name": "echo"},
+        {"name": 1, "inputSchema": {"type": "object"}},
+        {"name": "echo", "inputSchema": {"type": "array"}}
+      ]
+    },
+    {
+      "id": "2026-tool",
+      "revision": "2026-07-28",
+      "definition": "Tool",
+      "rootClass": "WP\\McpSchema\\Record\\Tool",
+      "valid": [
+        {"name": "echo", "inputSchema": {"type": "object", "oneOf": []}},
+        {"name": "echo", "inputSchema": {"type": "object"}, "outputSchema": {"type": "array"}}
+      ],
+      "invalid": [
+        {"name": "echo", "inputSchema": []},
+        {"name": "echo", "inputSchema": {"type": "array"}},
+        {"inputSchema": {"type": "object"}}
+      ]
+    },
+    {
+      "id": "2025-call-tool-result",
+      "revision": "2025-11-25",
+      "definition": "CallToolResult",
+      "rootClass": "WP\\McpSchema\\Record\\CallToolResult",
+      "valid": [
+        {"content": []},
+        {"content": [{"type": "text", "text": "done"}], "structuredContent": {}},
+        {"content": [], "isError": true}
+      ],
+      "invalid": [
+        {"content": [], "structuredContent": "scalar"},
+        {"content": {}},
+        {}
+      ]
+    },
+    {
+      "id": "2026-call-tool-result",
+      "revision": "2026-07-28",
+      "definition": "CallToolResult",
+      "rootClass": "WP\\McpSchema\\Record\\CallToolResult",
+      "valid": [
+        {"content": [], "resultType": "complete", "structuredContent": "scalar"},
+        {"content": [], "resultType": "complete", "structuredContent": [1, null, true]},
+        {"content": [], "resultType": "complete", "structuredContent": {}}
+      ],
+      "invalid": [
+        {"content": []},
+        {"content": {}, "resultType": "complete"},
+        {"resultType": "complete"}
+      ]
+    },
+    {
+      "id": "2025-complete-result",
+      "revision": "2025-11-25",
+      "definition": "CompleteResult",
+      "rootClass": "WP\\McpSchema\\Record\\CompleteResult",
+      "valid": [
+        {"completion": {"values": ["one"], "total": 1}},
+        {"completion": {"values": [], "hasMore": false}}
+      ],
+      "invalid": [
+        {"completion": {"values": ["one"], "total": 1.5}},
+        {"completion": {"values": [1]}},
+        {"completion": {}}
+      ]
+    },
+    {
+      "id": "2026-complete-result",
+      "revision": "2026-07-28",
+      "definition": "CompleteResult",
+      "rootClass": "WP\\McpSchema\\Record\\CompleteResult",
+      "valid": [
+        {"completion": {"values": ["one"], "total": 1}, "resultType": "complete"},
+        {"completion": {"values": [], "hasMore": true}, "resultType": "partial"}
+      ],
+      "invalid": [
+        {"completion": {"values": ["one"]}},
+        {"completion": {"values": [1]}, "resultType": "complete"},
+        {"completion": {}, "resultType": "complete"}
+      ]
+    },
+    {
+      "id": "2026-parse-error",
+      "revision": "2026-07-28",
+      "definition": "ParseError",
+      "rootClass": "WP\\McpSchema\\Record\\ParseError",
+      "valid": [
+        {"code": -32700, "message": "Parse error"},
+        {"code": -32700.0, "message": "Parse error", "data": {"line": 1}}
+      ],
+      "invalid": [
+        {"code": -32701, "message": "Parse error"},
+        {"code": -32700, "message": 1},
+        {"code": -32700}
+      ]
+    },
+    {
+      "id": "2025-jsonrpc-message",
+      "revision": "2025-11-25",
+      "definition": "JSONRPCMessage",
+      "rootClass": "WP\\McpSchema\\Contract\\JSONRPCMessage",
+      "valid": [
+        {"jsonrpc": "2.0", "id": 1, "method": "ping"},
+        {"jsonrpc": "2.0", "method": "notifications/cancelled"},
+        {"jsonrpc": "2.0", "id": "a", "result": {"resultType": "complete"}},
+        {"jsonrpc": "2.0", "id": 1, "error": {"code": -32000, "message": "failed"}}
+      ],
+      "invalid": [
+        {"jsonrpc": "1.0", "id": 1, "method": "ping"},
+        {"jsonrpc": "2.0"},
+        []
+      ]
+    },
+    {
+      "id": "2026-jsonrpc-message",
+      "revision": "2026-07-28",
+      "definition": "JSONRPCMessage",
+      "rootClass": "WP\\McpSchema\\Contract\\JSONRPCMessage",
+      "valid": [
+        {"jsonrpc": "2.0", "id": 1, "method": "server/discover"},
+        {"jsonrpc": "2.0", "method": "notifications/cancelled"},
+        {"jsonrpc": "2.0", "id": "a", "result": {"resultType": "complete"}},
+        {"jsonrpc": "2.0", "error": {"code": -32000, "message": "failed"}}
+      ],
+      "invalid": [
+        {"jsonrpc": "1.0", "id": 1, "method": "server/discover"},
+        {"jsonrpc": "2.0", "method": 1},
+        "message"
+      ]
+    },
+    {
+      "id": "2025-content-block",
+      "revision": "2025-11-25",
+      "definition": "ContentBlock",
+      "rootClass": "WP\\McpSchema\\Contract\\ContentBlock",
+      "valid": [
+        {"type": "text", "text": "hello"},
+        {"type": "image", "data": "not-validated-as-base64", "mimeType": "image/png"},
+        {"type": "resource_link", "name": "guide", "uri": "not-validated-as-uri"}
+      ],
+      "invalid": [
+        {"type": "text"},
+        {"type": "unknown", "text": "hello"},
+        "text"
+      ]
+    },
+    {
+      "id": "2026-content-block",
+      "revision": "2026-07-28",
+      "definition": "ContentBlock",
+      "rootClass": "WP\\McpSchema\\Contract\\ContentBlock",
+      "valid": [
+        {"type": "text", "text": "hello"},
+        {"type": "audio", "data": "not-validated-as-base64", "mimeType": "audio/wav"},
+        {"type": "resource_link", "name": "guide", "uri": "not-validated-as-uri"}
+      ],
+      "invalid": [
+        {"type": "image", "data": "value"},
+        {"type": "resource_link", "uri": "value"},
+        null
+      ]
+    },
+    {
+      "id": "2025-annotations",
+      "revision": "2025-11-25",
+      "definition": "Annotations",
+      "rootClass": "WP\\McpSchema\\Record\\Annotations",
+      "valid": [
+        {},
+        {"audience": ["user", "assistant"], "priority": 0.5},
+        {"lastModified": "not-validated-as-date-time"}
+      ],
+      "invalid": [
+        {"audience": ["system"]},
+        {"priority": -0.1},
+        {"priority": 1.1}
+      ]
+    },
+    {
+      "id": "2026-resource",
+      "revision": "2026-07-28",
+      "definition": "Resource",
+      "rootClass": "WP\\McpSchema\\Record\\Resource",
+      "valid": [
+        {"name": "guide", "uri": "not-validated-as-uri"},
+        {"name": "guide", "uri": "file:///tmp/guide", "size": 1}
+      ],
+      "invalid": [
+        {"uri": "file:///tmp/guide"},
+        {"name": "guide", "uri": "file:///tmp/guide", "size": 1.5},
+        {"name": "guide", "uri": 1}
+      ]
+    }
+  ]
+}

@@ -1,19 +1,27 @@
 # Exclude dev-only files and directories from Composer package distribution
 
 # Directories
-/.claude                export-ignore
 /.github                export-ignore
-/.idea                  export-ignore
 /generator              export-ignore
-/skill                  export-ignore
+/docs                   export-ignore
+/resources              export-ignore
+/tests                  export-ignore
 
 # Files
+/.DS_Store              export-ignore
 /.gitattributes         export-ignore
+/.git                   export-ignore
 /.gitignore             export-ignore
+/.phpunit.result.cache  export-ignore
+/AGENTS.md              export-ignore
 /CLAUDE.md              export-ignore
 /composer.lock          export-ignore
 /CONTRIBUTING.md        export-ignore
 /phpstan.neon           export-ignore
+/phpunit.xml.dist       export-ignore
 
 # Patterns
 *.DS_Store              export-ignore
+
+# Canonical sources are vendored byte-for-byte; preserve upstream EOF bytes.
+/resources/schema/*/schema.json whitespace=-blank-at-eof

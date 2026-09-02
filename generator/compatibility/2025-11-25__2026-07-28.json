@@ -1,0 +1,22 @@
+{
+  "formatVersion": 1,
+  "reviewedStructuralFingerprint": "cc9146a793c2745b61ce82470cb961a47ca6488ce353442bc35d1d09db8ce655",
+  "decisions": {
+    "getter:CallToolResult.structuredContent": {
+      "classification": "shared-getter-native-category-change",
+      "rationale": "The 2026 revision deliberately widens structuredContent from an object to any JSON value; exact selected-schema validation remains the authority for each record."
+    },
+    "getter:ToolResultContent.structuredContent": {
+      "classification": "shared-getter-native-category-change",
+      "rationale": "The 2026 revision deliberately widens structuredContent from an object to any JSON value; the shared getter must represent both validated wire contracts."
+    },
+    "kind:ClientNotification:union->object": {
+      "classification": "kind-specific-symbol",
+      "rationale": "The canonical name changes from a 2025 aggregate union to a 2026 object, so separate Contract and Record symbols preserve both kinds with exact revision availability."
+    },
+    "kind:ClientResult:union->alias": {
+      "classification": "kind-specific-symbol",
+      "rationale": "The canonical name changes from a 2025 aggregate union to a 2026 object alias, so separate Contract and Record symbols preserve both kinds with exact revision availability."
+    }
+  }
+}

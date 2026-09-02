@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     name: PHPStan - PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v4
@@ -31,4 +31,41 @@ jobs:
 
       - run: composer validate --strict
 
+      - run: composer autoload:verify
+
+      - run: composer test
+
       - run: composer analyse
+
+  generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: generator/package-lock.json
+
+      - run: npm ci
+        working-directory: generator
+
+      - run: npm run verify
+        working-directory: generator
+
+  artifact:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.4', '8.5']
+    name: Composer artifact - PHP ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - run: composer artifact:verify

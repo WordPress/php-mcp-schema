@@ -1,0 +1,223 @@
+{
+  "formatVersion": 1,
+  "cases": [
+    {
+      "id": "scalar-type-union-and-enum",
+      "schema": {
+        "anyOf": [
+          {
+            "type": ["integer", "string"]
+          },
+          {
+            "enum": [true, false]
+          }
+        ],
+        "description": "Exercises scalar unions and enum assertions."
+      },
+      "valid": [1, "one", true, false],
+      "invalid": [null, [], {}]
+    },
+    {
+      "id": "object-required-const-and-closed-properties",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "const": "2.0",
+            "type": "string"
+          },
+          "method": {
+            "const": "ping",
+            "type": "string"
+          }
+        },
+        "required": ["jsonrpc", "method"],
+        "additionalProperties": false
+      },
+      "valid": [
+        {
+          "jsonrpc": "2.0",
+          "method": "ping"
+        }
+      ],
+      "invalid": [
+        {
+          "jsonrpc": "2.0"
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "other"
+        },
+        {
+          "jsonrpc": "2.0",
+          "method": "ping",
+          "extra": true
+        }
+      ]
+    },
+    {
+      "id": "local-reference-in-property-and-array-items",
+      "schema": {
+        "$defs": {
+          "Entry": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "primary": {
+            "$ref": "#/$defs/Entry"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Entry"
+            },
+            "maxItems": 2
+          }
+        },
+        "required": ["entries", "primary"]
+      },
+      "valid": [
+        {
+          "primary": {
+            "name": "first"
+          },
+          "entries": [
+            {
+              "name": "first"
+            },
+            {
+              "name": "second"
+            }
+          ]
+        }
+      ],
+      "invalid": [
+        {
+          "primary": {
+            "name": "first"
+          },
+          "entries": [{"name": "1"}, {"name": "2"}, {"name": "3"}]
+        },
+        {
+          "primary": {},
+          "entries": []
+        }
+      ]
+    },
+    {
+      "id": "all-of-with-reference",
+      "schema": {
+        "$defs": {
+          "Base": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              }
+            },
+            "required": ["id"]
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/$defs/Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          }
+        ]
+      },
+      "valid": [
+        {
+          "id": 1,
+          "name": "one"
+        }
+      ],
+      "invalid": [
+        {
+          "id": 1
+        },
+        {
+          "name": "one"
+        }
+      ]
+    },
+    {
+      "id": "all-of-primitive-refinement",
+      "schema": {
+        "allOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "const": -32022,
+            "type": "integer"
+          }
+        ]
+      },
+      "valid": [-32022],
+      "invalid": [-32021, "-32022", {}]
+    },
+    {
+      "id": "typed-additional-properties",
+      "schema": {
+        "type": "object",
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "valid": [
+        {},
+        {
+          "alpha": "one",
+          "beta": 2
+        }
+      ],
+      "invalid": [
+        {
+          "alpha": false
+        }
+      ]
+    },
+    {
+      "id": "numeric-bounds",
+      "schema": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "valid": [0, 0.5, 1],
+      "invalid": [-0.1, 1.1, "0.5"]
+    },
+    {
+      "id": "format-is-annotation",
+      "schema": {
+        "type": "string",
+        "format": "uri"
+      },
+      "valid": ["https://example.com", "not validated as a URI"],
+      "invalid": [1, null]
+    }
+  ]
+}

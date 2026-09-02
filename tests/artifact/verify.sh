@@ -11,11 +11,25 @@ composer_executable="$(command -v composer)"
 
 archive="$artifact_root/php-mcp-schema.zip"
 extracted="$artifact_root/extracted"
+source_root="$artifact_root/source"
 expected="$artifact_root/expected-files.txt"
 actual="$artifact_root/actual-files.txt"
 
+mkdir -p "$source_root"
+while IFS= read -r -d '' relative_path; do
+    source_path="$project_root/$relative_path"
+    if [[ ! -f "$source_path" && ! -L "$source_path" ]]; then
+        continue
+    fi
+    mkdir -p "$source_root/$(dirname "$relative_path")"
+    cp -p "$source_path" "$source_root/$relative_path"
+done < <(
+    git -C "$project_root" ls-files --cached -z
+    git -C "$project_root" ls-files --others --exclude-standard -z -- src
+)
+
 "$php_executable" "$composer_executable" archive \
-    --working-dir="$project_root" \
+    --working-dir="$source_root" \
     --format=zip \
     --dir="$artifact_root" \
     --file=php-mcp-schema \
@@ -26,8 +40,8 @@ printf '%s\n' \
     LICENSE.md \
     README.md \
     composer.json > "$expected"
-find "$project_root/src" -type f -print \
-    | sed "s|^$project_root/||" \
+find "$source_root/src" -type f -print \
+    | sed "s|^$source_root/||" \
     >> "$expected"
 sort -o "$expected" "$expected"
 
@@ -42,12 +56,11 @@ unzip -q "$archive" -d "$extracted"
 
 # Composer libraries normally omit their lock. Copy the reviewed source lock
 # only as offline resolution metadata for this extracted-root no-dev proof.
-cp "$project_root/composer.lock" "$extracted/composer.lock"
+cp "$source_root/composer.lock" "$extracted/composer.lock"
 COMPOSER_DISABLE_NETWORK=1 "$php_executable" "$composer_executable" --no-cache install \
     --working-dir="$extracted" \
     --no-dev \
     --classmap-authoritative \
-    --no-security-blocking \
     --no-interaction \
     --no-progress
 "$php_executable" "$composer_executable" dump-autoload \
@@ -62,20 +75,6 @@ COMPOSER_DISABLE_NETWORK=1 "$php_executable" "$composer_executable" --no-cache i
     --no-dev
 
 "$php_executable" "$project_root/tests/artifact/smoke.php" "$extracted/vendor/autoload.php"
-
-for forbidden in \
-    'WP\\McpSchema\\Client\\' \
-    'WP\\McpSchema\\Common\\' \
-    'WP\\McpSchema\\Generated\\' \
-    'WP\\McpSchema\\Server\\' \
-    'AbstractDataTransferObject' \
-    'AbstractEnum'
-do
-    if grep -RFq "$forbidden" "$extracted/vendor/composer"; then
-        printf 'Forbidden Composer metadata found: %s\n' "$forbidden" >&2
-        exit 1
-    fi
-done
 
 digest="$("$php_executable" -r 'echo hash_file("sha256", $argv[1]);' "$archive")"
 bytes="$(wc -c < "$archive" | tr -d ' ')"

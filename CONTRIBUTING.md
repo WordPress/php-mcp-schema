@@ -58,11 +58,14 @@ Adding or removing a supported revision requires:
 
 1. A commit-pinned official source and reviewed SHA-256 digest.
 2. A compatibility comparison against every still-supported revision.
-3. Explicit source-cited classifications for every structural, getter, kind,
-   and directional message change.
+3. Generated structural, field, and directional-message inventories, plus a
+   rationale-bearing review decision for each native getter-category or
+   same-name kind change.
 4. Updated behavioral and cross-revision tests.
 
-Unknown schema constructs and unclassified changes must fail generation.
+Unknown schema constructs, semantic `$ref` siblings, and unreviewed getter or
+kind changes must fail generation. The executable file layout and commands are
+documented in [the generator guide](generator/README.md#add-a-supported-revision).
 
 ## Handwritten runtime changes
 

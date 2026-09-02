@@ -4,10 +4,10 @@ The exact-revision schema runtime replaces every generated DTO, union factory,
 enum object, validation flag, and `toArray()` variant. There are no aliases or
 parallel construction paths.
 
-Ordinary WordPress Ability authors should not add protocol-revision branches.
-MCP Adapter owns revision-specific projection, required protocol defaults, and
-omission of fields removed by a selected revision. Direct consumers of this
-package must migrate as described below.
+Applications select the revision from their own negotiation or request context,
+then intersect canonical availability with the handlers and capabilities they
+implement. This package does not define application defaults, transport policy,
+or dispatch behavior.
 
 ## Select an exact revision
 
@@ -95,8 +95,10 @@ if ($block instanceof TextContent) {
 }
 ```
 
-Official union order is preserved. Same-name kind changes are intentionally
-represented by different roots. For example,
+For overlapping object unions, hydration now chooses the valid member declaring
+the most input keys; canonical order breaks a tie. Scalar unions keep canonical
+first-match behavior, and JSON Schema `anyOf` validity is unchanged. Same-name
+kind changes are intentionally represented by different roots. For example,
 `Contract\ClientNotification` is a `2025-11-25` union root, while
 `Record\ClientNotification` is a `2026-07-28` object root.
 
@@ -141,9 +143,16 @@ represent consistently:
   rejected; and
 - validation failures include JSON Pointer paths where applicable.
 
-For unconstrained values, use `new stdClass()` when an empty object must be
-unambiguous. An empty PHP array is interpreted using the expected schema
-position.
+PHP converts numeric-string array keys such as `"0"` to integers, so
+`fromArray()` cannot represent an object consisting only of sequential numeric
+keys. Use `fromJson()` or an explicit `stdClass` when those keys matter.
+
+For empty values, `fromArray()` interprets `array()` as an object only where the
+selected schema requires an object; otherwise it remains the JSON list `[]`.
+For example, empty `structuredContent` becomes `{}` under `2025-11-25`, where
+that field is object-constrained, and remains `[]` under unconstrained
+`2026-07-28`. Use `new stdClass()` when an unconstrained empty object must be
+unambiguous.
 
 ## Account for revision removals and replacements
 
@@ -159,26 +168,16 @@ Notable differences include:
 - `Tool.execution` is declared under `2025-11-25` but not under `2026-07-28`.
   Peer-supplied data with that key can still round-trip as opaque extension data;
   the named getter does not revive removed semantics.
-- `CallToolResult.structuredContent` and numeric elicitation bounds widen under
-  `2026-07-28` and remain narrow under `2025-11-25`.
+- `CallToolResult.structuredContent` widens from object-only in `2025-11-25` to
+  any JSON value in `2026-07-28`.
+- Fractional `ElicitResult.content` values and fractional
+  `NumberSchema.default`/`minimum`/`maximum` values are accepted in both
+  revisions through reviewed canonical corrections. `JSONValue` additionally
+  accepts fractional numbers and `null` in `2026-07-28`.
 
 Use the selected schema's directional availability methods before dispatch or
 advertisement. Schema availability is complete; an application must still
 intersect it with handlers it actually implements.
-
-## MCP Adapter integration boundary
-
-MCP Adapter must pass the selected `Schema` into protocol-facing catalog,
-metadata, dispatch, decode, and encode paths. Its list filters receive
-revision-projected records, and components are validated and cached separately
-per revision. A projection failure removes a component only from that revision;
-global registration fails only if no supported projection succeeds.
-
-Existing Ability registration, permissions, execution callbacks, hooks, and
-logical results remain unchanged where the selected MCP revision still defines
-or replaces that capability. Adapter supplies conservative protocol-owned 2026
-defaults: `resultType: "complete"`, `ttlMs: 0`, and
-`cacheScope: "private"`.
 
 ## Removed API checklist
 
@@ -196,42 +195,26 @@ Remove consumer references to:
 Then select an exact schema, construct through `Schema`, use generated getters
 or `get()`/`has()`, and serialize with `jsonSerialize()`.
 
-## WordPress MCP Adapter migration
+## Reviewed canonical JSON corrections
 
-The Adapter consumes the new runtime at the raw transport boundary. It selects
-one exact revision, passes the matching `Schema` in an immutable request
-context, hydrates the incoming request before dispatch, and hydrates the exact
-result and JSON-RPC response before encoding.
+The package preserves each downloaded `schema.json` byte-for-byte and verifies
+its raw digest. Before audit and generation, one verified loader applies a
+digest-pinned patch ledger whose entries name the exact old value, replacement,
+rationale, and authoritative `schema.ts` line. Generated catalogs, the AJV
+oracle, and PHP tests all consume that same effective document.
 
-Adapter component definitions remain backward compatible at their logical
-Ability-facing input boundary. Each component is projected independently into
-the 2025 and 2026 catalogs. A revision-specific projection failure removes only
-that projection; registration is rejected globally only when no supported
-projection succeeds. Adapter supplies conservative 2026 protocol-owned defaults
-of `resultType: "complete"`, `ttlMs: 0`, and `cacheScope: "private"` when the
-logical component does not provide revision-specific values.
+The reviewed corrections are:
 
-The migration removes Adapter DTO factories, DTO serialization helpers,
-validation-mode filters, and protocol DTO accessors literally. There are no
-aliases, facades, class aliases, or revision-neutral substitute DTOs.
+- `ElicitResult.content` accepts `number` values in both revisions, matching the
+  pinned TypeScript definitions for
+  [2025-11-25](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2481)
+  and
+  [2026-07-28](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L3148).
+- `2026-07-28` `JSONValue` accepts `number` and `null`, matching its
+  [TypeScript union](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L6-L7).
+- `2025-11-25` `NumberSchema.default`, `minimum`, and `maximum` accept `number`,
+  matching the
+  [TypeScript fields](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2258-L2260).
 
-The completed Adapter integration is reviewable on branch
-`feature/dual-revision-schema-runtime` at exact commit
-`2b98fee235220c3771f3726e294a9bba5be6546a`. Its Composer lock deliberately
-pins this schema runtime to exact implementation ref `a0fb1ee`; later
-documentation-only schema commits do not change that runtime dependency.
-
-## Numeric elicitation answers in 2026-07-28
-
-The runtime preserves fractional values in `ElicitResult.content`, including
-answers nested in `InputResponses` and retried tool requests. It does not convert
-them to strings or integers. Other integer-only fields and 2025-11-25 behavior
-are unchanged.
-
-This is one named protocol correction: the pinned canonical JSON limits these
-answer values to integers, but the same revision's
-[official TypeScript](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ca4ab3027f7c844cd3039c956438d72e8253f7f5/schema/2026-07-28/schema.ts#L3148)
-and [form specification](https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation#requested-schema)
-permit numbers. The handwritten interpreter corrects only this definition;
-canonical source files, their digests, and generated catalogs remain unchanged.
-The correction can be removed after an upstream fix is pinned.
+Other integer-constrained fields remain integer-only, and integral floats that
+fit the native PHP integer range retain their float kind.

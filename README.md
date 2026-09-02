@@ -80,7 +80,10 @@ if ($request instanceof CallToolRequest) {
 ```
 
 Useful union construction roots live under `WP\McpSchema\Contract`. Official
-union order determines which concrete `WP\McpSchema\Record` is returned.
+JSON Schema `anyOf` validity is preserved. When more than one object member is
+valid, hydration chooses the member declaring the most keys present in the
+input; canonical order breaks a tie. Scalar unions keep canonical first-match
+behavior.
 
 ## Records and wire identity
 
@@ -98,8 +101,12 @@ fields and present extension keys, and rejects unknown absent keys.
 `jsonSerialize()` returns a defensive `stdClass` and is the complete wire-output
 API.
 
-Sequential PHP arrays are JSON lists. Associative arrays are JSON objects. Use
-`new stdClass()` when an unconstrained empty JSON object must be unambiguous.
+Sequential PHP arrays are JSON lists and associative arrays are JSON objects.
+PHP converts numeric-string array keys such as `"0"` to integers, so use
+`fromJson()` or `stdClass` for objects made only of sequential numeric keys.
+An empty `array()` becomes an object only where the selected schema requires an
+object; in an unconstrained position it remains `[]`. Use `new stdClass()` when
+an unconstrained empty JSON object must be unambiguous.
 
 ## Exact message availability
 

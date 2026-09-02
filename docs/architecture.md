@@ -81,13 +81,21 @@ symbols instead of inventing a false common contract. For example, a definition
 that is a union in one revision and an object in another can have a construction
 root under `Contract` for the first revision and a concrete symbol under
 `Record` for the second. Exact-revision availability determines which root may
-be constructed.
+be constructed. The current same-short-name pairs are `ClientNotification` and
+`ClientResult`; their generated class documentation links each `Contract` symbol
+to its `Record` sibling and states exact availability.
 
 Object aliases receive nominal record classes and hydrate directly from the
 referenced fields. Scalar, list, and mixed aliases remain native values or
 internal implementation details. Contracts are generated only for unions that
 provide a useful public object boundary, not for every structural union in the
 canonical schemas.
+
+JSON Schema `anyOf` validity remains any-match. Hydration of an object that
+matches more than one object member chooses the successful member declaring the
+largest number of keys present in the input, with canonical order as the tie
+breaker. This rule applies recursively to nested object unions. Scalar unions
+retain canonical first-match hydration.
 
 Records also expose generic field access:
 
@@ -97,6 +105,10 @@ Records also expose generic field access:
   absent unknown field throws `UnknownFieldException`.
 - `jsonSerialize()` returns the complete wire representation as a defensive
   `stdClass`.
+
+The declared-field mask is intentionally not a public API. Consumers use
+`has()` to distinguish omission and the generated nullable getter to observe
+whether a revision-declared field has a value.
 
 Named nested objects become records. Anonymous JSON objects remain `stdClass`
 instances, and JSON arrays remain PHP lists. Mutable native values returned by a
@@ -120,6 +132,10 @@ from one revision into another revision never bypasses the target schema.
 
 The interpreter implements the JSON Schema vocabulary and combinations required
 by the pinned MCP documents. It is not a general-purpose JSON Schema library.
+Canonical `format` values are retained as annotations and are not validated by
+the runtime or the AJV oracle; applications may apply format-specific policy at
+their own boundary.
+
 Among other canonical constraints, construction preserves or enforces:
 
 - JSON object versus list identity, including `{}` versus `[]`;
@@ -160,10 +176,11 @@ paths. This prevents generation from deleting handwritten siblings such as
 `src/Record.php`, `src/Schema.php`, and other files under `src/Internal/`.
 
 The generator audits each new revision against every still-supported revision.
-A reviewed compatibility classification accounts for structural changes,
-same-name kind changes, getter compatibility, and directional message
-availability. Unknown schema constructs and unclassified compatibility changes
-fail generation instead of being ignored.
+Structural, field, and directional-message changes are generated evidence.
+Human review is limited to rationale-bearing decisions for same-name kind
+changes and getter changes that cross native PHP value categories. Unknown
+schema constructs, semantic `$ref` siblings, and missing review decisions fail
+generation instead of being ignored.
 
 AJV is a development-only conformance oracle for the canonical documents and
 structural fixtures. Production Composer installations do not include AJV,

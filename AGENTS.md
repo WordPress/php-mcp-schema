@@ -39,8 +39,9 @@ schema revisions.
 
 ## Architecture
 
-- Read `docs/dual-revision-schema-runtime-proposal.md` before changing public
-  records, revision availability, validation, hydration, or Adapter boundaries.
+- Read `docs/architecture.md` before changing public
+  records, revision availability, validation, hydration, or application
+  boundaries.
 - Catalogs own exact structural validation and directional message availability.
 - Compatible named objects share records; same-name kind changes use
   kind-specific symbols with exact-revision availability.

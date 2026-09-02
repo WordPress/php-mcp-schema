@@ -19,9 +19,9 @@ output before replacing only that explicit allowlist; handwritten siblings such
 as `src/Record.php`, `src/Schema.php`, and other `src/Internal/` files are never
 part of its deletion boundary.
 
-Read [the architecture proposal](docs/dual-revision-schema-runtime-proposal.md)
+Read [the architecture](docs/architecture.md)
 before changing the public record model, revision availability, schema
-interpretation, or Adapter boundary.
+interpretation, or application boundary.
 
 ## Requirements and setup
 

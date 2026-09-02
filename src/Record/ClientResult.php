@@ -8,6 +8,12 @@ declare(strict_types=1);
 
 namespace WP\McpSchema\Record;
 
+/**
+ * Canonical record available in: 2026-07-28.
+ *
+ * The same short name is also used by \WP\McpSchema\Contract\ClientResult,
+ * a canonical union construction root available in: 2025-11-25.
+ */
 final class ClientResult extends \WP\McpSchema\Record
 {
     public const DEFINITION = 'ClientResult';

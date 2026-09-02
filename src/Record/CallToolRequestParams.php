@@ -35,6 +35,8 @@ final class CallToolRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return \WP\McpSchema\Record\InputResponses|null
      */
     public function getInputResponses(): ?\WP\McpSchema\Record\InputResponses
@@ -57,6 +59,8 @@ final class CallToolRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getRequestState(): ?string
@@ -68,6 +72,8 @@ final class CallToolRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \WP\McpSchema\Record\TaskMetadata|null
      */
     public function getTask(): ?\WP\McpSchema\Record\TaskMetadata

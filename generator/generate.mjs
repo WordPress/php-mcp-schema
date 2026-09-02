@@ -6,22 +6,23 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   GENERATED_DIRECTORIES,
   GENERATED_FILES,
-  LEGACY_GENERATED_PATHS,
 } from './lib/generated-layout.mjs';
+import { loadCanonicalSchemas } from './lib/canonical-schema.mjs';
 import { phpFile, phpLiteral, phpString } from './lib/php-code.mjs';
 import {
+  SUPPORTED_SCHEMA_KEYWORDS,
   aggregateMethods,
   effectiveObject,
+  nominalAllOfRecordName,
   publicSymbol,
   rawKind,
   referenceName,
-  resolvedKind,
+  requiredCompatibilityDecisions,
   stableValue,
 } from './lib/schema-tools.mjs';
 
 const generatorDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryDirectory = resolve(generatorDirectory, '..');
-const sourceManifest = JSON.parse(await readFile(resolve(generatorDirectory, 'schema-sources.json'), 'utf8'));
 const compatibility = JSON.parse(
   await readFile(resolve(repositoryDirectory, 'resources', 'schema', 'compatibility-manifest.json'), 'utf8'),
 );
@@ -61,7 +62,7 @@ function contractMembers(name, definitions, seen = new Set()) {
 
 function literalDocType(value) {
   if (typeof value === 'string') return `'${value.replaceAll("'", "\\'")}'`;
-  if (typeof value === 'number') return Number.isInteger(value) ? String(value) : String(value);
+  if (typeof value === 'number') return String(value);
   if (typeof value === 'boolean') return value ? 'true' : 'false';
   if (value === null) return 'null';
   return 'mixed';
@@ -79,6 +80,8 @@ function docTypes(schema, definitions, seen = new Set()) {
   if (schema.anyOf) {
     return [...new Set(schema.anyOf.flatMap((member) => docTypes(member, definitions, seen)))].sort();
   }
+  const nominalAllOf = nominalAllOfRecordName(schema, definitions);
+  if (nominalAllOf) return [`\\WP\\McpSchema\\Record\\${className(nominalAllOf)}`];
   if (schema.allOf || schema.properties || schema.type === 'object') return ['\\stdClass'];
   if (schema.enum) return [...new Set(schema.enum.map(literalDocType))].sort();
   if (schema.const !== undefined) return [literalDocType(schema.const)];
@@ -101,7 +104,8 @@ function docTypes(schema, definitions, seen = new Set()) {
 
 function nativeCategory(type) {
   if (type === 'string' || /^'.*'$/u.test(type)) return 'string';
-  if (type === 'int' || /^-?\d+(?:\.\d+)?$/u.test(type)) return 'int';
+  if (/^-?\d+(?:\.\d+)?$/u.test(type)) return 'number';
+  if (type === 'int') return 'int';
   if (type === 'float') return 'float';
   if (type === 'bool' || type === 'true' || type === 'false') return 'bool';
   if (type.startsWith('array<')) return 'array';
@@ -115,18 +119,32 @@ function getterContract(types) {
   const nonNull = unique.filter((type) => type !== 'null');
   const categories = [...new Set(nonNull.map(nativeCategory).filter(Boolean))];
   let native = null;
-  if (categories.length === 1 && nonNull.every((type) => nativeCategory(type) === categories[0])) {
+  if (
+    categories.length === 1 &&
+    categories[0] !== 'number' &&
+    nonNull.every((type) => nativeCategory(type) === categories[0])
+  ) {
     native = categories[0];
     if (nullable) native = `?${native}`;
   }
   return { doc: unique.join('|') || 'mixed', native };
 }
 
-function renderGetter(field, types) {
+function renderGetter(field, types, declaredVersions = []) {
   const method = getterName(field);
   const contract = getterContract(types);
   const returnType = contract.native ? `: ${contract.native}` : '';
-  return `    /**\n     * @return ${contract.doc}\n     */\n    public function ${method}()${returnType}\n    {\n        /** @var ${contract.doc} $value */\n        $value = $this->declaredValue(${phpString(field)});\n\n        return $value;\n    }`;
+  const declared = declaredVersions.length > 0
+    ? `     * Declared in: ${declaredVersions.join(', ')}.\n     *\n`
+    : '';
+  return `    /**\n${declared}     * @return ${contract.doc}\n     */\n    public function ${method}()${returnType}\n    {\n        /** @var ${contract.doc} $value */\n        $value = $this->declaredValue(${phpString(field)});\n\n        return $value;\n    }`;
+}
+
+function siblingSymbolDoc(name, kind, versions, siblingKind, siblingVersions) {
+  const siblingNamespace = siblingKind === 'record' ? 'Record' : 'Contract';
+  const role = kind === 'record' ? 'record' : 'union construction root';
+  const siblingRole = siblingKind === 'record' ? 'record' : 'union construction root';
+  return `/**\n * Canonical ${role} available in: ${versions.join(', ')}.\n *\n * The same short name is also used by \\WP\\McpSchema\\${siblingNamespace}\\${name},\n * a canonical ${siblingRole} available in: ${siblingVersions.join(', ')}.\n */\n`;
 }
 
 function enumConstants(values) {
@@ -164,6 +182,48 @@ function messageAvailability(definitions) {
   };
 }
 
+export function assertCompatibilityDecisions(documents, manifest = compatibility) {
+  const versions = Object.keys(documents);
+  const expectedComparisonCount = (versions.length * (versions.length - 1)) / 2;
+  if (Object.keys(manifest.comparisons).length !== expectedComparisonCount) {
+    throw new Error('Compatibility manifest does not cover every supported revision pair');
+  }
+
+  for (let olderIndex = 0; olderIndex < versions.length; olderIndex += 1) {
+    for (let newerIndex = olderIndex + 1; newerIndex < versions.length; newerIndex += 1) {
+      const olderVersion = versions[olderIndex];
+      const newerVersion = versions[newerIndex];
+      const pair = `${olderVersion}__${newerVersion}`;
+      const comparison = manifest.comparisons[pair];
+      if (!comparison) throw new Error(`Compatibility manifest is missing ${pair}`);
+      const expected = requiredCompatibilityDecisions(
+        olderVersion,
+        documents[olderVersion].$defs,
+        newerVersion,
+        documents[newerVersion].$defs,
+      );
+      const actual = comparison.reviewDecisions || {};
+      const expectedKeys = Object.keys(expected);
+      const actualKeys = Object.keys(actual).sort();
+      const missing = expectedKeys.filter((key) => !(key in actual));
+      const extra = actualKeys.filter((key) => !(key in expected));
+      if (missing.length > 0 || extra.length > 0) {
+        throw new Error(`${pair} getter/kind decisions mismatch; missing=${missing.join(',')} extra=${extra.join(',')}`);
+      }
+      for (const key of expectedKeys) {
+        if (
+          actual[key].classification !== expected[key].classification ||
+          JSON.stringify(stableValue(actual[key].evidence)) !== JSON.stringify(stableValue(expected[key].evidence)) ||
+          typeof actual[key].rationale !== 'string' ||
+          actual[key].rationale.trim().length < 20
+        ) {
+          throw new Error(`${pair} has an invalid getter/kind decision for ${key}`);
+        }
+      }
+    }
+  }
+}
+
 function resolveWithin(root, path) {
   const target = resolve(root, path);
   const relativePath = relative(root, target);
@@ -197,9 +257,6 @@ async function replaceGeneratedOutput(staging, output) {
     await rename(source, target);
   }
 
-  for (const path of LEGACY_GENERATED_PATHS) {
-    await rm(resolveWithin(output, path), { recursive: true, force: true });
-  }
 }
 
 export async function generate(outputDirectory = repositoryDirectory) {
@@ -209,17 +266,9 @@ export async function generate(outputDirectory = repositoryDirectory) {
   const staging = await mkdtemp(resolve(output, '.php-mcp-schema-stage-'));
 
   try {
-    const documents = {};
-    for (const version of Object.keys(sourceManifest)) {
-      documents[version] = JSON.parse(
-        await readFile(resolve(repositoryDirectory, 'resources', 'schema', version, 'schema.json'), 'utf8'),
-      );
-    }
+    const { documents } = await loadCanonicalSchemas();
 
-    const expectedComparisonCount = (Object.keys(sourceManifest).length * (Object.keys(sourceManifest).length - 1)) / 2;
-    if (Object.keys(compatibility.comparisons).length !== expectedComparisonCount) {
-      throw new Error('Compatibility manifest does not cover every supported revision pair');
-    }
+    assertCompatibilityDecisions(documents);
     const availabilityByVersion = Object.fromEntries(
       Object.entries(documents).map(([version, document]) => [version, messageAvailability(document.$defs)]),
     );
@@ -249,11 +298,11 @@ export async function generate(outputDirectory = repositoryDirectory) {
           recordFields[name] ||= {};
           const object = effectiveObject(name, definitions);
           for (const [field, schema] of Object.entries(object.properties)) {
-            recordFields[name][field] ||= { types: [], requiredEverywhere: true, appearances: 0 };
+            recordFields[name][field] ||= { types: [], requiredEverywhere: true, appearances: [] };
             const entry = recordFields[name][field];
             entry.types.push(...docTypes(schema, definitions));
             entry.requiredEverywhere = entry.requiredEverywhere && object.required.has(field);
-            entry.appearances += 1;
+            entry.appearances.push(version);
           }
         } else if (symbol === 'contract') {
           contractAvailability[name] ||= [];
@@ -275,22 +324,38 @@ export async function generate(outputDirectory = repositoryDirectory) {
       const methods = [];
       const getterNames = new Map();
       for (const [field, entry] of Object.entries(recordFields[name] || {}).sort(([a], [b]) => a.localeCompare(b))) {
-        if (entry.appearances !== versions.length || !entry.requiredEverywhere) entry.types.push('null');
+        if (entry.appearances.length !== versions.length || !entry.requiredEverywhere) entry.types.push('null');
         const method = getterName(field).toLowerCase();
         if (getterNames.has(method)) throw new Error(`${name} getter collision: ${field} and ${getterNames.get(method)}`);
         getterNames.set(method, field);
-        methods.push(renderGetter(field, entry.types));
+        methods.push(renderGetter(
+          field,
+          entry.types,
+          entry.appearances.length === versions.length ? [] : entry.appearances,
+        ));
       }
       const implementsList = [...(recordContracts[name] || new Set())]
         .sort()
         .map((contract) => `\\WP\\McpSchema\\Contract\\${contract}`);
       const implementsClause = implementsList.length > 0 ? ` implements ${implementsList.join(', ')}` : '';
-      const body = `final class ${className(name)} extends \\WP\\McpSchema\\Record${implementsClause}\n{\n    public const DEFINITION = ${phpString(name)};${methods.length > 0 ? `\n\n${methods.join('\n\n')}` : ''}\n}`;
+      const classDoc = contractAvailability[name]
+        ? siblingSymbolDoc(name, 'record', versions, 'contract', contractAvailability[name])
+        : '';
+      const body = `${classDoc}final class ${className(name)} extends \\WP\\McpSchema\\Record${implementsClause}\n{\n    public const DEFINITION = ${phpString(name)};${methods.length > 0 ? `\n\n${methods.join('\n\n')}` : ''}\n}`;
       await writeGenerated(staging, `src/Record/${name}.php`, phpFile('WP\\McpSchema\\Record', body));
     }
 
     for (const name of Object.keys(contractAvailability).sort()) {
-      const body = `interface ${className(name)} extends \\JsonSerializable\n{\n}`;
+      const classDoc = recordAvailability[name]
+        ? siblingSymbolDoc(
+          name,
+          'contract',
+          contractAvailability[name],
+          'record',
+          recordAvailability[name],
+        )
+        : '';
+      const body = `${classDoc}interface ${className(name)} extends \\JsonSerializable\n{\n}`;
       await writeGenerated(staging, `src/Contract/${name}.php`, phpFile('WP\\McpSchema\\Contract', body));
     }
 
@@ -311,7 +376,7 @@ export async function generate(outputDirectory = repositoryDirectory) {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([name, versions]) => [`WP\\McpSchema\\Contract\\${name}`, { definition: name, versions }]),
     );
-    const registryBody = `final class TypeRegistry\n{\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function records(): array\n    {\n        return ${phpLiteral(recordMap, 2)};\n    }\n\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function contracts(): array\n    {\n        return ${phpLiteral(contractMap, 2)};\n    }\n}`;
+    const registryBody = `final class TypeRegistry\n{\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function records(): array\n    {\n        return ${phpLiteral(recordMap, 2)};\n    }\n\n    /**\n     * @return array<class-string, array{definition: string, versions: array<int, string>}>\n     */\n    public static function contracts(): array\n    {\n        return ${phpLiteral(contractMap, 2)};\n    }\n\n    /**\n     * @return array<int, string>\n     */\n    public static function schemaKeywords(): array\n    {\n        return ${phpLiteral(SUPPORTED_SCHEMA_KEYWORDS, 2)};\n    }\n}`;
     await writeGenerated(
       staging,
       'src/Internal/TypeRegistry.php',

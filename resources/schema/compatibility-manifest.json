@@ -1,508 +1,6 @@
 {
   "comparisons": {
     "2025-11-25__2026-07-28": {
-      "classification": {
-        "adapterProjection": {
-          "abilityAuthorChangesRequired": false,
-          "failedRevisionIsolation": true,
-          "globalFailure": "only-when-no-supported-projection-succeeds",
-          "removedDeclaredFields": "retain-neutral-input-omit-newer-output",
-          "required2026Defaults": {
-            "cacheScope": "private",
-            "resultType": "complete",
-            "ttlMs": 0
-          }
-        },
-        "classifiedDifferences": {
-          "definition:add:CacheableResult": "revision-only-definition",
-          "definition:add:CallToolResultResponse": "revision-only-definition",
-          "definition:add:CompleteResultResponse": "revision-only-definition",
-          "definition:add:DiscoverRequest": "revision-only-definition",
-          "definition:add:DiscoverResult": "revision-only-definition",
-          "definition:add:DiscoverResultResponse": "revision-only-definition",
-          "definition:add:GetPromptResultResponse": "revision-only-definition",
-          "definition:add:HeaderMismatchError": "revision-only-definition",
-          "definition:add:InputRequest": "revision-only-definition",
-          "definition:add:InputRequests": "revision-only-definition",
-          "definition:add:InputRequiredResult": "revision-only-definition",
-          "definition:add:InputResponse": "revision-only-definition",
-          "definition:add:InputResponseRequestParams": "revision-only-definition",
-          "definition:add:InputResponses": "revision-only-definition",
-          "definition:add:InternalError": "revision-only-definition",
-          "definition:add:InvalidParamsError": "revision-only-definition",
-          "definition:add:InvalidRequestError": "revision-only-definition",
-          "definition:add:JSONArray": "revision-only-definition",
-          "definition:add:JSONObject": "revision-only-definition",
-          "definition:add:JSONValue": "revision-only-definition",
-          "definition:add:ListPromptsResultResponse": "revision-only-definition",
-          "definition:add:ListResourceTemplatesResultResponse": "revision-only-definition",
-          "definition:add:ListResourcesResultResponse": "revision-only-definition",
-          "definition:add:ListToolsResultResponse": "revision-only-definition",
-          "definition:add:MetaObject": "revision-only-definition",
-          "definition:add:MethodNotFoundError": "revision-only-definition",
-          "definition:add:MissingRequiredClientCapabilityError": "revision-only-definition",
-          "definition:add:NotificationMetaObject": "revision-only-definition",
-          "definition:add:ParseError": "revision-only-definition",
-          "definition:add:ReadResourceResultResponse": "revision-only-definition",
-          "definition:add:RequestMetaObject": "revision-only-definition",
-          "definition:add:ResultMetaObject": "revision-only-definition",
-          "definition:add:ResultType": "revision-only-definition",
-          "definition:add:SubscriptionFilter": "revision-only-definition",
-          "definition:add:SubscriptionsAcknowledgedNotification": "revision-only-definition",
-          "definition:add:SubscriptionsAcknowledgedNotificationParams": "revision-only-definition",
-          "definition:add:SubscriptionsListenRequest": "revision-only-definition",
-          "definition:add:SubscriptionsListenRequestParams": "revision-only-definition",
-          "definition:add:SubscriptionsListenResult": "revision-only-definition",
-          "definition:add:SubscriptionsListenResultMetaObject": "revision-only-definition",
-          "definition:add:SubscriptionsListenResultResponse": "revision-only-definition",
-          "definition:add:UnsupportedProtocolVersionError": "revision-only-definition",
-          "definition:change:AudioContent": "catalog-specific-structure",
-          "definition:change:BlobResourceContents": "catalog-specific-structure",
-          "definition:change:CallToolRequestParams": "catalog-specific-structure",
-          "definition:change:CallToolResult": "catalog-specific-structure",
-          "definition:change:CancelledNotificationParams": "catalog-specific-structure",
-          "definition:change:ClientCapabilities": "catalog-specific-structure",
-          "definition:change:ClientNotification": "catalog-specific-structure",
-          "definition:change:ClientRequest": "catalog-specific-structure",
-          "definition:change:ClientResult": "catalog-specific-structure",
-          "definition:change:CompleteRequestParams": "catalog-specific-structure",
-          "definition:change:CompleteResult": "catalog-specific-structure",
-          "definition:change:CreateMessageRequest": "catalog-specific-structure",
-          "definition:change:CreateMessageRequestParams": "catalog-specific-structure",
-          "definition:change:CreateMessageResult": "catalog-specific-structure",
-          "definition:change:ElicitRequest": "catalog-specific-structure",
-          "definition:change:ElicitRequestFormParams": "catalog-specific-structure",
-          "definition:change:ElicitRequestParams": "catalog-specific-structure",
-          "definition:change:ElicitRequestURLParams": "catalog-specific-structure",
-          "definition:change:ElicitResult": "catalog-specific-structure",
-          "definition:change:EmbeddedResource": "catalog-specific-structure",
-          "definition:change:GetPromptRequestParams": "catalog-specific-structure",
-          "definition:change:GetPromptResult": "catalog-specific-structure",
-          "definition:change:ImageContent": "catalog-specific-structure",
-          "definition:change:ListPromptsRequest": "catalog-specific-structure",
-          "definition:change:ListPromptsResult": "catalog-specific-structure",
-          "definition:change:ListResourceTemplatesRequest": "catalog-specific-structure",
-          "definition:change:ListResourceTemplatesResult": "catalog-specific-structure",
-          "definition:change:ListResourcesRequest": "catalog-specific-structure",
-          "definition:change:ListResourcesResult": "catalog-specific-structure",
-          "definition:change:ListRootsRequest": "catalog-specific-structure",
-          "definition:change:ListRootsResult": "catalog-specific-structure",
-          "definition:change:ListToolsRequest": "catalog-specific-structure",
-          "definition:change:ListToolsResult": "catalog-specific-structure",
-          "definition:change:LoggingMessageNotificationParams": "catalog-specific-structure",
-          "definition:change:NotificationParams": "catalog-specific-structure",
-          "definition:change:NumberSchema": "catalog-specific-structure",
-          "definition:change:PaginatedRequest": "catalog-specific-structure",
-          "definition:change:PaginatedRequestParams": "catalog-specific-structure",
-          "definition:change:PaginatedResult": "catalog-specific-structure",
-          "definition:change:ProgressNotificationParams": "catalog-specific-structure",
-          "definition:change:Prompt": "catalog-specific-structure",
-          "definition:change:ReadResourceRequestParams": "catalog-specific-structure",
-          "definition:change:ReadResourceResult": "catalog-specific-structure",
-          "definition:change:RequestParams": "catalog-specific-structure",
-          "definition:change:Resource": "catalog-specific-structure",
-          "definition:change:ResourceContents": "catalog-specific-structure",
-          "definition:change:ResourceLink": "catalog-specific-structure",
-          "definition:change:ResourceRequestParams": "catalog-specific-structure",
-          "definition:change:ResourceTemplate": "catalog-specific-structure",
-          "definition:change:ResourceUpdatedNotificationParams": "catalog-specific-structure",
-          "definition:change:Result": "catalog-specific-structure",
-          "definition:change:Root": "catalog-specific-structure",
-          "definition:change:SamplingMessage": "catalog-specific-structure",
-          "definition:change:ServerCapabilities": "catalog-specific-structure",
-          "definition:change:ServerNotification": "catalog-specific-structure",
-          "definition:change:ServerResult": "catalog-specific-structure",
-          "definition:change:TextContent": "catalog-specific-structure",
-          "definition:change:TextResourceContents": "catalog-specific-structure",
-          "definition:change:Tool": "catalog-specific-structure",
-          "definition:change:ToolResultContent": "catalog-specific-structure",
-          "definition:change:ToolUseContent": "catalog-specific-structure",
-          "definition:remove:CancelTaskRequest": "revision-only-definition",
-          "definition:remove:CancelTaskResult": "revision-only-definition",
-          "definition:remove:CreateTaskResult": "revision-only-definition",
-          "definition:remove:ElicitationCompleteNotification": "revision-only-definition",
-          "definition:remove:GetTaskPayloadRequest": "revision-only-definition",
-          "definition:remove:GetTaskPayloadResult": "revision-only-definition",
-          "definition:remove:GetTaskRequest": "revision-only-definition",
-          "definition:remove:GetTaskResult": "revision-only-definition",
-          "definition:remove:InitializeRequest": "revision-only-definition",
-          "definition:remove:InitializeRequestParams": "revision-only-definition",
-          "definition:remove:InitializeResult": "revision-only-definition",
-          "definition:remove:InitializedNotification": "revision-only-definition",
-          "definition:remove:ListTasksRequest": "revision-only-definition",
-          "definition:remove:ListTasksResult": "revision-only-definition",
-          "definition:remove:PingRequest": "revision-only-definition",
-          "definition:remove:RelatedTaskMetadata": "revision-only-definition",
-          "definition:remove:RootsListChangedNotification": "revision-only-definition",
-          "definition:remove:ServerRequest": "revision-only-definition",
-          "definition:remove:SetLevelRequest": "revision-only-definition",
-          "definition:remove:SetLevelRequestParams": "revision-only-definition",
-          "definition:remove:SubscribeRequest": "revision-only-definition",
-          "definition:remove:SubscribeRequestParams": "revision-only-definition",
-          "definition:remove:Task": "revision-only-definition",
-          "definition:remove:TaskAugmentedRequestParams": "revision-only-definition",
-          "definition:remove:TaskMetadata": "revision-only-definition",
-          "definition:remove:TaskStatus": "revision-only-definition",
-          "definition:remove:TaskStatusNotification": "revision-only-definition",
-          "definition:remove:TaskStatusNotificationParams": "revision-only-definition",
-          "definition:remove:ToolExecution": "revision-only-definition",
-          "definition:remove:URLElicitationRequiredError": "revision-only-definition",
-          "definition:remove:UnsubscribeRequest": "revision-only-definition",
-          "definition:remove:UnsubscribeRequestParams": "revision-only-definition",
-          "field:AudioContent._meta:schema": "catalog-specific-field-validation",
-          "field:BlobResourceContents._meta:schema": "catalog-specific-field-validation",
-          "field:CallToolRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:CallToolRequestParams.inputResponses:added": "union-of-compatible-field-getter",
-          "field:CallToolRequestParams.requestState:added": "union-of-compatible-field-getter",
-          "field:CallToolRequestParams.task:removed": "union-of-compatible-field-getter",
-          "field:CallToolResult._meta:schema": "catalog-specific-field-validation",
-          "field:CallToolResult.resultType:added": "union-of-compatible-field-getter",
-          "field:CallToolResult.structuredContent:schema": "catalog-specific-field-validation",
-          "field:CancelledNotificationParams._meta:schema": "catalog-specific-field-validation",
-          "field:CancelledNotificationParams.requestId:requiredness": "catalog-specific-field-validation",
-          "field:ClientCapabilities.elicitation:schema": "catalog-specific-field-validation",
-          "field:ClientCapabilities.experimental:schema": "catalog-specific-field-validation",
-          "field:ClientCapabilities.extensions:added": "union-of-compatible-field-getter",
-          "field:ClientCapabilities.roots:schema": "catalog-specific-field-validation",
-          "field:ClientCapabilities.sampling:schema": "catalog-specific-field-validation",
-          "field:ClientCapabilities.tasks:removed": "union-of-compatible-field-getter",
-          "field:CompleteRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:CompleteResult._meta:schema": "catalog-specific-field-validation",
-          "field:CompleteResult.completion:schema": "catalog-specific-field-validation",
-          "field:CompleteResult.resultType:added": "union-of-compatible-field-getter",
-          "field:CreateMessageRequest.id:removed": "union-of-compatible-field-getter",
-          "field:CreateMessageRequest.jsonrpc:removed": "union-of-compatible-field-getter",
-          "field:CreateMessageRequestParams._meta:removed": "union-of-compatible-field-getter",
-          "field:CreateMessageRequestParams.metadata:schema": "catalog-specific-field-validation",
-          "field:CreateMessageRequestParams.task:removed": "union-of-compatible-field-getter",
-          "field:CreateMessageResult._meta:schema": "catalog-specific-field-validation",
-          "field:ElicitRequest.id:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequest.jsonrpc:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequestFormParams._meta:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequestFormParams.task:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequestURLParams._meta:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequestURLParams.elicitationId:removed": "union-of-compatible-field-getter",
-          "field:ElicitRequestURLParams.task:removed": "union-of-compatible-field-getter",
-          "field:ElicitResult._meta:removed": "union-of-compatible-field-getter",
-          "field:EmbeddedResource._meta:schema": "catalog-specific-field-validation",
-          "field:EmptyResult._meta:schema": "catalog-specific-field-validation",
-          "field:EmptyResult.resultType:added": "union-of-compatible-field-getter",
-          "field:GetPromptRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:GetPromptRequestParams.inputResponses:added": "union-of-compatible-field-getter",
-          "field:GetPromptRequestParams.requestState:added": "union-of-compatible-field-getter",
-          "field:GetPromptResult._meta:schema": "catalog-specific-field-validation",
-          "field:GetPromptResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ImageContent._meta:schema": "catalog-specific-field-validation",
-          "field:ListPromptsRequest.params:requiredness": "catalog-specific-field-validation",
-          "field:ListPromptsResult._meta:schema": "catalog-specific-field-validation",
-          "field:ListPromptsResult.cacheScope:added": "union-of-compatible-field-getter",
-          "field:ListPromptsResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ListPromptsResult.ttlMs:added": "union-of-compatible-field-getter",
-          "field:ListResourceTemplatesRequest.params:requiredness": "catalog-specific-field-validation",
-          "field:ListResourceTemplatesResult._meta:schema": "catalog-specific-field-validation",
-          "field:ListResourceTemplatesResult.cacheScope:added": "union-of-compatible-field-getter",
-          "field:ListResourceTemplatesResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ListResourceTemplatesResult.ttlMs:added": "union-of-compatible-field-getter",
-          "field:ListResourcesRequest.params:requiredness": "catalog-specific-field-validation",
-          "field:ListResourcesResult._meta:schema": "catalog-specific-field-validation",
-          "field:ListResourcesResult.cacheScope:added": "union-of-compatible-field-getter",
-          "field:ListResourcesResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ListResourcesResult.ttlMs:added": "union-of-compatible-field-getter",
-          "field:ListRootsRequest.id:removed": "union-of-compatible-field-getter",
-          "field:ListRootsRequest.jsonrpc:removed": "union-of-compatible-field-getter",
-          "field:ListRootsRequest.params:schema": "catalog-specific-field-validation",
-          "field:ListRootsResult._meta:removed": "union-of-compatible-field-getter",
-          "field:ListToolsRequest.params:requiredness": "catalog-specific-field-validation",
-          "field:ListToolsResult._meta:schema": "catalog-specific-field-validation",
-          "field:ListToolsResult.cacheScope:added": "union-of-compatible-field-getter",
-          "field:ListToolsResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ListToolsResult.ttlMs:added": "union-of-compatible-field-getter",
-          "field:LoggingMessageNotificationParams._meta:schema": "catalog-specific-field-validation",
-          "field:NotificationParams._meta:schema": "catalog-specific-field-validation",
-          "field:NumberSchema.default:schema": "catalog-specific-field-validation",
-          "field:NumberSchema.maximum:schema": "catalog-specific-field-validation",
-          "field:NumberSchema.minimum:schema": "catalog-specific-field-validation",
-          "field:PaginatedRequest.params:requiredness": "catalog-specific-field-validation",
-          "field:PaginatedRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:PaginatedResult._meta:schema": "catalog-specific-field-validation",
-          "field:PaginatedResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ProgressNotificationParams._meta:schema": "catalog-specific-field-validation",
-          "field:Prompt._meta:schema": "catalog-specific-field-validation",
-          "field:ReadResourceRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:ReadResourceRequestParams.inputResponses:added": "union-of-compatible-field-getter",
-          "field:ReadResourceRequestParams.requestState:added": "union-of-compatible-field-getter",
-          "field:ReadResourceResult._meta:schema": "catalog-specific-field-validation",
-          "field:ReadResourceResult.cacheScope:added": "union-of-compatible-field-getter",
-          "field:ReadResourceResult.resultType:added": "union-of-compatible-field-getter",
-          "field:ReadResourceResult.ttlMs:added": "union-of-compatible-field-getter",
-          "field:RequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:Resource._meta:schema": "catalog-specific-field-validation",
-          "field:ResourceContents._meta:schema": "catalog-specific-field-validation",
-          "field:ResourceLink._meta:schema": "catalog-specific-field-validation",
-          "field:ResourceRequestParams._meta:schema": "catalog-specific-field-validation",
-          "field:ResourceTemplate._meta:schema": "catalog-specific-field-validation",
-          "field:ResourceUpdatedNotificationParams._meta:schema": "catalog-specific-field-validation",
-          "field:Result._meta:schema": "catalog-specific-field-validation",
-          "field:Result.resultType:added": "union-of-compatible-field-getter",
-          "field:Root._meta:schema": "catalog-specific-field-validation",
-          "field:SamplingMessage._meta:schema": "catalog-specific-field-validation",
-          "field:ServerCapabilities.completions:schema": "catalog-specific-field-validation",
-          "field:ServerCapabilities.experimental:schema": "catalog-specific-field-validation",
-          "field:ServerCapabilities.extensions:added": "union-of-compatible-field-getter",
-          "field:ServerCapabilities.logging:schema": "catalog-specific-field-validation",
-          "field:ServerCapabilities.tasks:removed": "union-of-compatible-field-getter",
-          "field:TextContent._meta:schema": "catalog-specific-field-validation",
-          "field:TextResourceContents._meta:schema": "catalog-specific-field-validation",
-          "field:Tool._meta:schema": "catalog-specific-field-validation",
-          "field:Tool.execution:removed": "union-of-compatible-field-getter",
-          "field:Tool.inputSchema:schema": "catalog-specific-field-validation",
-          "field:Tool.outputSchema:schema": "catalog-specific-field-validation",
-          "field:ToolResultContent._meta:schema": "catalog-specific-field-validation",
-          "field:ToolResultContent.structuredContent:schema": "catalog-specific-field-validation",
-          "field:ToolUseContent._meta:schema": "catalog-specific-field-validation",
-          "getter:AudioContent._meta": "reviewed-narrow-getter-contract",
-          "getter:BlobResourceContents._meta": "reviewed-narrow-getter-contract",
-          "getter:CallToolRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:CallToolRequestParams.inputResponses": "reviewed-narrow-getter-contract",
-          "getter:CallToolRequestParams.requestState": "reviewed-narrow-getter-contract",
-          "getter:CallToolRequestParams.task": "reviewed-narrow-getter-contract",
-          "getter:CallToolResult._meta": "reviewed-narrow-getter-contract",
-          "getter:CallToolResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:CallToolResult.structuredContent": "reviewed-narrow-getter-contract",
-          "getter:CancelledNotificationParams._meta": "reviewed-narrow-getter-contract",
-          "getter:CancelledNotificationParams.requestId": "reviewed-narrow-getter-contract",
-          "getter:ClientCapabilities.extensions": "reviewed-narrow-getter-contract",
-          "getter:ClientCapabilities.tasks": "reviewed-narrow-getter-contract",
-          "getter:CompleteRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:CompleteResult._meta": "reviewed-narrow-getter-contract",
-          "getter:CompleteResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageRequest.id": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageRequest.jsonrpc": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageRequestParams.metadata": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageRequestParams.task": "reviewed-narrow-getter-contract",
-          "getter:CreateMessageResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequest.id": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequest.jsonrpc": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequestFormParams._meta": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequestFormParams.task": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequestURLParams._meta": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequestURLParams.elicitationId": "reviewed-narrow-getter-contract",
-          "getter:ElicitRequestURLParams.task": "reviewed-narrow-getter-contract",
-          "getter:ElicitResult._meta": "reviewed-narrow-getter-contract",
-          "getter:EmbeddedResource._meta": "reviewed-narrow-getter-contract",
-          "getter:EmptyResult._meta": "reviewed-narrow-getter-contract",
-          "getter:EmptyResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:GetPromptRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:GetPromptRequestParams.inputResponses": "reviewed-narrow-getter-contract",
-          "getter:GetPromptRequestParams.requestState": "reviewed-narrow-getter-contract",
-          "getter:GetPromptResult._meta": "reviewed-narrow-getter-contract",
-          "getter:GetPromptResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ImageContent._meta": "reviewed-narrow-getter-contract",
-          "getter:ListPromptsRequest.params": "reviewed-narrow-getter-contract",
-          "getter:ListPromptsResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ListPromptsResult.cacheScope": "reviewed-narrow-getter-contract",
-          "getter:ListPromptsResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ListPromptsResult.ttlMs": "reviewed-narrow-getter-contract",
-          "getter:ListResourceTemplatesRequest.params": "reviewed-narrow-getter-contract",
-          "getter:ListResourceTemplatesResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ListResourceTemplatesResult.cacheScope": "reviewed-narrow-getter-contract",
-          "getter:ListResourceTemplatesResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ListResourceTemplatesResult.ttlMs": "reviewed-narrow-getter-contract",
-          "getter:ListResourcesRequest.params": "reviewed-narrow-getter-contract",
-          "getter:ListResourcesResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ListResourcesResult.cacheScope": "reviewed-narrow-getter-contract",
-          "getter:ListResourcesResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ListResourcesResult.ttlMs": "reviewed-narrow-getter-contract",
-          "getter:ListRootsRequest.id": "reviewed-narrow-getter-contract",
-          "getter:ListRootsRequest.jsonrpc": "reviewed-narrow-getter-contract",
-          "getter:ListRootsRequest.params": "reviewed-narrow-getter-contract",
-          "getter:ListRootsResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ListToolsRequest.params": "reviewed-narrow-getter-contract",
-          "getter:ListToolsResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ListToolsResult.cacheScope": "reviewed-narrow-getter-contract",
-          "getter:ListToolsResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ListToolsResult.ttlMs": "reviewed-narrow-getter-contract",
-          "getter:LoggingMessageNotificationParams._meta": "reviewed-narrow-getter-contract",
-          "getter:NotificationParams._meta": "reviewed-narrow-getter-contract",
-          "getter:NumberSchema.default": "reviewed-narrow-getter-contract",
-          "getter:NumberSchema.maximum": "reviewed-narrow-getter-contract",
-          "getter:NumberSchema.minimum": "reviewed-narrow-getter-contract",
-          "getter:PaginatedRequest.params": "reviewed-narrow-getter-contract",
-          "getter:PaginatedRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:PaginatedResult._meta": "reviewed-narrow-getter-contract",
-          "getter:PaginatedResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ProgressNotificationParams._meta": "reviewed-narrow-getter-contract",
-          "getter:Prompt._meta": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceRequestParams.inputResponses": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceRequestParams.requestState": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceResult._meta": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceResult.cacheScope": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceResult.resultType": "reviewed-narrow-getter-contract",
-          "getter:ReadResourceResult.ttlMs": "reviewed-narrow-getter-contract",
-          "getter:RequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:Resource._meta": "reviewed-narrow-getter-contract",
-          "getter:ResourceContents._meta": "reviewed-narrow-getter-contract",
-          "getter:ResourceLink._meta": "reviewed-narrow-getter-contract",
-          "getter:ResourceRequestParams._meta": "reviewed-narrow-getter-contract",
-          "getter:ResourceTemplate._meta": "reviewed-narrow-getter-contract",
-          "getter:ResourceUpdatedNotificationParams._meta": "reviewed-narrow-getter-contract",
-          "getter:Result._meta": "reviewed-narrow-getter-contract",
-          "getter:Result.resultType": "reviewed-narrow-getter-contract",
-          "getter:Root._meta": "reviewed-narrow-getter-contract",
-          "getter:SamplingMessage._meta": "reviewed-narrow-getter-contract",
-          "getter:ServerCapabilities.completions": "reviewed-narrow-getter-contract",
-          "getter:ServerCapabilities.extensions": "reviewed-narrow-getter-contract",
-          "getter:ServerCapabilities.logging": "reviewed-narrow-getter-contract",
-          "getter:ServerCapabilities.tasks": "reviewed-narrow-getter-contract",
-          "getter:TextContent._meta": "reviewed-narrow-getter-contract",
-          "getter:TextResourceContents._meta": "reviewed-narrow-getter-contract",
-          "getter:Tool._meta": "reviewed-narrow-getter-contract",
-          "getter:Tool.execution": "reviewed-narrow-getter-contract",
-          "getter:ToolResultContent._meta": "reviewed-narrow-getter-contract",
-          "getter:ToolResultContent.structuredContent": "reviewed-narrow-getter-contract",
-          "getter:ToolUseContent._meta": "reviewed-narrow-getter-contract",
-          "kind:ClientNotification:union->object": "kind-specific-symbol",
-          "kind:ClientResult:union->alias": "kind-specific-symbol",
-          "message:clientToServer.notifications:notifications/cancelled:definition": "exact-directional-availability",
-          "message:clientToServer.notifications:notifications/initialized:removed": "exact-directional-availability",
-          "message:clientToServer.notifications:notifications/progress:removed": "exact-directional-availability",
-          "message:clientToServer.notifications:notifications/roots/list_changed:removed": "exact-directional-availability",
-          "message:clientToServer.notifications:notifications/tasks/status:removed": "exact-directional-availability",
-          "message:clientToServer.requests:initialize:removed": "exact-directional-availability",
-          "message:clientToServer.requests:logging/setLevel:removed": "exact-directional-availability",
-          "message:clientToServer.requests:ping:removed": "exact-directional-availability",
-          "message:clientToServer.requests:resources/subscribe:removed": "exact-directional-availability",
-          "message:clientToServer.requests:resources/unsubscribe:removed": "exact-directional-availability",
-          "message:clientToServer.requests:server/discover:added": "exact-directional-availability",
-          "message:clientToServer.requests:subscriptions/listen:added": "exact-directional-availability",
-          "message:clientToServer.requests:tasks/cancel:removed": "exact-directional-availability",
-          "message:clientToServer.requests:tasks/get:removed": "exact-directional-availability",
-          "message:clientToServer.requests:tasks/list:removed": "exact-directional-availability",
-          "message:clientToServer.requests:tasks/result:removed": "exact-directional-availability",
-          "message:embeddedInputs:elicitation/create:added": "exact-directional-availability",
-          "message:embeddedInputs:roots/list:added": "exact-directional-availability",
-          "message:embeddedInputs:sampling/createMessage:added": "exact-directional-availability",
-          "message:serverToClient.notifications:notifications/elicitation/complete:removed": "exact-directional-availability",
-          "message:serverToClient.notifications:notifications/subscriptions/acknowledged:added": "exact-directional-availability",
-          "message:serverToClient.notifications:notifications/tasks/status:removed": "exact-directional-availability",
-          "message:serverToClient.requests:elicitation/create:removed": "exact-directional-availability",
-          "message:serverToClient.requests:ping:removed": "exact-directional-availability",
-          "message:serverToClient.requests:roots/list:removed": "exact-directional-availability",
-          "message:serverToClient.requests:sampling/createMessage:removed": "exact-directional-availability",
-          "message:serverToClient.requests:tasks/cancel:removed": "exact-directional-availability",
-          "message:serverToClient.requests:tasks/get:removed": "exact-directional-availability",
-          "message:serverToClient.requests:tasks/list:removed": "exact-directional-availability",
-          "message:serverToClient.requests:tasks/result:removed": "exact-directional-availability"
-        },
-        "differences": [
-          {
-            "2025-11-25": "initialize and notifications/initialized",
-            "2026-07-28": "server/discover and per-request metadata",
-            "id": "lifecycle",
-            "owner": "adapter-exact-revision-profile"
-          },
-          {
-            "2025-11-25": "canonical request in both directions",
-            "2026-07-28": "removed",
-            "id": "ping",
-            "owner": "generated-directional-availability"
-          },
-          {
-            "2025-11-25": "JSON-RPC request channel",
-            "2026-07-28": "removed and replaced by embedded input requests",
-            "id": "server-to-client-requests",
-            "owner": "generated-directional-availability-and-adapter-profile"
-          },
-          {
-            "2025-11-25": "protocol session and Mcp-Session-Id",
-            "2026-07-28": "removed",
-            "id": "sessions",
-            "owner": "adapter-transport-profile"
-          },
-          {
-            "2025-11-25": "resources subscribe and unsubscribe plus change delivery",
-            "2026-07-28": "subscriptions/listen response stream",
-            "id": "subscriptions",
-            "owner": "generated-directional-availability-and-adapter-profile"
-          },
-          {
-            "2025-11-25": "no resultType",
-            "2026-07-28": "resultType required",
-            "id": "result-discrimination",
-            "owner": "adapter-result-projection"
-          },
-          {
-            "2025-11-25": "not standardized",
-            "2026-07-28": "ttlMs and cacheScope required on cacheable results",
-            "id": "cache-hints",
-            "owner": "adapter-result-projection"
-          },
-          {
-            "2025-11-25": "push-style server-to-client requests",
-            "2026-07-28": "input_required results and retry fields",
-            "id": "multi-round-trip",
-            "owner": "schema-complete-adapter-unadvertised-until-implemented"
-          },
-          {
-            "2025-11-25": "Tool.execution declared",
-            "2026-07-28": "field removed",
-            "id": "tool-execution",
-            "owner": "shared-record-declared-mask-and-adapter-omission"
-          },
-          {
-            "2025-11-25": "restricted schemas and object structuredContent",
-            "2026-07-28": "general JSON Schema and any JSON structuredContent",
-            "id": "tool-schema-and-structured-content",
-            "owner": "revision-catalog-validation"
-          },
-          {
-            "2025-11-25": "experimental core definitions",
-            "2026-07-28": "removed from core",
-            "id": "core-tasks",
-            "owner": "schema-definition-availability"
-          },
-          {
-            "2025-11-25": "logging/setLevel",
-            "2026-07-28": "per-request metadata",
-            "id": "logging-level",
-            "owner": "generated-directional-availability-and-adapter-profile"
-          },
-          {
-            "2025-11-25": "session-aware protocol headers",
-            "2026-07-28": "per-request protocol, method, and name headers",
-            "id": "http-request-routing",
-            "owner": "adapter-transport-profile"
-          },
-          {
-            "2025-11-25": "SSE event identifiers and Last-Event-ID",
-            "2026-07-28": "removed",
-            "id": "resumability",
-            "owner": "adapter-transport-profile"
-          },
-          {
-            "2025-11-25": "previous error vocabulary",
-            "2026-07-28": "adds -32020, -32021, and -32022",
-            "id": "protocol-errors",
-            "owner": "schema-records-and-adapter-error-projection"
-          }
-        ],
-        "publicApi": {
-          "compatibleObjects": "share-record-with-union-of-compatible-field-getters",
-          "incompatibleGetter": "fail-generation-for-explicit-design-decision",
-          "objectAlias": "nominal-record-hydrated-from-referenced-fields",
-          "otherAlias": "native-or-internal",
-          "sameNameKindChange": "kind-specific-symbol-with-exact-revision-availability",
-          "silentMixedWidening": false
-        },
-        "reviewedStructuralFingerprint": "312f7132b8a6230a4e1818cf0cfe3bf265e25061685d88d1f6cb38214ec255a5",
-        "sources": {
-          "2025Schema": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.json",
-          "2026Changelog": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/docs/specification/2026-07-28/changelog.mdx",
-          "2026Schema": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.json"
-        }
-      },
       "definitionChanges": {
         "added": [
           "CacheableResult",
@@ -584,7 +82,6 @@
           "ListToolsResult",
           "LoggingMessageNotificationParams",
           "NotificationParams",
-          "NumberSchema",
           "PaginatedRequest",
           "PaginatedRequestParams",
           "PaginatedResult",
@@ -690,6 +187,7 @@
           "ModelPreferences",
           "MultiSelectEnumSchema",
           "Notification",
+          "NumberSchema",
           "PrimitiveSchemaDefinition",
           "ProgressNotification",
           "ProgressToken",
@@ -722,6 +220,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -739,6 +243,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -756,6 +266,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -768,6 +284,10 @@
             {
               "change": "added",
               "field": "inputResponses",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -778,6 +298,10 @@
             {
               "change": "added",
               "field": "requestState",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -788,6 +312,10 @@
             {
               "change": "removed",
               "field": "task",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -803,6 +331,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -815,6 +349,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -825,6 +363,12 @@
             {
               "change": "schema",
               "field": "structuredContent",
+              "nativeCategoriesNewer": [
+                "mixed"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -842,6 +386,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -854,6 +404,14 @@
             {
               "change": "requiredness",
               "field": "requestId",
+              "nativeCategoriesNewer": [
+                "number",
+                "string"
+              ],
+              "nativeCategoriesOlder": [
+                "number",
+                "string"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -871,6 +429,12 @@
             {
               "change": "schema",
               "field": "elicitation",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -883,6 +447,12 @@
             {
               "change": "schema",
               "field": "experimental",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -895,6 +465,10 @@
             {
               "change": "added",
               "field": "extensions",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -905,6 +479,12 @@
             {
               "change": "schema",
               "field": "roots",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -917,6 +497,12 @@
             {
               "change": "schema",
               "field": "sampling",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -929,6 +515,10 @@
             {
               "change": "removed",
               "field": "tasks",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -944,6 +534,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -961,6 +557,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -973,6 +575,12 @@
             {
               "change": "schema",
               "field": "completion",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": true,
               "typeNewer": [
@@ -985,6 +593,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1000,6 +612,11 @@
             {
               "change": "removed",
               "field": "id",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "number",
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1010,6 +627,10 @@
             {
               "change": "removed",
               "field": "jsonrpc",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1025,6 +646,10 @@
             {
               "change": "removed",
               "field": "_meta",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1035,6 +660,12 @@
             {
               "change": "schema",
               "field": "metadata",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1047,6 +678,10 @@
             {
               "change": "removed",
               "field": "task",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1062,6 +697,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1079,6 +720,11 @@
             {
               "change": "removed",
               "field": "id",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "number",
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1089,6 +735,10 @@
             {
               "change": "removed",
               "field": "jsonrpc",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1104,6 +754,10 @@
             {
               "change": "removed",
               "field": "_meta",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1114,6 +768,10 @@
             {
               "change": "removed",
               "field": "task",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1129,6 +787,10 @@
             {
               "change": "removed",
               "field": "_meta",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1139,6 +801,10 @@
             {
               "change": "removed",
               "field": "elicitationId",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1149,6 +815,10 @@
             {
               "change": "removed",
               "field": "task",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1164,6 +834,10 @@
             {
               "change": "removed",
               "field": "_meta",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1179,6 +853,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1196,6 +876,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1208,6 +894,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1223,6 +913,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1235,6 +931,10 @@
             {
               "change": "added",
               "field": "inputResponses",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1245,6 +945,10 @@
             {
               "change": "added",
               "field": "requestState",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1260,6 +964,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1272,6 +982,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1287,6 +1001,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1304,6 +1024,12 @@
             {
               "change": "requiredness",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1321,6 +1047,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1333,6 +1065,10 @@
             {
               "change": "added",
               "field": "cacheScope",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1343,6 +1079,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1353,6 +1093,10 @@
             {
               "change": "added",
               "field": "ttlMs",
+              "nativeCategoriesNewer": [
+                "number"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1368,6 +1112,12 @@
             {
               "change": "requiredness",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1385,6 +1135,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1397,6 +1153,10 @@
             {
               "change": "added",
               "field": "cacheScope",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1407,6 +1167,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1417,6 +1181,10 @@
             {
               "change": "added",
               "field": "ttlMs",
+              "nativeCategoriesNewer": [
+                "number"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1432,6 +1200,12 @@
             {
               "change": "requiredness",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1449,6 +1223,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1461,6 +1241,10 @@
             {
               "change": "added",
               "field": "cacheScope",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1471,6 +1255,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1481,6 +1269,10 @@
             {
               "change": "added",
               "field": "ttlMs",
+              "nativeCategoriesNewer": [
+                "number"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1496,6 +1288,11 @@
             {
               "change": "removed",
               "field": "id",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "number",
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1506,6 +1303,10 @@
             {
               "change": "removed",
               "field": "jsonrpc",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "string"
+              ],
               "requiredNewer": false,
               "requiredOlder": true,
               "typeNewer": null,
@@ -1516,6 +1317,12 @@
             {
               "change": "schema",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1533,6 +1340,10 @@
             {
               "change": "removed",
               "field": "_meta",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -1548,6 +1359,12 @@
             {
               "change": "requiredness",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1565,6 +1382,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1577,6 +1400,10 @@
             {
               "change": "added",
               "field": "cacheScope",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1587,6 +1414,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1597,6 +1428,10 @@
             {
               "change": "added",
               "field": "ttlMs",
+              "nativeCategoriesNewer": [
+                "number"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1612,6 +1447,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1629,6 +1470,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1644,49 +1491,14 @@
         {
           "changes": [
             {
-              "change": "schema",
-              "field": "default",
-              "requiredNewer": false,
-              "requiredOlder": false,
-              "typeNewer": [
-                "number"
-              ],
-              "typeOlder": [
-                "integer"
-              ]
-            },
-            {
-              "change": "schema",
-              "field": "maximum",
-              "requiredNewer": false,
-              "requiredOlder": false,
-              "typeNewer": [
-                "number"
-              ],
-              "typeOlder": [
-                "integer"
-              ]
-            },
-            {
-              "change": "schema",
-              "field": "minimum",
-              "requiredNewer": false,
-              "requiredOlder": false,
-              "typeNewer": [
-                "number"
-              ],
-              "typeOlder": [
-                "integer"
-              ]
-            }
-          ],
-          "name": "NumberSchema"
-        },
-        {
-          "changes": [
-            {
               "change": "requiredness",
               "field": "params",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1704,6 +1516,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1721,6 +1539,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1733,6 +1557,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1748,6 +1576,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1765,6 +1599,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1782,6 +1622,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1794,6 +1640,10 @@
             {
               "change": "added",
               "field": "inputResponses",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1804,6 +1654,10 @@
             {
               "change": "added",
               "field": "requestState",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1819,6 +1673,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1831,6 +1691,10 @@
             {
               "change": "added",
               "field": "cacheScope",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1841,6 +1705,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1851,6 +1719,10 @@
             {
               "change": "added",
               "field": "ttlMs",
+              "nativeCategoriesNewer": [
+                "number"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1866,6 +1738,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1883,6 +1761,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1900,6 +1784,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1917,6 +1807,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1934,6 +1830,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -1951,6 +1853,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1968,6 +1876,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1985,6 +1899,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -1997,6 +1917,10 @@
             {
               "change": "added",
               "field": "resultType",
+              "nativeCategoriesNewer": [
+                "string"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": true,
               "requiredOlder": false,
               "typeNewer": [
@@ -2012,6 +1936,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2029,6 +1959,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2046,6 +1982,12 @@
             {
               "change": "schema",
               "field": "completions",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2058,6 +2000,12 @@
             {
               "change": "schema",
               "field": "experimental",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2070,6 +2018,10 @@
             {
               "change": "added",
               "field": "extensions",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": null,
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2080,6 +2032,12 @@
             {
               "change": "schema",
               "field": "logging",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2092,6 +2050,10 @@
             {
               "change": "removed",
               "field": "tasks",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -2107,6 +2069,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2124,6 +2092,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2141,6 +2115,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2153,6 +2133,10 @@
             {
               "change": "removed",
               "field": "execution",
+              "nativeCategoriesNewer": null,
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": null,
@@ -2163,6 +2147,12 @@
             {
               "change": "schema",
               "field": "inputSchema",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": true,
               "requiredOlder": true,
               "typeNewer": [
@@ -2175,6 +2165,12 @@
             {
               "change": "schema",
               "field": "outputSchema",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2192,6 +2188,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2204,6 +2206,12 @@
             {
               "change": "schema",
               "field": "structuredContent",
+              "nativeCategoriesNewer": [
+                "mixed"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2221,6 +2229,12 @@
             {
               "change": "schema",
               "field": "_meta",
+              "nativeCategoriesNewer": [
+                "object"
+              ],
+              "nativeCategoriesOlder": [
+                "object"
+              ],
               "requiredNewer": false,
               "requiredOlder": false,
               "typeNewer": [
@@ -2238,6 +2252,12 @@
         {
           "field": "_meta",
           "name": "AudioContent",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2250,6 +2270,12 @@
         {
           "field": "_meta",
           "name": "BlobResourceContents",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2262,6 +2288,12 @@
         {
           "field": "_meta",
           "name": "CallToolRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2274,6 +2306,10 @@
         {
           "field": "inputResponses",
           "name": "CallToolRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2284,6 +2320,10 @@
         {
           "field": "requestState",
           "name": "CallToolRequestParams",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2294,6 +2334,10 @@
         {
           "field": "task",
           "name": "CallToolRequestParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2304,6 +2348,12 @@
         {
           "field": "_meta",
           "name": "CallToolResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2316,6 +2366,10 @@
         {
           "field": "resultType",
           "name": "CallToolResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2326,6 +2380,12 @@
         {
           "field": "structuredContent",
           "name": "CallToolResult",
+          "nativeCategoriesNewer": [
+            "mixed"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2338,6 +2398,12 @@
         {
           "field": "_meta",
           "name": "CancelledNotificationParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2350,6 +2416,14 @@
         {
           "field": "requestId",
           "name": "CancelledNotificationParams",
+          "nativeCategoriesNewer": [
+            "number",
+            "string"
+          ],
+          "nativeCategoriesOlder": [
+            "number",
+            "string"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2362,6 +2436,10 @@
         {
           "field": "extensions",
           "name": "ClientCapabilities",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2372,6 +2450,10 @@
         {
           "field": "tasks",
           "name": "ClientCapabilities",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2382,6 +2464,12 @@
         {
           "field": "_meta",
           "name": "CompleteRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2394,6 +2482,12 @@
         {
           "field": "_meta",
           "name": "CompleteResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2406,6 +2500,10 @@
         {
           "field": "resultType",
           "name": "CompleteResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2416,6 +2514,11 @@
         {
           "field": "id",
           "name": "CreateMessageRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "number",
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2426,6 +2529,10 @@
         {
           "field": "jsonrpc",
           "name": "CreateMessageRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2436,6 +2543,10 @@
         {
           "field": "_meta",
           "name": "CreateMessageRequestParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2446,6 +2557,12 @@
         {
           "field": "metadata",
           "name": "CreateMessageRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2458,6 +2575,10 @@
         {
           "field": "task",
           "name": "CreateMessageRequestParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2468,6 +2589,12 @@
         {
           "field": "_meta",
           "name": "CreateMessageResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2480,6 +2607,11 @@
         {
           "field": "id",
           "name": "ElicitRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "number",
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2490,6 +2622,10 @@
         {
           "field": "jsonrpc",
           "name": "ElicitRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2500,6 +2636,10 @@
         {
           "field": "_meta",
           "name": "ElicitRequestFormParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2510,6 +2650,10 @@
         {
           "field": "task",
           "name": "ElicitRequestFormParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2520,6 +2664,10 @@
         {
           "field": "_meta",
           "name": "ElicitRequestURLParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2530,6 +2678,10 @@
         {
           "field": "elicitationId",
           "name": "ElicitRequestURLParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2540,6 +2692,10 @@
         {
           "field": "task",
           "name": "ElicitRequestURLParams",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2550,6 +2706,10 @@
         {
           "field": "_meta",
           "name": "ElicitResult",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2560,6 +2720,12 @@
         {
           "field": "_meta",
           "name": "EmbeddedResource",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2572,6 +2738,12 @@
         {
           "field": "_meta",
           "name": "EmptyResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2584,6 +2756,10 @@
         {
           "field": "resultType",
           "name": "EmptyResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2594,6 +2770,12 @@
         {
           "field": "_meta",
           "name": "GetPromptRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2606,6 +2788,10 @@
         {
           "field": "inputResponses",
           "name": "GetPromptRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2616,6 +2802,10 @@
         {
           "field": "requestState",
           "name": "GetPromptRequestParams",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2626,6 +2816,12 @@
         {
           "field": "_meta",
           "name": "GetPromptResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2638,6 +2834,10 @@
         {
           "field": "resultType",
           "name": "GetPromptResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2648,6 +2848,12 @@
         {
           "field": "_meta",
           "name": "ImageContent",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2660,6 +2866,12 @@
         {
           "field": "params",
           "name": "ListPromptsRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2672,6 +2884,12 @@
         {
           "field": "_meta",
           "name": "ListPromptsResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2684,6 +2902,10 @@
         {
           "field": "cacheScope",
           "name": "ListPromptsResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2694,6 +2916,10 @@
         {
           "field": "resultType",
           "name": "ListPromptsResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2704,6 +2930,10 @@
         {
           "field": "ttlMs",
           "name": "ListPromptsResult",
+          "nativeCategoriesNewer": [
+            "number"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2714,6 +2944,12 @@
         {
           "field": "params",
           "name": "ListResourceTemplatesRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2726,6 +2962,12 @@
         {
           "field": "_meta",
           "name": "ListResourceTemplatesResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2738,6 +2980,10 @@
         {
           "field": "cacheScope",
           "name": "ListResourceTemplatesResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2748,6 +2994,10 @@
         {
           "field": "resultType",
           "name": "ListResourceTemplatesResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2758,6 +3008,10 @@
         {
           "field": "ttlMs",
           "name": "ListResourceTemplatesResult",
+          "nativeCategoriesNewer": [
+            "number"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2768,6 +3022,12 @@
         {
           "field": "params",
           "name": "ListResourcesRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2780,6 +3040,12 @@
         {
           "field": "_meta",
           "name": "ListResourcesResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2792,6 +3058,10 @@
         {
           "field": "cacheScope",
           "name": "ListResourcesResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2802,6 +3072,10 @@
         {
           "field": "resultType",
           "name": "ListResourcesResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2812,6 +3086,10 @@
         {
           "field": "ttlMs",
           "name": "ListResourcesResult",
+          "nativeCategoriesNewer": [
+            "number"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2822,6 +3100,11 @@
         {
           "field": "id",
           "name": "ListRootsRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "number",
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2832,6 +3115,10 @@
         {
           "field": "jsonrpc",
           "name": "ListRootsRequest",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "string"
+          ],
           "requiredNewer": false,
           "requiredOlder": true,
           "typeNewer": null,
@@ -2842,6 +3129,12 @@
         {
           "field": "params",
           "name": "ListRootsRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2854,6 +3147,10 @@
         {
           "field": "_meta",
           "name": "ListRootsResult",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -2864,6 +3161,12 @@
         {
           "field": "params",
           "name": "ListToolsRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2876,6 +3179,12 @@
         {
           "field": "_meta",
           "name": "ListToolsResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2888,6 +3197,10 @@
         {
           "field": "cacheScope",
           "name": "ListToolsResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2898,6 +3211,10 @@
         {
           "field": "resultType",
           "name": "ListToolsResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2908,6 +3225,10 @@
         {
           "field": "ttlMs",
           "name": "ListToolsResult",
+          "nativeCategoriesNewer": [
+            "number"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2918,6 +3239,12 @@
         {
           "field": "_meta",
           "name": "LoggingMessageNotificationParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2930,6 +3257,12 @@
         {
           "field": "_meta",
           "name": "NotificationParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -2940,44 +3273,14 @@
           ]
         },
         {
-          "field": "default",
-          "name": "NumberSchema",
-          "requiredNewer": false,
-          "requiredOlder": false,
-          "typeNewer": [
-            "number"
-          ],
-          "typeOlder": [
-            "integer"
-          ]
-        },
-        {
-          "field": "maximum",
-          "name": "NumberSchema",
-          "requiredNewer": false,
-          "requiredOlder": false,
-          "typeNewer": [
-            "number"
-          ],
-          "typeOlder": [
-            "integer"
-          ]
-        },
-        {
-          "field": "minimum",
-          "name": "NumberSchema",
-          "requiredNewer": false,
-          "requiredOlder": false,
-          "typeNewer": [
-            "number"
-          ],
-          "typeOlder": [
-            "integer"
-          ]
-        },
-        {
           "field": "params",
           "name": "PaginatedRequest",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -2990,6 +3293,12 @@
         {
           "field": "_meta",
           "name": "PaginatedRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3002,6 +3311,12 @@
         {
           "field": "_meta",
           "name": "PaginatedResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3014,6 +3329,10 @@
         {
           "field": "resultType",
           "name": "PaginatedResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3024,6 +3343,12 @@
         {
           "field": "_meta",
           "name": "ProgressNotificationParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3036,6 +3361,12 @@
         {
           "field": "_meta",
           "name": "Prompt",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3048,6 +3379,12 @@
         {
           "field": "_meta",
           "name": "ReadResourceRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3060,6 +3397,10 @@
         {
           "field": "inputResponses",
           "name": "ReadResourceRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3070,6 +3411,10 @@
         {
           "field": "requestState",
           "name": "ReadResourceRequestParams",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3080,6 +3425,12 @@
         {
           "field": "_meta",
           "name": "ReadResourceResult",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3092,6 +3443,10 @@
         {
           "field": "cacheScope",
           "name": "ReadResourceResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3102,6 +3457,10 @@
         {
           "field": "resultType",
           "name": "ReadResourceResult",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3112,6 +3471,10 @@
         {
           "field": "ttlMs",
           "name": "ReadResourceResult",
+          "nativeCategoriesNewer": [
+            "number"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3122,6 +3485,12 @@
         {
           "field": "_meta",
           "name": "RequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3134,6 +3503,12 @@
         {
           "field": "_meta",
           "name": "Resource",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3146,6 +3521,12 @@
         {
           "field": "_meta",
           "name": "ResourceContents",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3158,6 +3539,12 @@
         {
           "field": "_meta",
           "name": "ResourceLink",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3170,6 +3557,12 @@
         {
           "field": "_meta",
           "name": "ResourceRequestParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3182,6 +3575,12 @@
         {
           "field": "_meta",
           "name": "ResourceTemplate",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3194,6 +3593,12 @@
         {
           "field": "_meta",
           "name": "ResourceUpdatedNotificationParams",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3206,6 +3611,12 @@
         {
           "field": "_meta",
           "name": "Result",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3218,6 +3629,10 @@
         {
           "field": "resultType",
           "name": "Result",
+          "nativeCategoriesNewer": [
+            "string"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": true,
           "requiredOlder": false,
           "typeNewer": [
@@ -3228,6 +3643,12 @@
         {
           "field": "_meta",
           "name": "Root",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3240,6 +3661,12 @@
         {
           "field": "_meta",
           "name": "SamplingMessage",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3252,6 +3679,12 @@
         {
           "field": "completions",
           "name": "ServerCapabilities",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3264,6 +3697,10 @@
         {
           "field": "extensions",
           "name": "ServerCapabilities",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": null,
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3274,6 +3711,12 @@
         {
           "field": "logging",
           "name": "ServerCapabilities",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3286,6 +3729,10 @@
         {
           "field": "tasks",
           "name": "ServerCapabilities",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -3296,6 +3743,12 @@
         {
           "field": "_meta",
           "name": "TextContent",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3308,6 +3761,12 @@
         {
           "field": "_meta",
           "name": "TextResourceContents",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3320,6 +3779,12 @@
         {
           "field": "_meta",
           "name": "Tool",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3332,6 +3797,10 @@
         {
           "field": "execution",
           "name": "Tool",
+          "nativeCategoriesNewer": null,
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": null,
@@ -3342,6 +3811,12 @@
         {
           "field": "_meta",
           "name": "ToolResultContent",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3354,6 +3829,12 @@
         {
           "field": "structuredContent",
           "name": "ToolResultContent",
+          "nativeCategoriesNewer": [
+            "mixed"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3366,6 +3847,12 @@
         {
           "field": "_meta",
           "name": "ToolUseContent",
+          "nativeCategoriesNewer": [
+            "object"
+          ],
+          "nativeCategoriesOlder": [
+            "object"
+          ],
           "requiredNewer": false,
           "requiredOlder": false,
           "typeNewer": [
@@ -3655,18 +4142,72 @@
       "newer": "2026-07-28",
       "objectChanges": [],
       "older": "2025-11-25",
+      "reviewDecisions": {
+        "getter:CallToolResult.structuredContent": {
+          "classification": "shared-getter-native-category-change",
+          "evidence": {
+            "2025-11-25": [
+              "object"
+            ],
+            "2026-07-28": [
+              "mixed"
+            ]
+          },
+          "rationale": "The 2026 revision deliberately widens structuredContent from an object to any JSON value; exact selected-schema validation remains the authority for each record."
+        },
+        "getter:ToolResultContent.structuredContent": {
+          "classification": "shared-getter-native-category-change",
+          "evidence": {
+            "2025-11-25": [
+              "object"
+            ],
+            "2026-07-28": [
+              "mixed"
+            ]
+          },
+          "rationale": "The 2026 revision deliberately widens structuredContent from an object to any JSON value; the shared getter must represent both validated wire contracts."
+        },
+        "kind:ClientNotification:union->object": {
+          "classification": "kind-specific-symbol",
+          "evidence": {
+            "2025-11-25": "union",
+            "2026-07-28": "object"
+          },
+          "rationale": "The canonical name changes from a 2025 aggregate union to a 2026 object, so separate Contract and Record symbols preserve both kinds with exact revision availability."
+        },
+        "kind:ClientResult:union->alias": {
+          "classification": "kind-specific-symbol",
+          "evidence": {
+            "2025-11-25": "union",
+            "2026-07-28": "alias"
+          },
+          "rationale": "The canonical name changes from a 2025 aggregate union to a 2026 object alias, so separate Contract and Record symbols preserve both kinds with exact revision availability."
+        }
+      },
       "revisions": {
         "2025-11-25": {
+          "effectiveSha256": "dc365163b2b89a9c691b748a68edd599e3722c64794dc6f9a3fcf59891679eb0",
+          "patch": {
+            "count": 4,
+            "path": "patches/2025-11-25.json",
+            "sha256": "948af6f1c7880f6f75732f987534324789bf49079ba0663298c5e365ff80c8e4"
+          },
           "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a"
         },
         "2026-07-28": {
+          "effectiveSha256": "178079a6ef6fcf41f688f8002e516074e9e8cc82411237175e9379db4fc5816a",
+          "patch": {
+            "count": 2,
+            "path": "patches/2026-07-28.json",
+            "sha256": "201029f1a8233c2d70f89a8a6667bab5a5a0cf4125cbd636cd030a00d48ddb98"
+          },
           "sha256": "ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203"
         }
       },
-      "structuralFingerprint": "312f7132b8a6230a4e1818cf0cfe3bf265e25061685d88d1f6cb38214ec255a5"
+      "structuralFingerprint": "cc9146a793c2745b61ce82470cb961a47ca6488ce353442bc35d1d09db8ce655"
     }
   },
-  "formatVersion": 2,
+  "formatVersion": 3,
   "revisions": {
     "2025-11-25": {
       "commit": "38c84e9f93ad191d9eb26d92b945d17bd0efcaf3",
@@ -3880,7 +4421,7 @@
           "publicSymbol": "record",
           "rawKind": "object",
           "resolvedKind": "object",
-          "structuralSha256": "6744022a839bc721ed3eb22ec5598313ad549653aaf6824110c70361a667351f"
+          "structuralSha256": "ddcad31dd79084496cda029ff4458c5ce60cac85c7edad4232756c309ec32112"
         },
         {
           "name": "ElicitationCompleteNotification",
@@ -4216,7 +4757,7 @@
           "publicSymbol": "record",
           "rawKind": "object",
           "resolvedKind": "object",
-          "structuralSha256": "63838b3dc6ec579b2f4fb1105db8e5d119b436cab5cf4bc9d9135ee917123d44"
+          "structuralSha256": "6c5ac087513e78a20c1ac8a7605b4aa9102d91133e828ae34a3168b442b6deed"
         },
         {
           "name": "PaginatedRequest",
@@ -4688,6 +5229,12 @@
           "structuralSha256": "29b832a7aa408e35154512de4a9c0cb4676d31c540ff4d2bc6e4764d1d0c288b"
         }
       ],
+      "effectiveSha256": "dc365163b2b89a9c691b748a68edd599e3722c64794dc6f9a3fcf59891679eb0",
+      "patch": {
+        "count": 4,
+        "path": "patches/2025-11-25.json",
+        "sha256": "948af6f1c7880f6f75732f987534324789bf49079ba0663298c5e365ff80c8e4"
+      },
       "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a"
     },
     "2026-07-28": {
@@ -4923,7 +5470,7 @@
           "publicSymbol": "record",
           "rawKind": "object",
           "resolvedKind": "object",
-          "structuralSha256": "11f17bc645c0047b1d60bc80a9d2abc7583267c64ab1ac6b1b297d13018e8b09"
+          "structuralSha256": "692ceddd30e8df5a9484dda809ced8f1cf356d2648d70d9800b1176727591483"
         },
         {
           "name": "EmbeddedResource",
@@ -5140,7 +5687,7 @@
           "publicSymbol": "internal",
           "rawKind": "union",
           "resolvedKind": "union",
-          "structuralSha256": "e13212bcabc285fbb37bfbb8ebfe452e090b4261a9fbdfec1bf1f2931e73d65b"
+          "structuralSha256": "dc811e72a274da9165554e42585e06618cbf51bd08bd5e03f02c67a3c0dc3fd2"
         },
         {
           "name": "LegacyTitledEnumSchema",
@@ -5780,6 +6327,12 @@
           "structuralSha256": "29b832a7aa408e35154512de4a9c0cb4676d31c540ff4d2bc6e4764d1d0c288b"
         }
       ],
+      "effectiveSha256": "178079a6ef6fcf41f688f8002e516074e9e8cc82411237175e9379db4fc5816a",
+      "patch": {
+        "count": 2,
+        "path": "patches/2026-07-28.json",
+        "sha256": "201029f1a8233c2d70f89a8a6667bab5a5a0cf4125cbd636cd030a00d48ddb98"
+      },
       "sha256": "ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203"
     }
   }

@@ -13,6 +13,8 @@ final class CreateMessageRequestParams extends \WP\McpSchema\Record
     public const DEFINITION = 'CreateMessageRequestParams';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getMeta(): ?\stdClass
@@ -101,6 +103,8 @@ final class CreateMessageRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \WP\McpSchema\Record\TaskMetadata|null
      */
     public function getTask(): ?\WP\McpSchema\Record\TaskMetadata

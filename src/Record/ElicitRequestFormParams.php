@@ -13,6 +13,8 @@ final class ElicitRequestFormParams extends \WP\McpSchema\Record implements \WP\
     public const DEFINITION = 'ElicitRequestFormParams';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getMeta(): ?\stdClass
@@ -57,6 +59,8 @@ final class ElicitRequestFormParams extends \WP\McpSchema\Record implements \WP\
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \WP\McpSchema\Record\TaskMetadata|null
      */
     public function getTask(): ?\WP\McpSchema\Record\TaskMetadata

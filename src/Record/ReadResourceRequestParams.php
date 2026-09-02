@@ -24,6 +24,8 @@ final class ReadResourceRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return \WP\McpSchema\Record\InputResponses|null
      */
     public function getInputResponses(): ?\WP\McpSchema\Record\InputResponses
@@ -35,6 +37,8 @@ final class ReadResourceRequestParams extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getRequestState(): ?string

@@ -13,6 +13,8 @@ final class ListRootsResult extends \WP\McpSchema\Record implements \WP\McpSchem
     public const DEFINITION = 'ListRootsResult';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getMeta(): ?\stdClass

@@ -1107,7 +1107,7 @@ for task augmentation of specific request types in their capabilities.',
                                     [
                                         'type' => [
                                             'string',
-                                            'integer',
+                                            'number',
                                             'boolean',
                                         ],
                                     ],
@@ -2309,16 +2309,16 @@ the most important factor.',
                 'NumberSchema' => [
                     'properties' => [
                         'default' => [
-                            'type' => 'integer',
+                            'type' => 'number',
                         ],
                         'description' => [
                             'type' => 'string',
                         ],
                         'maximum' => [
-                            'type' => 'integer',
+                            'type' => 'number',
                         ],
                         'minimum' => [
-                            'type' => 'integer',
+                            'type' => 'number',
                         ],
                         'title' => [
                             'type' => 'string',

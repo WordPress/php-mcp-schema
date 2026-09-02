@@ -8,7 +8,3 @@ export const GENERATED_DIRECTORIES = Object.freeze([
 export const GENERATED_FILES = Object.freeze([
   'src/Internal/TypeRegistry.php',
 ]);
-
-export const LEGACY_GENERATED_PATHS = Object.freeze([
-  'src/Generated',
-]);

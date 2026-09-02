@@ -24,6 +24,8 @@ final class EmptyResult extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getResultType(): ?string

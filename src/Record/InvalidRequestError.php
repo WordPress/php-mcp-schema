@@ -15,7 +15,7 @@ final class InvalidRequestError extends \WP\McpSchema\Record
     /**
      * @return -32600
      */
-    public function getCode(): int
+    public function getCode()
     {
         /** @var -32600 $value */
         $value = $this->declaredValue('code');

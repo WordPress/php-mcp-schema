@@ -9,8 +9,9 @@
     "audit:check": "node audit-schemas.mjs --check",
     "generate": "node generate.mjs",
     "generate:check": "node check-generated.mjs",
-    "lint": "node --check audit-schemas.mjs && node --check check-generated.mjs && node --check generate.mjs && node --check update-schemas.mjs && node --check lib/generated-layout.mjs && node --check lib/php-code.mjs && node --check lib/schema-tools.mjs",
+    "lint": "node --check audit-schemas.mjs && node --check check-generated.mjs && node --check generate.mjs && node --check update-schemas.mjs && node --check lib/canonical-schema.mjs && node --check lib/generated-layout.mjs && node --check lib/php-code.mjs && node --check lib/schema-tools.mjs",
     "schemas:check": "node update-schemas.mjs --check",
+    "schemas:digests": "node lib/canonical-schema.mjs --print-digests",
     "schemas:update": "node update-schemas.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run lint && npm test && npm run schemas:check && npm run audit:check && npm run generate:check"

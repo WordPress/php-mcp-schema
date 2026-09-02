@@ -13,6 +13,8 @@ final class CreateMessageRequest extends \WP\McpSchema\Record implements \WP\Mcp
     public const DEFINITION = 'CreateMessageRequest';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return float|int|null|string
      */
     public function getId()
@@ -24,6 +26,8 @@ final class CreateMessageRequest extends \WP\McpSchema\Record implements \WP\Mcp
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return '2.0'|null
      */
     public function getJsonrpc(): ?string

@@ -24,6 +24,8 @@ final class Result extends \WP\McpSchema\Record implements \WP\McpSchema\Contrac
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getResultType(): ?string

@@ -7,6 +7,7 @@ namespace WP\McpSchema\Tests\Behavior;
 use PHPUnit\Framework\TestCase;
 use WP\McpSchema\Exception\ValidationException;
 use WP\McpSchema\Record\CallToolRequestParams;
+use WP\McpSchema\Record\ClientCapabilities;
 use WP\McpSchema\Record\ElicitResult;
 use WP\McpSchema\Record\InputResponses;
 use WP\McpSchema\Record\CreateMessageRequestParams;
@@ -14,6 +15,29 @@ use WP\McpSchema\Schemas;
 
 final class ElicitationNumberTest extends TestCase
 {
+    /** @dataProvider revisions */
+    public function test_fractional_elicitation_answers_preserve_values_in_each_revision(string $revision): void
+    {
+        $schema = Schemas::create()->forVersion($revision);
+        $json   = '{"action":"accept","content":{"quantity":1.5,"count":2}}';
+
+        $fromArray = $schema->fromArray(ElicitResult::class, array(
+            'action'  => 'accept',
+            'content' => array('quantity' => 1.5, 'count' => 2),
+        ));
+        self::assertSame(1.5, $fromArray->getContent()->quantity);
+        self::assertSame(2, $fromArray->getContent()->count);
+        self::assertSame($json, json_encode($schema->fromJson(ElicitResult::class, $json)));
+    }
+
+    public static function revisions(): array
+    {
+        return array(
+            Schemas::V2025_11_25 => array(Schemas::V2025_11_25),
+            Schemas::V2026_07_28 => array(Schemas::V2026_07_28),
+        );
+    }
+
     public function test_fractional_answers_preserve_values_through_every_mrtr_boundary(): void
     {
         $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
@@ -58,10 +82,19 @@ final class ElicitationNumberTest extends TestCase
         $schema->fromArray(CreateMessageRequestParams::class, array('messages' => array(), 'maxTokens' => 1.5));
     }
 
-    public function test_old_revision_behavior_is_unchanged(): void
+    public function test_2026_json_values_accept_fractional_and_null_members(): void
     {
-        $schema = Schemas::create()->forVersion(Schemas::V2025_11_25);
-        $this->expectException(ValidationException::class);
-        $schema->fromArray(ElicitResult::class, array('action' => 'accept', 'content' => array('quantity' => 1.5)));
+        $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+        $capabilities = $schema->fromArray(ClientCapabilities::class, array(
+            'experimental' => array(
+                'vendor' => array(
+                    'fractional' => 1.5,
+                    'nullable'   => null,
+                ),
+            ),
+        ));
+
+        self::assertSame(1.5, $capabilities->getExperimental()->vendor->get('fractional'));
+        self::assertNull($capabilities->getExperimental()->vendor->get('nullable'));
     }
 }

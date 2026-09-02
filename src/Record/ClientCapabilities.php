@@ -35,6 +35,8 @@ final class ClientCapabilities extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return \stdClass|null
      */
     public function getExtensions(): ?\stdClass
@@ -68,6 +70,8 @@ final class ClientCapabilities extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getTasks(): ?\stdClass

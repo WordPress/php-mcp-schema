@@ -46,6 +46,8 @@ final class Tool extends \WP\McpSchema\Record
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \WP\McpSchema\Record\ToolExecution|null
      */
     public function getExecution(): ?\WP\McpSchema\Record\ToolExecution

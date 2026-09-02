@@ -17,11 +17,21 @@ final class SchemaInterpreter
     /** @var array<string, array<string, mixed>> */
     private $definitions;
 
-    /** @var string */
-    private $revision;
-
     /** @var array<string, array{definition: string, versions: array<int, string>}> */
     private $records;
+
+    /** @var array<string, class-string<Record>> */
+    private $recordClassesByDefinition = array();
+
+    /**
+     * @var array<string, array{
+     *   properties: array<string, array<string, mixed>>,
+     *   required: array<string, true>,
+     *   additional: mixed,
+     *   additionalSpecified: bool
+     * }>
+     */
+    private $objectShapesByDefinition = array();
 
     /** @var \Closure */
     private $recordFactory;
@@ -32,9 +42,22 @@ final class SchemaInterpreter
      */
     public function __construct(array $definitions, string $revision, array $records)
     {
-        $this->definitions = $this->applyElicitationNumberRule($definitions, $revision);
-        $this->revision    = $revision;
+        $this->definitions = $definitions;
         $this->records     = $records;
+        foreach ($records as $class => $metadata) {
+            if (! in_array($revision, $metadata['versions'], true)) {
+                continue;
+            }
+            if (isset($this->recordClassesByDefinition[$metadata['definition']])) {
+                throw new \LogicException(sprintf(
+                    'Revision %s maps definition %s to more than one record class.',
+                    $revision,
+                    $metadata['definition']
+                ));
+            }
+            /** @var class-string<Record> $class */
+            $this->recordClassesByDefinition[$metadata['definition']] = $class;
+        }
 
         $factory = \Closure::bind(
             /**
@@ -55,49 +78,6 @@ final class SchemaInterpreter
             throw new \LogicException('Unable to bind the private record hydrator.');
         }
         $this->recordFactory = $factory;
-    }
-
-    /**
-     * Preserve fractional elicitation answers required by the exact 2026 revision.
-     *
-     * Its canonical JSON incorrectly narrows ElicitResult.content to integers,
-     * while the authoritative TypeScript and form specification permit numbers:
-     * https://github.com/modelcontextprotocol/modelcontextprotocol/blob/ca4ab3027f7c844cd3039c956438d72e8253f7f5/schema/2026-07-28/schema.ts#L3148
-     * https://modelcontextprotocol.io/specification/2026-07-28/client/elicitation#requested-schema
-     * Remove this named rule when the pinned canonical JSON is corrected.
-     *
-     * @param array<string, array<string, mixed>> $definitions
-     * @return array<string, array<string, mixed>>
-     */
-    private function applyElicitationNumberRule(array $definitions, string $revision): array
-    {
-        if ('2026-07-28' !== $revision) {
-            return $definitions;
-        }
-        $definition = $definitions['ElicitResult'] ?? array();
-        $properties = isset($definition['properties']) && is_array($definition['properties'])
-            ? $definition['properties']
-            : array();
-        $content = isset($properties['content']) && is_array($properties['content'])
-            ? $properties['content']
-            : array();
-        $additional = isset($content['additionalProperties']) && is_array($content['additionalProperties'])
-            ? $content['additionalProperties']
-            : array();
-        $union = isset($additional['anyOf']) && is_array($additional['anyOf']) ? $additional['anyOf'] : array();
-        $scalar = isset($union[1]) && is_array($union[1]) ? $union[1] : array();
-        $types = $scalar['type'] ?? null;
-        if (array('string', 'integer', 'boolean') === $types) {
-            $scalar['type']                    = array('string', 'number', 'boolean');
-            $union[1]                          = $scalar;
-            $additional['anyOf']               = $union;
-            $content['additionalProperties']   = $additional;
-            $properties['content']             = $content;
-            $definition['properties']          = $properties;
-            $definitions['ElicitResult']       = $definition;
-        }
-
-        return $definitions;
     }
 
     /**
@@ -139,7 +119,7 @@ final class SchemaInterpreter
             : $this->recordClassForDefinition($name);
         if ($recordClass !== null) {
             return $this->evaluateObject(
-                $this->objectShape($this->definitions[$name], array($name)),
+                $this->objectShapeForDefinition($name),
                 $value,
                 $pointer,
                 $depth,
@@ -189,14 +169,34 @@ final class SchemaInterpreter
         if (isset($schema['anyOf'])) {
             /** @var array<int, array<string, mixed>> $members */
             $members = $schema['anyOf'];
-            foreach ($members as $member) {
-                try {
-                    return $this->evaluateSchema($member, $value, $pointer, $depth, $programmaticArrays);
-                } catch (ValidationException $exception) {
-                    // Continue in canonical union order.
+
+            return $this->evaluateAnyOf($members, $value, $pointer, $depth, $programmaticArrays);
+        }
+
+        $nominalAllOf = $this->nominalAllOfReference($schema);
+        if ($nominalAllOf !== null) {
+            $result = $this->evaluateDefinition(
+                $nominalAllOf['name'],
+                $value,
+                $pointer,
+                $depth,
+                null,
+                $programmaticArrays
+            );
+            /** @var array<int, array<string, mixed>> $members */
+            $members = $schema['allOf'];
+            foreach ($members as $index => $member) {
+                if ($index === $nominalAllOf['index']) {
+                    continue;
                 }
+                $this->evaluateSchema($member, $value, $pointer, $depth, $programmaticArrays);
             }
-            throw new ValidationException($pointer, 'Value does not match any allowed union member.');
+            $siblings = array_diff_key($schema, array('allOf' => true, 'description' => true));
+            if ($siblings !== array()) {
+                $this->evaluateSchema($siblings, $value, $pointer, $depth, $programmaticArrays);
+            }
+
+            return $result;
         }
 
         if ($this->constrainsObject($schema, array())) {
@@ -312,6 +312,130 @@ final class SchemaInterpreter
     }
 
     /**
+     * @param array<int, array<string, mixed>> $members
+     * @param mixed                            $value
+     * @return mixed
+     */
+    private function evaluateAnyOf(
+        array $members,
+        $value,
+        string $pointer,
+        int $depth,
+        bool $programmaticArrays
+    ) {
+        $fields = $this->objectFields($value, $programmaticArrays);
+        if ($fields === null) {
+            foreach ($members as $member) {
+                try {
+                    return $this->evaluateSchema($member, $value, $pointer, $depth, $programmaticArrays);
+                } catch (ValidationException $exception) {
+                    // Scalar unions preserve canonical first-match hydration.
+                }
+            }
+            throw new ValidationException($pointer, 'Value does not match any allowed union member.');
+        }
+
+        $candidates = $this->flattenUnionMembers($members, array());
+        $hasSuccess = false;
+        $firstResult = null;
+        $hasObjectResult = false;
+        $bestResult = null;
+        $bestCoverage = -1;
+        foreach ($candidates as $member) {
+            $coverage = $this->declaredKeyCoverage($member, $fields);
+            try {
+                $result = $this->evaluateSchema($member, $value, $pointer, $depth, $programmaticArrays);
+            } catch (ValidationException $exception) {
+                continue;
+            }
+            if (! $hasSuccess) {
+                $hasSuccess = true;
+                $firstResult = $result;
+            }
+            if ($coverage !== null && (! $hasObjectResult || $coverage > $bestCoverage)) {
+                $hasObjectResult = true;
+                $bestCoverage = $coverage;
+                $bestResult = $result;
+            }
+        }
+
+        if ($hasObjectResult) {
+            return $bestResult;
+        }
+        if ($hasSuccess) {
+            return $firstResult;
+        }
+
+        throw new ValidationException($pointer, 'Value does not match any allowed union member.');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $members
+     * @param array<int, string>               $seen
+     * @return array<int, array<string, mixed>>
+     */
+    private function flattenUnionMembers(array $members, array $seen): array
+    {
+        $flattened = array();
+        foreach ($members as $member) {
+            $nested = null;
+            $name = null;
+            $siblings = array_diff_key($member, array('anyOf' => true, 'description' => true));
+            if (isset($member['anyOf']) && $siblings === array()) {
+                /** @var array<int, array<string, mixed>> $nested */
+                $nested = $member['anyOf'];
+            } elseif (isset($member['$ref'])) {
+                /** @var string $reference */
+                $reference = $member['$ref'];
+                $name = $this->referenceName($reference);
+                $target = $this->definitions[$name];
+                $targetSiblings = array_diff_key($target, array('anyOf' => true, 'description' => true));
+                if (isset($target['anyOf']) && $targetSiblings === array()) {
+                    /** @var array<int, array<string, mixed>> $nested */
+                    $nested = $target['anyOf'];
+                }
+            }
+
+            if ($nested === null) {
+                $flattened[] = $member;
+                continue;
+            }
+            if ($name !== null && in_array($name, $seen, true)) {
+                throw new \LogicException(sprintf('Recursive union composition at %s.', $name));
+            }
+            $flattened = array_merge(
+                $flattened,
+                $this->flattenUnionMembers(
+                    $nested,
+                    $name === null ? $seen : array_merge($seen, array($name))
+                )
+            );
+        }
+
+        return $flattened;
+    }
+
+    /**
+     * @param array<string, mixed> $member
+     * @param array<string, mixed> $fields
+     */
+    private function declaredKeyCoverage(array $member, array $fields): ?int
+    {
+        if (! $this->constrainsObject($member, array())) {
+            return null;
+        }
+        $properties = $this->objectShape($member, array())['properties'];
+        $coverage = 0;
+        foreach ($fields as $field => $_value) {
+            if (array_key_exists((string) $field, $properties)) {
+                ++$coverage;
+            }
+        }
+
+        return $coverage;
+    }
+
+    /**
      * @param array{properties: array<string, array<string, mixed>>, required: array<string, true>, additional: mixed} $shape
      * @param mixed $value
      * @param class-string<Record>|null $recordClass
@@ -325,18 +449,8 @@ final class SchemaInterpreter
         ?string $recordClass,
         bool $programmaticArrays
     ) {
-        if ($value instanceof \stdClass) {
-            $fields = get_object_vars($value);
-        } elseif (
-            $programmaticArrays &&
-            is_array($value) &&
-            ($value === array() || ! InputNormalizer::isList($value))
-        ) {
-            $fields = array();
-            foreach ($value as $key => $item) {
-                $fields[(string) $key] = $item;
-            }
-        } else {
+        $fields = $this->objectFields($value, $programmaticArrays);
+        if ($fields === null) {
             throw new ValidationException($pointer, sprintf('Expected object, got %s.', self::valueType($value)));
         }
 
@@ -395,6 +509,34 @@ final class SchemaInterpreter
     }
 
     /**
+     * @param mixed $value
+     * @return array<string, mixed>|null
+     */
+    private function objectFields($value, bool $programmaticArrays): ?array
+    {
+        if ($value instanceof \stdClass) {
+            /** @var array<string, mixed> $fields */
+            $fields = get_object_vars($value);
+
+            return $fields;
+        }
+        if (
+            ! $programmaticArrays ||
+            ! is_array($value) ||
+            ($value !== array() && InputNormalizer::isList($value))
+        ) {
+            return null;
+        }
+
+        $fields = array();
+        foreach ($value as $key => $item) {
+            $fields[(string) $key] = $item;
+        }
+
+        return $fields;
+    }
+
+    /**
      * @param array<string, mixed> $schema
      * @param array<int, string>   $seen
      * @return array{properties: array<string, array<string, mixed>>, required: array<string, true>, additional: mixed, additionalSpecified: bool}
@@ -416,7 +558,7 @@ final class SchemaInterpreter
             }
             $this->mergeShape(
                 $shape,
-                $this->objectShape($this->definitions[$name], array_merge($seen, array($name)))
+                $this->objectShapeForDefinition($name, $seen)
             );
         }
         /** @var array<int, array<string, mixed>> $allOf */
@@ -446,6 +588,84 @@ final class SchemaInterpreter
         }
 
         return $shape;
+    }
+
+    /**
+     * @param array<int, string> $seen
+     * @return array{properties: array<string, array<string, mixed>>, required: array<string, true>, additional: mixed, additionalSpecified: bool}
+     */
+    private function objectShapeForDefinition(string $name, array $seen = array()): array
+    {
+        if (isset($this->objectShapesByDefinition[$name])) {
+            return $this->objectShapesByDefinition[$name];
+        }
+        if (! isset($this->definitions[$name])) {
+            throw new \LogicException(sprintf('Catalog reference points to unknown definition %s.', $name));
+        }
+        if (in_array($name, $seen, true)) {
+            throw new \LogicException(sprintf('Recursive object composition at %s.', $name));
+        }
+
+        $shape = $this->objectShape(
+            $this->definitions[$name],
+            array_merge($seen, array($name))
+        );
+        $this->objectShapesByDefinition[$name] = $shape;
+
+        return $shape;
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     * @return array{name: string, index: int}|null
+     */
+    private function nominalAllOfReference(array $schema): ?array
+    {
+        if (! isset($schema['allOf']) || ! is_array($schema['allOf'])) {
+            return null;
+        }
+        $references = array();
+        foreach ($schema['allOf'] as $index => $member) {
+            if (! isset($member['$ref'])) {
+                continue;
+            }
+            $siblings = array_diff_key($member, array('$ref' => true, 'description' => true));
+            if ($siblings === array()) {
+                $references[] = array('index' => $index, 'member' => $member);
+            }
+        }
+        if (count($references) !== 1) {
+            return null;
+        }
+
+        /** @var string $reference */
+        $reference = $references[0]['member']['$ref'];
+        $name = $this->referenceName($reference);
+        if ($this->recordClassForDefinition($name) === null) {
+            return null;
+        }
+        $baseProperties = $this->objectShapeForDefinition($name)['properties'];
+        $refinements = array();
+        foreach ($schema['allOf'] as $index => $member) {
+            if ($index !== $references[0]['index']) {
+                $refinements[] = $member;
+            }
+        }
+        $siblings = array_diff_key($schema, array('allOf' => true, 'description' => true));
+        if ($siblings !== array()) {
+            $refinements[] = $siblings;
+        }
+
+        foreach ($refinements as $refinement) {
+            $shape = $this->objectShape($refinement, array());
+            foreach (array_keys($shape['properties'] + $shape['required']) as $field) {
+                if (! array_key_exists($field, $baseProperties)) {
+                    return null;
+                }
+            }
+        }
+
+        return array('name' => $name, 'index' => $references[0]['index']);
     }
 
     /**
@@ -581,14 +801,7 @@ final class SchemaInterpreter
 
     private function recordClassForDefinition(string $definition): ?string
     {
-        foreach ($this->records as $class => $metadata) {
-            if ($metadata['definition'] === $definition && in_array($this->revision, $metadata['versions'], true)) {
-                /** @var class-string<Record> $class */
-                return $class;
-            }
-        }
-
-        return null;
+        return $this->recordClassesByDefinition[$definition] ?? null;
     }
 
     private function referenceName(string $reference): string

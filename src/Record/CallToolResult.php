@@ -46,6 +46,8 @@ final class CallToolResult extends \WP\McpSchema\Record implements \WP\McpSchema
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getResultType(): ?string

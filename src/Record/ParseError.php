@@ -15,7 +15,7 @@ final class ParseError extends \WP\McpSchema\Record
     /**
      * @return -32700
      */
-    public function getCode(): int
+    public function getCode()
     {
         /** @var -32700 $value */
         $value = $this->declaredValue('code');

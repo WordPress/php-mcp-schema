@@ -13,6 +13,8 @@ final class ListRootsRequest extends \WP\McpSchema\Record implements \WP\McpSche
     public const DEFINITION = 'ListRootsRequest';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return float|int|null|string
      */
     public function getId()
@@ -24,6 +26,8 @@ final class ListRootsRequest extends \WP\McpSchema\Record implements \WP\McpSche
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return '2.0'|null
      */
     public function getJsonrpc(): ?string

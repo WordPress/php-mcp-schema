@@ -24,6 +24,8 @@ final class ListPromptsResult extends \WP\McpSchema\Record implements \WP\McpSch
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return 'private'|'public'|null
      */
     public function getCacheScope(): ?string
@@ -57,6 +59,8 @@ final class ListPromptsResult extends \WP\McpSchema\Record implements \WP\McpSch
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return null|string
      */
     public function getResultType(): ?string
@@ -68,6 +72,8 @@ final class ListPromptsResult extends \WP\McpSchema\Record implements \WP\McpSch
     }
 
     /**
+     * Declared in: 2026-07-28.
+     *
      * @return float|int|null
      */
     public function getTtlMs()

@@ -21,10 +21,8 @@ test('generation stages and replaces only explicit generated paths deterministic
   const temporary = await mkdtemp(join(tmpdir(), 'php-mcp-schema-generator-'));
   const output = join(temporary, 'repository');
   try {
-    await mkdir(join(output, 'src', 'Generated'), { recursive: true });
     await mkdir(join(output, 'src', 'Internal'), { recursive: true });
     await mkdir(join(output, 'src', 'Record'), { recursive: true });
-    await writeFile(join(output, 'src', 'Generated', 'Legacy.php'), 'legacy');
     await writeFile(join(output, 'src', 'Internal', 'Handwritten.php'), 'internal sentinel');
     await writeFile(join(output, 'src', 'Record', 'Stale.php'), 'stale generated file');
     await writeFile(join(output, 'src', 'Record.php'), 'record sentinel');
@@ -50,7 +48,6 @@ test('generation stages and replaces only explicit generated paths deterministic
     assert.equal('src/Internal/Catalog/V2025_11_25.php' in firstInventory, true);
     assert.equal('src/Internal/Catalog/V2026_07_28.php' in firstInventory, true);
     assert.equal('src/Internal/TypeRegistry.php' in firstInventory, true);
-    assert.equal('src/Generated/Legacy.php' in firstInventory, false);
     assert.equal('src/Record/Stale.php' in firstInventory, false);
     assert.equal(await readFile(join(output, 'src', 'Internal', 'Handwritten.php'), 'utf8'), 'internal sentinel');
     assert.equal(await readFile(join(output, 'src', 'Record.php'), 'utf8'), 'record sentinel');
@@ -59,6 +56,10 @@ test('generation stages and replaces only explicit generated paths deterministic
     assert.match(
       await readFile(join(output, 'src', 'Record', 'Tool.php'), 'utf8'),
       /namespace WP\\McpSchema\\Record;/u,
+    );
+    assert.match(
+      await readFile(join(output, 'src', 'Record', 'Tool.php'), 'utf8'),
+      /Declared in: 2025-11-25\./u,
     );
     assert.match(
       await readFile(join(output, 'src', 'Contract', 'ContentBlock.php'), 'utf8'),
@@ -76,10 +77,25 @@ test('generation stages and replaces only explicit generated paths deterministic
       await readFile(join(output, 'src', 'Internal', 'TypeRegistry.php'), 'utf8'),
       /namespace WP\\McpSchema\\Internal;/u,
     );
-    assert.equal(
-      Object.keys(firstInventory).some((path) => path.includes('Generated')),
-      false,
+    assert.match(
+      await readFile(join(output, 'src', 'Record', 'ClientNotification.php'), 'utf8'),
+      /same short name is also used by \\WP\\McpSchema\\Contract\\ClientNotification/u,
     );
+    assert.match(
+      await readFile(join(output, 'src', 'Contract', 'ClientResult.php'), 'utf8'),
+      /same short name is also used by \\WP\\McpSchema\\Record\\ClientResult/u,
+    );
+    for (const name of [
+      'HeaderMismatchError',
+      'MissingRequiredClientCapabilityError',
+      'UnsupportedProtocolVersionError',
+      'URLElicitationRequiredError',
+    ]) {
+      assert.match(
+        await readFile(join(output, 'src', 'Record', `${name}.php`), 'utf8'),
+        /function getError\(\): \\WP\\McpSchema\\Record\\Error/u,
+      );
+    }
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

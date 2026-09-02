@@ -15,7 +15,7 @@ final class InternalError extends \WP\McpSchema\Record
     /**
      * @return -32603
      */
-    public function getCode(): int
+    public function getCode()
     {
         /** @var -32603 $value */
         $value = $this->declaredValue('code');

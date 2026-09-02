@@ -13,6 +13,8 @@ final class ElicitRequestURLParams extends \WP\McpSchema\Record implements \WP\M
     public const DEFINITION = 'ElicitRequestURLParams';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getMeta(): ?\stdClass
@@ -24,6 +26,8 @@ final class ElicitRequestURLParams extends \WP\McpSchema\Record implements \WP\M
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return null|string
      */
     public function getElicitationId(): ?string
@@ -57,6 +61,8 @@ final class ElicitRequestURLParams extends \WP\McpSchema\Record implements \WP\M
     }
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \WP\McpSchema\Record\TaskMetadata|null
      */
     public function getTask(): ?\WP\McpSchema\Record\TaskMetadata

@@ -1213,4 +1213,28 @@ final class TypeRegistry
             ],
         ];
     }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function schemaKeywords(): array
+    {
+        return [
+            '$ref',
+            'additionalProperties',
+            'allOf',
+            'anyOf',
+            'const',
+            'description',
+            'enum',
+            'format',
+            'items',
+            'maxItems',
+            'maximum',
+            'minimum',
+            'properties',
+            'required',
+            'type',
+        ];
+    }
 }

@@ -3,11 +3,14 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadCanonicalSchemas } from './lib/canonical-schema.mjs';
 import {
   aggregateMethods,
   definitionInventory,
   effectiveObject,
+  nativeSchemaCategories,
   rawKind,
+  requiredCompatibilityDecisions,
   resolvedKind,
   schemaTypeSignature,
   sha256,
@@ -18,18 +21,20 @@ import {
 
 const generatorDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryDirectory = resolve(generatorDirectory, '..');
-const sourceManifest = JSON.parse(await readFile(resolve(generatorDirectory, 'schema-sources.json'), 'utf8'));
 const outputPath = resolve(repositoryDirectory, 'resources', 'schema', 'compatibility-manifest.json');
+const {
+  documents,
+  metadata: sourceMetadata,
+  sources: sourceManifest,
+} = await loadCanonicalSchemas();
 const versions = Object.keys(sourceManifest);
-const documents = {};
 
-for (const version of versions) {
-  const content = await readFile(resolve(repositoryDirectory, 'resources', 'schema', version, 'schema.json'));
-  const digest = sha256(content);
-  if (digest !== sourceManifest[version].sha256) {
-    throw new Error(`Schema digest mismatch for ${version}: ${digest}`);
-  }
-  documents[version] = JSON.parse(content.toString('utf8'));
+function revisionSource(version) {
+  return {
+    sha256: sourceMetadata[version].rawSha256,
+    effectiveSha256: sourceMetadata[version].effectiveSha256,
+    patch: sourceMetadata[version].patch,
+  };
 }
 
 function sameStructure(left, right) {
@@ -126,18 +131,38 @@ function comparePair(olderVersion, newerVersion) {
       const requiredNewer = newerObject.required.has(field);
       const typeOlder = olderSchema ? schemaTypeSignature(olderSchema, olderDefinitions) : null;
       const typeNewer = newerSchema ? schemaTypeSignature(newerSchema, newerDefinitions) : null;
+      const nativeCategoriesOlder = olderSchema ? nativeSchemaCategories(olderSchema, olderDefinitions) : null;
+      const nativeCategoriesNewer = newerSchema ? nativeSchemaCategories(newerSchema, newerDefinitions) : null;
       let change = null;
       if (!olderSchema || !newerSchema) change = olderSchema ? 'removed' : 'added';
       else if (!sameStructure(olderSchema, newerSchema)) change = 'schema';
       else if (requiredOlder !== requiredNewer) change = 'requiredness';
       if (!change) continue;
 
-      changes.push({ field, change, requiredOlder, requiredNewer, typeOlder, typeNewer });
+      changes.push({
+        field,
+        change,
+        requiredOlder,
+        requiredNewer,
+        typeOlder,
+        typeNewer,
+        nativeCategoriesOlder,
+        nativeCategoriesNewer,
+      });
       if (
         JSON.stringify(typeOlder) !== JSON.stringify(typeNewer) ||
         requiredOlder !== requiredNewer
       ) {
-        getterChanges.push({ name, field, requiredOlder, requiredNewer, typeOlder, typeNewer });
+        getterChanges.push({
+          name,
+          field,
+          requiredOlder,
+          requiredNewer,
+          typeOlder,
+          typeNewer,
+          nativeCategoriesOlder,
+          nativeCategoriesNewer,
+        });
       }
     }
     if (changes.length > 0) fieldChanges.push({ name, changes });
@@ -150,8 +175,8 @@ function comparePair(olderVersion, newerVersion) {
   const messageChanges = compareMessages(availability[olderVersion], availability[newerVersion]);
   const structuralReview = {
     revisions: {
-      [olderVersion]: { sha256: sourceManifest[olderVersion].sha256 },
-      [newerVersion]: { sha256: sourceManifest[newerVersion].sha256 },
+      [olderVersion]: revisionSource(olderVersion),
+      [newerVersion]: revisionSource(newerVersion),
     },
     definitionChanges,
     objectChanges,
@@ -168,32 +193,12 @@ function comparePair(olderVersion, newerVersion) {
   };
 }
 
-function differenceClassifications(comparison) {
-  const entries = {};
-  for (const name of comparison.definitionChanges.added) entries[`definition:add:${name}`] = 'revision-only-definition';
-  for (const name of comparison.definitionChanges.removed) entries[`definition:remove:${name}`] = 'revision-only-definition';
-  for (const name of comparison.definitionChanges.changed) entries[`definition:change:${name}`] = 'catalog-specific-structure';
-  for (const item of comparison.definitionChanges.kindChanges) {
-    entries[`kind:${item.name}:${item[comparison.older]}->${item[comparison.newer]}`] = 'kind-specific-symbol';
+function exactKeys(value, expected, label) {
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  if (actual.join(',') !== wanted.join(',')) {
+    throw new Error(`${label} keys must be ${wanted.join(',')}; got ${actual.join(',')}`);
   }
-  for (const item of comparison.objectChanges) {
-    entries[`object:${item.name}:${item.change}`] = 'catalog-specific-object-policy';
-  }
-  for (const definition of comparison.fieldChanges) {
-    for (const item of definition.changes) {
-      entries[`field:${definition.name}.${item.field}:${item.change}`] =
-        item.change === 'added' || item.change === 'removed'
-          ? 'union-of-compatible-field-getter'
-          : 'catalog-specific-field-validation';
-    }
-  }
-  for (const item of comparison.getterChanges) {
-    entries[`getter:${item.name}.${item.field}`] = 'reviewed-narrow-getter-contract';
-  }
-  for (const item of comparison.messageChanges) {
-    entries[`message:${item.group}:${item.method}:${item.change}`] = 'exact-directional-availability';
-  }
-  return Object.fromEntries(Object.entries(entries).sort(([a], [b]) => a.localeCompare(b)));
 }
 
 const pairComparisons = {};
@@ -213,11 +218,19 @@ if (process.argv.includes('--print-fingerprint')) {
   console.log(versions.length === 2 ? Object.values(fingerprints)[0] : stableJson(fingerprints).trim());
   process.exit(0);
 }
-if (process.argv.includes('--print-difference-classifications')) {
-  const classifications = Object.fromEntries(
-    Object.entries(pairComparisons).map(([pair, comparison]) => [pair, differenceClassifications(comparison)]),
+if (process.argv.includes('--print-required-decisions')) {
+  const decisions = Object.fromEntries(
+    Object.entries(pairComparisons).map(([pair, comparison]) => [
+      pair,
+      requiredCompatibilityDecisions(
+        comparison.older,
+        documents[comparison.older].$defs,
+        comparison.newer,
+        documents[comparison.newer].$defs,
+      ),
+    ]),
   );
-  console.log(stableJson(classifications).trim());
+  console.log(stableJson(decisions).trim());
   process.exit(0);
 }
 
@@ -225,13 +238,24 @@ const comparisons = {};
 for (const [pair, comparison] of Object.entries(pairComparisons)) {
   const classificationPath = resolve(generatorDirectory, 'compatibility', `${pair}.json`);
   const classification = JSON.parse(await readFile(classificationPath, 'utf8'));
+  exactKeys(
+    classification,
+    ['decisions', 'formatVersion', 'reviewedStructuralFingerprint'],
+    `${pair} compatibility review`,
+  );
+  if (classification.formatVersion !== 1) throw new Error(`${pair} compatibility review format must be 1`);
   if (classification.reviewedStructuralFingerprint !== comparison.structuralFingerprint) {
     throw new Error(
       `${pair} classification is stale: expected ${classification.reviewedStructuralFingerprint}, got ${comparison.structuralFingerprint}`,
     );
   }
-  const expected = differenceClassifications(comparison);
-  const actual = classification.classifiedDifferences || {};
+  const expected = requiredCompatibilityDecisions(
+    comparison.older,
+    documents[comparison.older].$defs,
+    comparison.newer,
+    documents[comparison.newer].$defs,
+  );
+  const actual = classification.decisions;
   const expectedKeys = Object.keys(expected);
   const actualKeys = Object.keys(actual).sort();
   const missing = expectedKeys.filter((key) => !(key in actual));
@@ -239,20 +263,31 @@ for (const [pair, comparison] of Object.entries(pairComparisons)) {
   if (missing.length > 0 || extra.length > 0) {
     throw new Error(`${pair} classifications mismatch; missing=${missing.join(',')} extra=${extra.join(',')}`);
   }
+  const reviewDecisions = {};
   for (const key of expectedKeys) {
-    if (typeof actual[key] !== 'string' || actual[key] === '') {
-      throw new Error(`${pair} classification ${key} must be a non-empty review decision`);
+    if (!actual[key] || typeof actual[key] !== 'object' || Array.isArray(actual[key])) {
+      throw new Error(`${pair} decision ${key} must be an object`);
     }
+    exactKeys(actual[key], ['classification', 'rationale'], `${pair} decision ${key}`);
+    if (actual[key].classification !== expected[key].classification) {
+      throw new Error(
+        `${pair} decision ${key} must use classification ${expected[key].classification}`,
+      );
+    }
+    if (typeof actual[key].rationale !== 'string' || actual[key].rationale.trim().length < 20) {
+      throw new Error(`${pair} decision ${key} must carry a substantive rationale`);
+    }
+    reviewDecisions[key] = { ...expected[key], rationale: actual[key].rationale };
   }
-  comparisons[pair] = { ...comparison, classification };
+  comparisons[pair] = { ...comparison, reviewDecisions };
 }
 
 const manifest = {
-  formatVersion: 2,
+  formatVersion: 3,
   revisions: Object.fromEntries(
     versions.map((version) => [version, {
       commit: sourceManifest[version].commit,
-      sha256: sourceManifest[version].sha256,
+      ...revisionSource(version),
       definitionCount: Object.keys(documents[version].$defs).length,
       definitions: definitionInventory(documents[version].$defs),
     }]),

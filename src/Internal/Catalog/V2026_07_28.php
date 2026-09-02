@@ -1087,7 +1087,7 @@ Only top-level properties are allowed, without nesting.',
                                     [
                                         'type' => [
                                             'string',
-                                            'integer',
+                                            'number',
                                             'boolean',
                                         ],
                                     ],
@@ -1799,8 +1799,9 @@ In MCP, this error is returned in various contexts when request parameters fail 
                         [
                             'type' => [
                                 'string',
-                                'integer',
+                                'number',
                                 'boolean',
+                                'null',
                             ],
                         ],
                     ],

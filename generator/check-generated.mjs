@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 import {
   GENERATED_DIRECTORIES,
   GENERATED_FILES,
-  LEGACY_GENERATED_PATHS,
 } from './lib/generated-layout.mjs';
 import { generate } from './generate.mjs';
 
@@ -48,16 +47,6 @@ function describeDifference(expected, actual) {
   ].filter(Boolean).join('\n');
 }
 
-async function assertAbsent(root, path) {
-  try {
-    await lstat(resolve(root, path));
-  } catch (error) {
-    if (error && error.code === 'ENOENT') return;
-    throw error;
-  }
-  throw new Error(`Legacy generated path still exists: ${path}`);
-}
-
 const temporary = await mkdtemp(join(tmpdir(), 'php-mcp-schema-generated-check-'));
 try {
   await generate(temporary);
@@ -66,9 +55,6 @@ try {
   const difference = describeDifference(expected, actual);
   if (difference !== '') {
     throw new Error(`Generated output is stale:\n${difference}`);
-  }
-  for (const path of LEGACY_GENERATED_PATHS) {
-    await assertAbsent(repositoryDirectory, path);
   }
 } finally {
   await rm(temporary, { recursive: true, force: true });

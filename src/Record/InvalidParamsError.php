@@ -15,7 +15,7 @@ final class InvalidParamsError extends \WP\McpSchema\Record
     /**
      * @return -32602
      */
-    public function getCode(): int
+    public function getCode()
     {
         /** @var -32602 $value */
         $value = $this->declaredValue('code');

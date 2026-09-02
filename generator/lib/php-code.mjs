@@ -6,7 +6,7 @@ export function phpLiteral(value, depth = 0) {
   if (value === null) return 'null';
   if (value === true) return 'true';
   if (value === false) return 'false';
-  if (typeof value === 'number') return Number.isInteger(value) ? String(value) : String(value);
+  if (typeof value === 'number') return String(value);
   if (typeof value === 'string') return phpString(value);
 
   const indent = '    '.repeat(depth);

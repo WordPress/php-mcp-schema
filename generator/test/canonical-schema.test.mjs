@@ -1,126 +1,133 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import { assertCompatibilityDecisions } from '../generate.mjs';
+import { loadCanonicalSchemas } from '../lib/canonical-schema.mjs';
+import {
+  assertSupportedSchemaDocument,
+  SUPPORTED_SCHEMA_KEYWORDS,
+} from '../lib/schema-tools.mjs';
 
 const generatorDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryDirectory = resolve(generatorDirectory, '..');
-const manifest = JSON.parse(await readFile(resolve(generatorDirectory, 'schema-sources.json'), 'utf8'));
-const supportedKeywords = [
-  '$ref',
-  'additionalProperties',
-  'allOf',
-  'anyOf',
-  'const',
-  'description',
-  'enum',
-  'format',
-  'items',
-  'maxItems',
-  'maximum',
-  'minimum',
-  'properties',
-  'required',
-  'type',
-];
-const keywordUseByVersion = {
-  '2025-11-25': supportedKeywords.filter((keyword) => keyword !== 'maxItems'),
-  '2026-07-28': supportedKeywords,
-};
+const canonical = await loadCanonicalSchemas();
+const compatibility = JSON.parse(
+  await readFile(resolve(repositoryDirectory, 'resources/schema/compatibility-manifest.json'), 'utf8'),
+);
 
-function sha256(content) {
-  return createHash('sha256').update(content).digest('hex');
-}
+for (const [version, source] of Object.entries(canonical.sources)) {
+  test(`${version} loads the reviewed effective Draft 2020-12 schema`, () => {
+    const schema = canonical.documents[version];
+    const metadata = canonical.metadata[version];
 
-function auditSchema(schema, path, state) {
-  assert.equal(typeof schema, 'object', `${path} must be a schema object`);
-  assert.ok(schema !== null && !Array.isArray(schema), `${path} must be a schema object`);
-
-  for (const keyword of Object.keys(schema)) {
-    assert.ok(supportedKeywords.includes(keyword), `${path} uses unsupported keyword ${keyword}`);
-    state.keywords.add(keyword);
-  }
-
-  if ('$ref' in schema) {
-    assert.match(schema.$ref, /^#\/\$defs\/[A-Za-z][A-Za-z0-9]*$/u, `${path} uses a non-local reference`);
-    state.references.add(schema.$ref);
-  }
-  if (schema.properties) {
-    for (const [name, property] of Object.entries(schema.properties)) {
-      auditSchema(property, `${path}/properties/${name}`, state);
-    }
-  }
-  if (schema.additionalProperties && typeof schema.additionalProperties === 'object') {
-    auditSchema(schema.additionalProperties, `${path}/additionalProperties`, state);
-  }
-  if (schema.items) auditSchema(schema.items, `${path}/items`, state);
-  for (const combinator of ['allOf', 'anyOf']) {
-    if (schema[combinator]) {
-      schema[combinator].forEach((member, index) => auditSchema(member, `${path}/${combinator}/${index}`, state));
-    }
-  }
-}
-
-for (const [version, source] of Object.entries(manifest)) {
-  test(`${version} is the reviewed canonical Draft 2020-12 schema`, async () => {
-    const content = await readFile(resolve(repositoryDirectory, 'resources/schema', version, 'schema.json'));
-    assert.equal(sha256(content), source.sha256);
-
-    const schema = JSON.parse(content.toString('utf8'));
-    assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
-    assert.equal(Object.keys(schema).sort().join(','), '$defs,$schema');
+    assert.equal(metadata.rawSha256, source.sha256);
+    assert.equal(metadata.effectiveSha256, source.patch.effectiveSha256);
+    assert.equal(metadata.patch.sha256, source.patch.sha256);
+    assert.equal(metadata.patch.path, source.patch.path);
 
     const ajv = new Ajv2020({ strict: false, validateFormats: false });
     assert.equal(ajv.validateSchema(schema), true, JSON.stringify(ajv.errors));
 
-    const state = { keywords: new Set(), references: new Set() };
-    for (const [name, definition] of Object.entries(schema.$defs)) {
-      auditSchema(definition, `#/$defs/${name}`, state);
-    }
-
-    assert.deepEqual([...state.keywords].sort(), keywordUseByVersion[version]);
-    for (const reference of state.references) {
-      assert.ok(reference.slice(8) in schema.$defs, `${reference} does not resolve`);
-    }
+    const state = assertSupportedSchemaDocument(schema, version);
+    assert.deepEqual([...state.keywords].sort(), metadata.keywords);
   });
 }
 
-test('the supported canonical definition taxonomy is frozen', async () => {
-  const documents = {};
-  for (const version of Object.keys(manifest)) {
-    documents[version] = JSON.parse(
-      await readFile(resolve(repositoryDirectory, 'resources/schema', version, 'schema.json'), 'utf8'),
-    );
+test('the effective canonical schemas exercise the supported vocabulary', () => {
+  const usedKeywords = new Set();
+  for (const metadata of Object.values(canonical.metadata)) {
+    for (const keyword of metadata.keywords) usedKeywords.add(keyword);
   }
-
-  const older = new Set(Object.keys(documents['2025-11-25'].$defs));
-  const newer = new Set(Object.keys(documents['2026-07-28'].$defs));
-  assert.equal(older.size, 145);
-  assert.equal(newer.size, 155);
-  assert.equal([...newer].filter((name) => !older.has(name)).length, 42);
-  assert.equal([...older].filter((name) => !newer.has(name)).length, 32);
-  assert.equal([...older].filter((name) => newer.has(name)).length, 113);
+  assert.deepEqual([...usedKeywords].sort(), [...SUPPORTED_SCHEMA_KEYWORDS].sort());
 });
 
-test('the compatibility manifest covers every revision pair and directional method change', async () => {
-  const compatibility = JSON.parse(
-    await readFile(resolve(repositoryDirectory, 'resources/schema/compatibility-manifest.json'), 'utf8'),
+test('the reviewed corrections exist only in the effective canonical documents', () => {
+  const v2025 = canonical.documents['2025-11-25'].$defs;
+  const v2026 = canonical.documents['2026-07-28'].$defs;
+
+  assert.deepEqual(
+    v2025.ElicitResult.properties.content.additionalProperties.anyOf[1].type,
+    ['string', 'number', 'boolean'],
   );
-  const expectedPairs = (Object.keys(manifest).length * (Object.keys(manifest).length - 1)) / 2;
-  assert.equal(compatibility.formatVersion, 2);
+  assert.deepEqual(
+    v2026.ElicitResult.properties.content.additionalProperties.anyOf[1].type,
+    ['string', 'number', 'boolean'],
+  );
+  assert.deepEqual(v2026.JSONValue.anyOf[2].type, ['string', 'number', 'boolean', 'null']);
+  for (const field of ['default', 'minimum', 'maximum']) {
+    assert.equal(v2025.NumberSchema.properties[field].type, 'number');
+    assert.equal(v2026.NumberSchema.properties[field].type, 'number');
+  }
+});
+
+test('the canonical gate rejects unknown keywords and semantic $ref siblings', () => {
+  const unknownKeyword = structuredClone(canonical.documents['2026-07-28']);
+  unknownKeyword.$defs.Tool.properties.name.pattern = '^[a-z]+$';
+  assert.throws(
+    () => assertSupportedSchemaDocument(unknownKeyword, '2026-07-28'),
+    /unsupported keyword pattern/u,
+  );
+
+  const refSibling = structuredClone(canonical.documents['2026-07-28']);
+  refSibling.$defs.EmptyResult.type = 'object';
+  assert.throws(
+    () => assertSupportedSchemaDocument(refSibling, '2026-07-28'),
+    /unsupported \$ref siblings: type/u,
+  );
+});
+
+test('the generator gate rejects an unreviewed native getter category change', () => {
+  assert.doesNotThrow(() => assertCompatibilityDecisions(canonical.documents, compatibility));
+
+  const changed = structuredClone(canonical.documents);
+  changed['2026-07-28'].$defs.Tool.properties.title.type = 'integer';
+  assert.throws(
+    () => assertCompatibilityDecisions(changed, compatibility),
+    /missing=getter:Tool.title/u,
+  );
+});
+
+test('the compatibility inventory matches the effective canonical definitions', () => {
+  for (const [version, document] of Object.entries(canonical.documents)) {
+    const expectedNames = Object.keys(document.$defs).sort();
+    const revision = compatibility.revisions[version];
+    assert.equal(revision.definitionCount, expectedNames.length);
+    assert.deepEqual(revision.definitions.map((item) => item.name), expectedNames);
+    assert.equal(revision.sha256, canonical.metadata[version].rawSha256);
+    assert.equal(revision.effectiveSha256, canonical.metadata[version].effectiveSha256);
+    assert.deepEqual(revision.patch, canonical.metadata[version].patch);
+  }
+
+  const older = new Set(Object.keys(canonical.documents['2025-11-25'].$defs));
+  const newer = new Set(Object.keys(canonical.documents['2026-07-28'].$defs));
+  const comparison = compatibility.comparisons['2025-11-25__2026-07-28'];
+  assert.deepEqual(
+    comparison.definitionChanges.added,
+    [...newer].filter((name) => !older.has(name)).sort(),
+  );
+  assert.deepEqual(
+    comparison.definitionChanges.removed,
+    [...older].filter((name) => !newer.has(name)).sort(),
+  );
+  assert.deepEqual(
+    comparison.definitionChanges.unchanged,
+    [...older].filter((name) => newer.has(name) && !comparison.definitionChanges.changed.includes(name)).sort(),
+  );
+});
+
+test('the compatibility manifest covers every revision pair and directional method change', () => {
+  const expectedPairs = (Object.keys(canonical.sources).length * (Object.keys(canonical.sources).length - 1)) / 2;
+  assert.equal(compatibility.formatVersion, 3);
   assert.equal(Object.keys(compatibility.comparisons).length, expectedPairs);
 
   const comparison = compatibility.comparisons['2025-11-25__2026-07-28'];
-  assert.equal(comparison.definitionChanges.added.length, 42);
-  assert.equal(comparison.definitionChanges.removed.length, 32);
   assert.deepEqual(
     comparison.definitionChanges.kindChanges.map((item) => item.name),
     ['ClientNotification', 'ClientResult'],
   );
-  assert.equal(comparison.classification.classifiedDifferences && Object.keys(comparison.classification.classifiedDifferences).length, 381);
 
   const older = comparison.messageAvailability['2025-11-25'];
   const newer = comparison.messageAvailability['2026-07-28'];

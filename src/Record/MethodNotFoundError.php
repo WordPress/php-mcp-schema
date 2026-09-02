@@ -15,7 +15,7 @@ final class MethodNotFoundError extends \WP\McpSchema\Record
     /**
      * @return -32601
      */
-    public function getCode(): int
+    public function getCode()
     {
         /** @var -32601 $value */
         $value = $this->declaredValue('code');

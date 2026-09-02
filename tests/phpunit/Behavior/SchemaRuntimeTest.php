@@ -155,7 +155,7 @@ final class SchemaRuntimeTest extends TestCase
         }
     }
 
-    public function test_union_roots_hydrate_concrete_members_in_canonical_order(): void
+    public function test_unambiguous_union_root_hydrates_its_concrete_member(): void
     {
         $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
         $block  = $schema->fromArray(ContentBlock::class, array(

@@ -11,6 +11,7 @@ use WP\McpSchema\Internal\JsonDecoder;
 use WP\McpSchema\Record\CompleteResult;
 use WP\McpSchema\Record\JSONObject;
 use WP\McpSchema\Record\NumberSchema;
+use WP\McpSchema\Record\ParseError;
 use WP\McpSchema\Record\Tool;
 use WP\McpSchema\Schemas;
 
@@ -367,6 +368,17 @@ final class InputSafetyTest extends TestCase
             ),
             'resultType' => 'complete',
         ));
+    }
+
+    public function test_numeric_literal_getter_preserves_an_integral_float(): void
+    {
+        $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+        $error  = $schema->fromArray(ParseError::class, array(
+            'code'    => -32700.0,
+            'message' => 'Parse error',
+        ));
+
+        self::assertSame(-32700.0, $error->getCode());
     }
 
     public function test_max_items_is_enforced(): void

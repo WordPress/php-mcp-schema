@@ -13,11 +13,11 @@ final class UnsupportedProtocolVersionError extends \WP\McpSchema\Record
     public const DEFINITION = 'UnsupportedProtocolVersionError';
 
     /**
-     * @return \stdClass
+     * @return \WP\McpSchema\Record\Error
      */
-    public function getError(): \stdClass
+    public function getError(): \WP\McpSchema\Record\Error
     {
-        /** @var \stdClass $value */
+        /** @var \WP\McpSchema\Record\Error $value */
         $value = $this->declaredValue('error');
 
         return $value;

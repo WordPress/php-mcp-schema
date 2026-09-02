@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import { SUPPORTED_SCHEMA_KEYWORDS } from '../lib/schema-tools.mjs';
 
 const repositoryDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const fixture = JSON.parse(
@@ -28,24 +29,7 @@ function collectKeywords(schema, output = new Set()) {
 test('shared structural fixtures cover the bounded schema vocabulary', () => {
   const keywords = new Set();
   for (const item of fixture.cases) collectKeywords(item.schema, keywords);
-  assert.deepEqual([...keywords].sort(), [
-    '$defs',
-    '$ref',
-    'additionalProperties',
-    'allOf',
-    'anyOf',
-    'const',
-    'description',
-    'enum',
-    'format',
-    'items',
-    'maxItems',
-    'maximum',
-    'minimum',
-    'properties',
-    'required',
-    'type',
-  ]);
+  assert.deepEqual([...keywords].sort(), ['$defs', ...SUPPORTED_SCHEMA_KEYWORDS].sort());
 });
 
 for (const item of fixture.cases) {

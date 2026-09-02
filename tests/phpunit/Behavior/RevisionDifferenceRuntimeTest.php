@@ -53,25 +53,39 @@ final class RevisionDifferenceRuntimeTest extends TestCase
         ));
     }
 
-    public function test_number_schema_bounds_widen_without_coercion(): void
+    public function test_empty_programmatic_structured_content_uses_revision_context(): void
     {
         $schemas = Schemas::create();
-        $v2025   = $schemas->forVersion(Schemas::V2025_11_25);
-        $v2026   = $schemas->forVersion(Schemas::V2026_07_28);
-
-        $number = $v2026->fromArray(NumberSchema::class, array(
-            'type'    => 'number',
-            'default' => 1.5,
-            'minimum' => 0.5,
-            'maximum' => 2.5,
+        $old = $schemas->forVersion(Schemas::V2025_11_25)->fromArray(CallToolResult::class, array(
+            'content'           => array(),
+            'structuredContent' => array(),
         ));
-        self::assertSame(1.5, $number->getDefault());
-
-        $this->expectException(ValidationException::class);
-        $v2025->fromArray(NumberSchema::class, array(
-            'type'    => 'number',
-            'default' => 1.5,
+        $new = $schemas->forVersion(Schemas::V2026_07_28)->fromArray(CallToolResult::class, array(
+            'content'           => array(),
+            'resultType'        => 'complete',
+            'structuredContent' => array(),
         ));
+
+        self::assertInstanceOf(\stdClass::class, $old->getStructuredContent());
+        self::assertSame('{}', json_encode($old->getStructuredContent()));
+        self::assertSame(array(), $new->getStructuredContent());
+        self::assertSame('[]', json_encode($new->getStructuredContent()));
+    }
+
+    public function test_number_schema_bounds_follow_the_number_source_without_coercion(): void
+    {
+        $schemas = Schemas::create();
+        foreach (array(Schemas::V2025_11_25, Schemas::V2026_07_28) as $revision) {
+            $number = $schemas->forVersion($revision)->fromArray(NumberSchema::class, array(
+                'type'    => 'number',
+                'default' => 1.5,
+                'minimum' => 0.5,
+                'maximum' => 2.5,
+            ));
+            self::assertSame(1.5, $number->getDefault());
+            self::assertSame(0.5, $number->getMinimum());
+            self::assertSame(2.5, $number->getMaximum());
+        }
     }
 
     public function test_embedded_input_maps_hydrate_union_members_without_becoming_rpcs(): void
@@ -112,7 +126,7 @@ final class RevisionDifferenceRuntimeTest extends TestCase
             ),
         ));
 
-        self::assertSame(-32022, $error->getError()->code);
-        self::assertSame('2027-01-01', $error->getError()->data->requested);
+        self::assertSame(-32022, $error->getError()->getCode());
+        self::assertSame('2027-01-01', $error->getError()->getData()->requested);
     }
 }

@@ -13,6 +13,8 @@ final class ElicitResult extends \WP\McpSchema\Record implements \WP\McpSchema\C
     public const DEFINITION = 'ElicitResult';
 
     /**
+     * Declared in: 2025-11-25.
+     *
      * @return \stdClass|null
      */
     public function getMeta(): ?\stdClass

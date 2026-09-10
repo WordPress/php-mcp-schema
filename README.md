@@ -14,6 +14,19 @@ Supported revisions:
 Unknown identifiers are rejected. The runtime never selects a revision by a
 range or nearest-version rule.
 
+### Older revisions
+
+Revisions before `2025-11-25` (`2024-10-07`, `2024-11-05`, `2025-03-26`, and
+`2025-06-18`) are not accepted as identifiers and have no schema of their own.
+Most schema changes up to `2025-11-25` were additive, so consumers that
+negotiate one of those versions validate their messages through the
+`2025-11-25` schema. This is the same approach the official
+[TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/protocol-versions.md)
+takes: it ships wire schemas only for `2025-11-25` and `2026-07-28` and parses
+every earlier revision with the `2025-11-25` schema. The mapping from a
+negotiated version to a schema revision is the consumer's decision, not this
+package's.
+
 ## Installation
 
 > **Unreleased branch API:** the examples below describe the current development

@@ -141,7 +141,9 @@ Among other canonical constraints, construction preserves or enforces:
 - JSON object versus list identity, including `{}` versus `[]`;
 - omitted fields versus fields explicitly containing `null`;
 - required fields, closed-object fields, and union membership;
-- native integer bounds and rejection of non-finite numbers;
+- native integer bounds and rejection of non-finite numbers, while finite
+  decimal tokens round to IEEE 754 binary64 exactly as the AJV oracle and
+  RFC 8259 interoperable parsers do;
 - valid UTF-8 and JSON escapes;
 - acyclic, serializable input within the shared depth boundary; and
 - instance-present extension keys where the canonical object permits them.
@@ -178,7 +180,11 @@ paths. This prevents generation from deleting handwritten siblings such as
 The generator audits each new revision against every still-supported revision.
 Structural, field, and directional-message changes are generated evidence.
 Human review is limited to rationale-bearing decisions for same-name kind
-changes and getter changes that cross native PHP value categories. Unknown
+changes and getter changes that cross native PHP value categories. The
+generator recomputes each such classification from the commit-pinned canonical
+documents and records the per-revision evidence and pinned commits in the
+compatibility manifest, so a review file carries only the rationale and cannot
+assert a classification the pinned sources do not support. Unknown
 schema constructs, semantic `$ref` siblings, and missing review decisions fail
 generation instead of being ignored.
 

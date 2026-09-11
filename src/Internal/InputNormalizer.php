@@ -16,8 +16,6 @@ final class InputNormalizer
 {
     public const MAX_DEPTH = 512;
 
-    private const MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH = 80;
-
     /** @var \SplObjectStorage<object, true> */
     private $activeObjects;
 
@@ -193,11 +191,6 @@ final class InputNormalizer
 
     public static function appendPointer(string $pointer, string $segment): string
     {
-        if (strlen($segment) > self::MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH) {
-            $segment = substr($segment, 0, self::MAX_DIAGNOSTIC_POINTER_SEGMENT_LENGTH) . '...';
-        }
-        $segment = addcslashes($segment, "\0..\37\177..\377");
-
         return $pointer . '/' . str_replace(array('~', '/'), array('~0', '~1'), $segment);
     }
 

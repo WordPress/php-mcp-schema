@@ -9,6 +9,7 @@ use WP\McpSchema\Exception\InvalidJsonException;
 use WP\McpSchema\Exception\ValidationException;
 use WP\McpSchema\Internal\JsonDecoder;
 use WP\McpSchema\Record\CompleteResult;
+use WP\McpSchema\Record\ElicitResult;
 use WP\McpSchema\Record\JSONObject;
 use WP\McpSchema\Record\NumberSchema;
 use WP\McpSchema\Record\ParseError;
@@ -294,10 +295,48 @@ final class InputSafetyTest extends TestCase
             ));
             self::fail('A non-finite value was accepted.');
         } catch (ValidationException $exception) {
+            self::assertSame('/inputSchema/' . $key, $exception->getPointer());
             self::assertLessThan(512, strlen($exception->getMessage()));
             self::assertStringContainsString('line\\n', $exception->getMessage());
             self::assertStringContainsString('...', $exception->getMessage());
             self::assertStringNotContainsString("\n", $exception->getMessage());
+        }
+    }
+
+    public function test_validation_pointers_preserve_original_object_keys(): void
+    {
+        $schema = Schemas::create()->forVersion(Schemas::V2025_11_25);
+        $cases = array(
+            array('café', '/content/café'),
+            array('a/b~c', '/content/a~1b~0c'),
+            array('~1', '/content/~01'),
+            array('', '/content/'),
+            array("line\nbreak", "/content/line\nbreak"),
+            array(str_repeat('x', 80) . 'a', '/content/' . str_repeat('x', 80) . 'a'),
+            array(str_repeat('x', 80) . 'b', '/content/' . str_repeat('x', 80) . 'b'),
+        );
+        foreach ($cases as [$key, $pointer]) {
+            $value = array('action' => 'accept', 'content' => (object) array($key => new \stdClass()));
+            foreach (array('fromArray', 'fromValue', 'fromJson') as $method) {
+                try {
+                    if ($method === 'fromArray') {
+                        $schema->fromArray(ElicitResult::class, $value);
+                    } elseif ($method === 'fromValue') {
+                        $schema->fromValue(ElicitResult::class, (object) $value);
+                    } else {
+                        $schema->fromJson(ElicitResult::class, json_encode($value, JSON_THROW_ON_ERROR));
+                    }
+                    self::fail('An object-valued elicitation answer was accepted.');
+                } catch (ValidationException $exception) {
+                    self::assertSame($pointer, $exception->getPointer());
+                    $resolved = (object) $value;
+                    foreach (explode('/', substr($exception->getPointer(), 1)) as $segment) {
+                        $segment = str_replace(array('~1', '~0'), array('/', '~'), $segment);
+                        $resolved = $resolved->{$segment};
+                    }
+                    self::assertSame($value['content']->{$key}, $resolved);
+                }
+            }
         }
     }
 

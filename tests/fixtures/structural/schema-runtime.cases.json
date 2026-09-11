@@ -218,6 +218,19 @@
       },
       "valid": ["https://example.com", "not validated as a URI"],
       "invalid": [1, null]
+    },
+    {
+      "id": "nullable-array-with-items",
+      "schema": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 2,
+        "description": "A type list containing array applies list rules to lists only."
+      },
+      "valid": [null, [], ["a"], ["a", "b"]],
+      "invalid": [["a", "b", "c"], [1], "a", 1, { "a": 1 }]
     }
   ]
 }

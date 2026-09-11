@@ -276,11 +276,10 @@ final class SchemaInterpreter
             }
         }
 
+        // A type list such as ["array", "null"] accepts non-list values that
+        // matchesType() already admitted, so list rules apply to lists only.
         $types = isset($schema['type']) ? (array) $schema['type'] : array();
-        if (in_array('array', $types, true)) {
-            if (! is_array($value) || ! InputNormalizer::isList($value)) {
-                throw new ValidationException($pointer, 'Expected a JSON list.');
-            }
+        if (in_array('array', $types, true) && is_array($value) && InputNormalizer::isList($value)) {
             if (isset($schema['maxItems'])) {
                 /** @var int $maxItems */
                 $maxItems = $schema['maxItems'];

@@ -1,4 +1,4 @@
-name: PHPStan
+name: CI
 
 on:
   pull_request:
@@ -13,12 +13,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  phpstan:
+  php:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
-    name: PHPStan - PHP ${{ matrix.php }}
+    name: PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,6 +39,7 @@ jobs:
 
   generator:
     runs-on: ubuntu-latest
+    name: Generator
     steps:
       - uses: actions/checkout@v4
 

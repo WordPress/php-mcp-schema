@@ -43,6 +43,7 @@ printf '%s\n' \
     composer.json \
     docs/MIGRATION.md \
     docs/architecture.md \
+    docs/methods.md \
     generator/README.md > "$expected"
 find "$source_root/src" -type f -print \
     | sed "s|^$source_root/||" \

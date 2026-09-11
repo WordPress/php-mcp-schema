@@ -29,17 +29,12 @@ package's.
 
 ## Installation
 
-> **Unreleased branch API:** the examples below describe the current development
-> branch.
-> The latest tagged Composer release still exposes the previous public API.
-> Until this work is released, consume only an exact reviewed branch commit
-> through a VCS repository reference.
-
-After the runtime is released:
-
 ```bash
 composer require wordpress/php-mcp-schema
 ```
+
+The runtime described below ships in 0.2.0 and later. Releases before 0.2.0
+expose the removed DTO API; see the [migration guide](docs/MIGRATION.md).
 
 ## Select and use a schema
 

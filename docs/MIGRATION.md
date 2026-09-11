@@ -29,11 +29,17 @@ selection boundary.
 
 | Removed import pattern | Replacement |
 | --- | --- |
-| `WP\McpSchema\Client\...\DTO\Name` | `WP\McpSchema\Record\Name` |
-| `WP\McpSchema\Common\...\DTO\Name` | `WP\McpSchema\Record\Name` |
-| `WP\McpSchema\Server\...\DTO\Name` | `WP\McpSchema\Record\Name` |
+| `WP\McpSchema\Client\...\DTO\Name` | `WP\McpSchema\Record\Name` when generated |
+| `WP\McpSchema\Common\...\DTO\Name` | `WP\McpSchema\Record\Name` when generated |
+| `WP\McpSchema\Server\...\DTO\Name` | `WP\McpSchema\Record\Name` when generated |
 | `...\Union\NameInterface` | `WP\McpSchema\Contract\Name` when generated |
 | `...\Enum\Name` | `WP\McpSchema\Value\Name` when generated |
+
+Records represent named canonical objects. Anonymous nested objects use
+`stdClass`; the former `ToolInputSchema`, `ToolOutputSchema`, and
+`ServerCapabilitiesTools` DTOs have no corresponding record classes. Remove
+their imports and use property access on the objects returned by their parent
+records.
 
 A public symbol can exist in the package but be unavailable under one selected
 revision. Construction then throws `UnavailableTypeException`. This is how the
@@ -76,6 +82,23 @@ Use the entry point that matches the source value:
 
 Every entry point performs complete canonical validation. Validation-off flags
 and filters have no replacement.
+
+## Read nested objects
+
+For the tool above, `getInputSchema()` returns a `stdClass`. Read its fields as
+properties instead of calling DTO getters:
+
+```php
+// Before: $tool->getInputSchema()->getType();
+$inputSchema = $tool->getInputSchema();
+echo $inputSchema->type; // object
+
+$properties = $inputSchema->properties ?? new \stdClass();
+```
+
+`Tool::getOutputSchema()` and `ServerCapabilities::getTools()` also return
+`stdClass` when present, or `null` when omitted. Named nested objects, such as
+`ToolAnnotations`, remain records with getters. JSON lists remain PHP arrays.
 
 ## Replace union factories
 

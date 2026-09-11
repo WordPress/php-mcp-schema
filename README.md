@@ -135,6 +135,8 @@ $schema->allowsEmbeddedInput('elicitation/create');
 
 For example, `ping` is valid under `2025-11-25` and absent under `2026-07-28`;
 `server/discover` is valid under `2026-07-28` and absent under `2025-11-25`.
+The [method to record map](docs/methods.md) lists every method with its
+request, result, or notification record and its revision availability.
 
 ## Public namespaces
 

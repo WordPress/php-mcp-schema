@@ -8,6 +8,7 @@ import { assertCompatibilityDecisions } from '../generate.mjs';
 import { loadCanonicalSchemas } from '../lib/canonical-schema.mjs';
 import {
   assertSupportedSchemaDocument,
+  messageAvailability,
   SUPPORTED_SCHEMA_KEYWORDS,
 } from '../lib/schema-tools.mjs';
 
@@ -137,4 +138,54 @@ test('the compatibility manifest covers every revision pair and directional meth
   assert.deepEqual(newer.serverToClient.requests, {});
   assert.equal(newer.embeddedInputs['sampling/createMessage'], 'CreateMessageRequest');
   assert.equal(newer.clientToServer.requests['sampling/createMessage'], undefined);
+});
+
+test('directional root expectations preserve the reviewed maps and intentional absences', () => {
+  const comparison = compatibility.comparisons['2025-11-25__2026-07-28'];
+  for (const [revision, document] of Object.entries(canonical.documents)) {
+    assert.deepEqual(
+      messageAvailability(document.$defs, canonical.sources[revision].messageRoots, revision),
+      comparison.messageAvailability[revision],
+    );
+  }
+});
+
+test('a required directional root cannot disappear or stop yielding methods', () => {
+  for (const [revision, root] of [['2025-11-25', 'ServerRequest'], ['2026-07-28', 'InputRequest']]) {
+    const definitions = structuredClone(canonical.documents[revision].$defs);
+    const expectations = canonical.sources[revision].messageRoots;
+    delete definitions[root];
+    assert.throws(
+      () => messageAvailability(definitions, expectations, revision),
+      new RegExp(`${revision} ${root} must be present`, 'u'),
+    );
+    definitions[root] = { type: 'object', properties: {} };
+    assert.throws(
+      () => messageAvailability(definitions, expectations, revision),
+      new RegExp(`${revision} ${root} must yield at least one method`, 'u'),
+    );
+  }
+});
+
+test('an intentionally absent root cannot appear without updating its expectation', () => {
+  const revision = '2026-07-28';
+  const definitions = structuredClone(canonical.documents[revision].$defs);
+  definitions.ServerRequest = definitions.InputRequest;
+  assert.throws(
+    () => messageAvailability(definitions, canonical.sources[revision].messageRoots, revision),
+    /2026-07-28 ServerRequest must be absent/u,
+  );
+});
+
+test('directional root expectations must be complete and explicit', () => {
+  const revision = '2025-11-25';
+  const definitions = canonical.documents[revision].$defs;
+  for (const incomplete of [undefined, {}, { ...canonical.sources[revision].messageRoots, ExtraRoot: 'absent' }]) {
+    assert.throws(() => messageAvailability(definitions, incomplete, revision), /all five directional message roots/u);
+  }
+  const invalid = { ...canonical.sources[revision].messageRoots, ServerRequest: false };
+  assert.throws(
+    () => messageAvailability(definitions, invalid, revision),
+    /ServerRequest expectation must be present or absent/u,
+  );
 });

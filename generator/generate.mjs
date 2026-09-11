@@ -11,8 +11,8 @@ import { loadCanonicalSchemas } from './lib/canonical-schema.mjs';
 import { phpFile, phpLiteral, phpString } from './lib/php-code.mjs';
 import {
   SUPPORTED_SCHEMA_KEYWORDS,
-  aggregateMethods,
   effectiveObject,
+  messageAvailability,
   nominalAllOfRecordName,
   publicSymbol,
   rawKind,
@@ -168,20 +168,6 @@ function catalogBody(version, document, availability) {
   return `final class ${versionClass(version)}\n{\n    public const VERSION = ${phpString(version)};\n\n    /**\n     * @return array<string, mixed>\n     */\n    public static function document(): array\n    {\n        return ${phpLiteral(stableValue(document), 2)};\n    }\n\n    /**\n     * @return array{\n     *   clientToServer: array{requests: array<string, string>, notifications: array<string, string>},\n     *   serverToClient: array{requests: array<string, string>, notifications: array<string, string>},\n     *   embeddedInputs: array<string, string>\n     * }\n     */\n    public static function messageAvailability(): array\n    {\n        return ${phpLiteral(stableValue(availability), 2)};\n    }\n}`;
 }
 
-function messageAvailability(definitions) {
-  return {
-    clientToServer: {
-      requests: aggregateMethods('ClientRequest', definitions),
-      notifications: aggregateMethods('ClientNotification', definitions),
-    },
-    serverToClient: {
-      requests: aggregateMethods('ServerRequest', definitions),
-      notifications: aggregateMethods('ServerNotification', definitions),
-    },
-    embeddedInputs: aggregateMethods('InputRequest', definitions),
-  };
-}
-
 export function assertCompatibilityDecisions(documents, manifest = compatibility) {
   const versions = Object.keys(documents);
   const expectedComparisonCount = (versions.length * (versions.length - 1)) / 2;
@@ -266,11 +252,14 @@ export async function generate(outputDirectory = repositoryDirectory) {
   const staging = await mkdtemp(resolve(output, '.php-mcp-schema-stage-'));
 
   try {
-    const { documents } = await loadCanonicalSchemas();
+    const { documents, sources } = await loadCanonicalSchemas();
 
     assertCompatibilityDecisions(documents);
     const availabilityByVersion = Object.fromEntries(
-      Object.entries(documents).map(([version, document]) => [version, messageAvailability(document.$defs)]),
+      Object.entries(documents).map(([version, document]) => [
+        version,
+        messageAvailability(document.$defs, sources[version].messageRoots, version),
+      ]),
     );
 
     for (const [version, document] of Object.entries(documents)) {

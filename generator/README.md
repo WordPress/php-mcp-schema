@@ -50,10 +50,18 @@ data, not runtime code. Each entry names an exact JSON pointer, its expected old
 value, its replacement, a rationale, and a line in the commit-pinned
 `schema.ts`. An empty patch list records that no correction was needed.
 
+Each revision's `messageRoots` in `schema-sources.json` declares all five
+directional roots as `present` or `absent`. Audit and generation reject a root
+whose presence differs from that expectation, or a present root that yields no
+methods. For `2025-11-25`, `InputRequest` is intentionally absent; for
+`2026-07-28`, `ServerRequest` is intentionally absent. Review these expectations
+against the pinned source when updating or adding a revision.
+
 ## Add a supported revision
 
 1. Add the exact revision, official commit, raw URL, and reviewed raw SHA-256 to
-   `schema-sources.json`. Add `patches/<revision>.json` using the existing file
+   `schema-sources.json`, including explicit `messageRoots` expectations.
+   Add `patches/<revision>.json` using the existing file
    shape, even when its `patches` list is empty.
 2. If the canonical JSON disagrees with the pinned TypeScript source, add only
    the reviewed exact-site corrections to that patch file. Run

@@ -358,6 +358,35 @@ export function aggregateMethods(name, definitions) {
   return Object.fromEntries(Object.entries(output).sort(([a], [b]) => a.localeCompare(b)));
 }
 
+export function messageAvailability(definitions, expectedRoots, revision) {
+  const names = ['ClientRequest', 'ClientNotification', 'ServerRequest', 'ServerNotification', 'InputRequest'];
+  if (!expectedRoots || typeof expectedRoots !== 'object' || Object.keys(expectedRoots).length !== names.length) {
+    throw new Error(`MCP ${revision} must declare expectations for all five directional message roots`);
+  }
+
+  const methods = {};
+  for (const name of names) {
+    const expectation = expectedRoots[name];
+    if (expectation !== 'present' && expectation !== 'absent') {
+      throw new Error(`MCP ${revision} ${name} expectation must be present or absent`);
+    }
+    const present = Object.hasOwn(definitions, name);
+    if (present !== (expectation === 'present')) {
+      throw new Error(`MCP ${revision} ${name} must be ${expectation}; review its directional message root`);
+    }
+    methods[name] = aggregateMethods(name, definitions);
+    if (present && Object.keys(methods[name]).length === 0) {
+      throw new Error(`MCP ${revision} ${name} must yield at least one method`);
+    }
+  }
+
+  return {
+    clientToServer: { requests: methods.ClientRequest, notifications: methods.ClientNotification },
+    serverToClient: { requests: methods.ServerRequest, notifications: methods.ServerNotification },
+    embeddedInputs: methods.InputRequest,
+  };
+}
+
 export function structuralDefinition(schema) {
   if (Array.isArray(schema)) return schema.map(structuralDefinition);
   if (!schema || typeof schema !== 'object') return schema;

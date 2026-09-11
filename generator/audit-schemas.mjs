@@ -5,9 +5,9 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCanonicalSchemas } from './lib/canonical-schema.mjs';
 import {
-  aggregateMethods,
   definitionInventory,
   effectiveObject,
+  messageAvailability,
   nativeSchemaCategories,
   rawKind,
   requiredCompatibilityDecisions,
@@ -39,20 +39,6 @@ function revisionSource(version) {
 
 function sameStructure(left, right) {
   return JSON.stringify(stableValue(structuralDefinition(left))) === JSON.stringify(stableValue(structuralDefinition(right)));
-}
-
-function messageAvailability(definitions) {
-  return {
-    clientToServer: {
-      requests: aggregateMethods('ClientRequest', definitions),
-      notifications: aggregateMethods('ClientNotification', definitions),
-    },
-    serverToClient: {
-      requests: aggregateMethods('ServerRequest', definitions),
-      notifications: aggregateMethods('ServerNotification', definitions),
-    },
-    embeddedInputs: aggregateMethods('InputRequest', definitions),
-  };
 }
 
 function compareMessages(older, newer) {
@@ -169,8 +155,8 @@ function comparePair(olderVersion, newerVersion) {
   }
 
   const availability = {
-    [olderVersion]: messageAvailability(olderDefinitions),
-    [newerVersion]: messageAvailability(newerDefinitions),
+    [olderVersion]: messageAvailability(olderDefinitions, sourceManifest[olderVersion].messageRoots, olderVersion),
+    [newerVersion]: messageAvailability(newerDefinitions, sourceManifest[newerVersion].messageRoots, newerVersion),
   };
   const messageChanges = compareMessages(availability[olderVersion], availability[newerVersion]);
   const structuralReview = {

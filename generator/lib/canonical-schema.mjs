@@ -114,7 +114,7 @@ export async function loadCanonicalSchemas({ verifyRecordedDigests = true } = {}
     if (!source || typeof source !== 'object' || Array.isArray(source)) {
       throw new Error(`MCP ${revision} source entry must be an object`);
     }
-    exactKeys(source, ['commit', 'patch', 'sha256', 'url'], `MCP ${revision} source`);
+    exactKeys(source, ['commit', 'messageRoots', 'patch', 'sha256', 'url'], `MCP ${revision} source`);
     exactKeys(source.patch, ['effectiveSha256', 'path', 'sha256'], `MCP ${revision} patch source`);
 
     const rawPath = resolve(repositoryDirectory, 'resources', 'schema', revision, 'schema.json');

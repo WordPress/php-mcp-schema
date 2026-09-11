@@ -216,6 +216,14 @@ schema, and map package exceptions to their own protocol or transport errors.
 They also decide which canonically available methods they implement and
 advertise.
 
+Canonical schema validation is distinct from protocol workflow validation.
+For example, the `2026-07-28` schema permits an `InputRequiredResult` with only
+`resultType`, while the MRTR protocol requires `inputRequests` or `requestState`
+and limits the methods that may return it. The consumer's protocol layer owns
+these checks. The canonical `resultType` is an open string; applications also
+decide which result types they understand. See the
+[consumer validation boundary](MIGRATION.md#enforce-protocol-workflow-rules-in-the-consumer).
+
 The runtime validates the MCP record containing a tool's `inputSchema` or
 `outputSchema`; it does not become the validator for arbitrary application data
 described by those user-authored schemas. That validation remains the

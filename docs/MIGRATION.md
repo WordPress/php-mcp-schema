@@ -80,8 +80,8 @@ Use the entry point that matches the source value:
 - `fromJson()` for raw JSON text. This is the safest ingress path when `{}`
   versus `[]` or numeric-string object keys matter.
 
-Every entry point performs complete canonical validation. Validation-off flags
-and filters have no replacement.
+Every entry point validates against the selected canonical schema. Validation-off
+flags and filters have no replacement.
 
 ## Read nested objects
 
@@ -150,6 +150,22 @@ its result union can accept that same payload as `InputRequiredResult`. Choose
 the concrete payload before constructing the response wrapper or using a received
 result. This method and result-type dispatch belongs to the consumer; the schema
 runtime does not infer it from the fields present.
+
+## Enforce protocol workflow rules in the consumer
+
+Schema validation does not enforce every requirement written in the protocol.
+Under `2026-07-28`, an `InputRequiredResult` containing only `resultType` passes
+the canonical schema. The MRTR protocol nevertheless requires servers to include
+at least one of `inputRequests` or `requestState`, and permits these responses
+only for `tools/call`, `prompts/get`, and `resources/read`. The consumer's
+protocol layer must enforce those requirements. See the
+[MRTR specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr).
+
+The canonical `resultType` field accepts any string, including extension-defined
+values. A record does not establish that the consumer understands that result
+type. Consumers interpret it according to the selected protocol and supported
+extensions; the schema runtime does not restrict it to `complete` and
+`input_required`.
 
 ## Read and serialize records
 

@@ -7,6 +7,7 @@ namespace WP\McpSchema\Tests\Behavior;
 use PHPUnit\Framework\TestCase;
 use WP\McpSchema\Contract\ClientNotification as ClientNotificationContract;
 use WP\McpSchema\Contract\ContentBlock;
+use WP\McpSchema\Exception\SchemaException;
 use WP\McpSchema\Exception\UnavailableTypeException;
 use WP\McpSchema\Exception\UnsupportedRevisionException;
 use WP\McpSchema\Exception\UnknownFieldException;
@@ -201,5 +202,13 @@ final class SchemaRuntimeTest extends TestCase
             'jsonrpc' => '2.0',
             'method'  => 'not-ping',
         ));
+    }
+
+    public function test_schema_exceptions_are_invalid_argument_exceptions(): void
+    {
+        self::assertInstanceOf(\InvalidArgumentException::class, new SchemaException('x'));
+        self::assertInstanceOf(\InvalidArgumentException::class, new ValidationException('', 'x'));
+        self::assertInstanceOf(\InvalidArgumentException::class, UnavailableTypeException::unsupportedRoot('x'));
+        self::assertInstanceOf(\InvalidArgumentException::class, UnsupportedRevisionException::forRevision('x', array()));
     }
 }

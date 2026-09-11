@@ -29,6 +29,9 @@ Target release: **0.2.0**. This release is breaking; see the
   numbers, matching the pinned TypeScript sources.
 - Safe inline `allOf` refinements of the canonical `Error` definition now
   hydrate `Record\Error` rather than an anonymous `stdClass`.
+- `SchemaException` and every runtime exception extend
+  `\InvalidArgumentException`, matching the removed DTO factories and the
+  official MCP PHP SDK's invalid params mapping.
 
 ### Fixed
 
@@ -41,6 +44,8 @@ Target release: **0.2.0**. This release is breaking; see the
   `-32700.0` instead of throwing a PHP return-type error.
 - Large validated inputs use less peak memory; the 8 MiB regression payload
   completes within a 128 MiB PHP memory limit.
+- A `type` list containing `array` and `null` accepts `null`; list rules apply
+  to list values only.
 
 ### Removed
 

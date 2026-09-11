@@ -268,6 +268,18 @@ Use the selected schema's directional availability methods before dispatch or
 advertisement. Schema availability is complete; an application must still
 intersect it with handlers it actually implements.
 
+## Catch runtime exceptions
+
+Every exception thrown by the runtime extends `SchemaException`, which extends
+`\InvalidArgumentException`. The removed DTO factories also threw
+`\InvalidArgumentException`, so an existing catch clause that maps it to a
+JSON-RPC invalid params error keeps working. Catch `ValidationException` to read
+the failing JSON Pointer through `getPointer()`.
+
+A rejected union root reports only that no member matched. Dispatch on the
+method or content type and construct the concrete record to get a field-level
+pointer, as the official SDKs do.
+
 ## Removed API checklist
 
 Remove consumer references to:

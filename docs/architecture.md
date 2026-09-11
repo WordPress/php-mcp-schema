@@ -244,8 +244,9 @@ can therefore gain nullability or a PHPDoc union without a native return type.
 For example, `Tool::getMeta()` represents `MetaObject|stdClass|null` in PHPDoc.
 
 Contributors must review the generated public API diff as well as the
-compatibility manifest, and update the [method to record map](methods.md). Passing the generation gate does not establish that
-every getter signature is unchanged. Normal package versioning applies when a
+compatibility manifest, and update the [method to record map](methods.md).
+Passing the generation gate does not establish that every getter signature is
+unchanged. Normal package versioning applies when a
 new revision requires a public API break.
 
 Removing a revision is also potentially breaking. Records, contracts, or values

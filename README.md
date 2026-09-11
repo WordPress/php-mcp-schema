@@ -14,7 +14,7 @@ Supported revisions:
 Unknown identifiers are rejected. The runtime never selects a revision by a
 range or nearest-version rule.
 
-### Older revisions
+## Older revisions
 
 Revisions before `2025-11-25` (`2024-10-07`, `2024-11-05`, `2025-03-26`, and
 `2025-06-18`) are not accepted as identifiers and have no schema of their own.

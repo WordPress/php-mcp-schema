@@ -47,6 +47,8 @@ Target release: **0.2.0**. This release is breaking; see the
 - **Breaking:** the former `Client`, `Common`, and `Server` DTO namespaces,
   generated DTO constructors and factories, class-based enum objects,
   validation flags, and `toArray()` variants have no compatibility aliases.
+- Generated `skill/` type reference and lookup scripts.
+- Per-class `@since` protocol-history annotations.
 
 ## [0.1.3] - 2026-08-10
 

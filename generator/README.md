@@ -1,8 +1,8 @@
 # MCP PHP schema generator
 
 This directory contains the development-only generator for
-`wordpress/php-mcp-schema`. Production installs do not include it or its AJV
-development dependency.
+`wordpress/php-mcp-schema`. Production installs include this guide but exclude
+the generator code and its AJV development dependency.
 
 The generator consumes only the commit-pinned canonical files under
 `resources/schema/`. One loader verifies each raw digest, applies the reviewed

@@ -2,8 +2,8 @@
 
 # Directories
 /.github                export-ignore
-/generator              export-ignore
-/docs                   export-ignore
+/generator/*            export-ignore
+/generator/README.md    -export-ignore
 /resources              export-ignore
 /tests                  export-ignore
 
@@ -16,7 +16,6 @@
 /AGENTS.md              export-ignore
 /CLAUDE.md              export-ignore
 /composer.lock          export-ignore
-/CONTRIBUTING.md        export-ignore
 /phpstan.neon           export-ignore
 /phpunit.xml.dist       export-ignore
 

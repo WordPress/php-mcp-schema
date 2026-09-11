@@ -37,9 +37,13 @@ done < <(
 
 printf '%s\n' \
     CHANGELOG.md \
+    CONTRIBUTING.md \
     LICENSE.md \
     README.md \
-    composer.json > "$expected"
+    composer.json \
+    docs/MIGRATION.md \
+    docs/architecture.md \
+    generator/README.md > "$expected"
 find "$source_root/src" -type f -print \
     | sed "s|^$source_root/||" \
     >> "$expected"

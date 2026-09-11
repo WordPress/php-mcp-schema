@@ -125,6 +125,27 @@ kind changes are intentionally represented by different roots. For example,
 `Contract\ClientNotification` is a `2025-11-25` union root, while
 `Record\ClientNotification` is a `2026-07-28` object root.
 
+The same split applies to `ClientResult`: its `Contract` root is available only
+under `2025-11-25`, and its `Record` root only under `2026-07-28`. Selecting the
+other root throws `UnavailableTypeException`.
+
+When the method is known, use its concrete record if it is available in the
+selected revision. For example, `CancelledNotification` works with either
+supported revision without choosing between the two `ClientNotification` roots:
+
+```php
+use WP\McpSchema\Record\CancelledNotification;
+
+$json = '{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":1}}';
+$notification = $schema->fromJson(CancelledNotification::class, $json);
+echo $notification->getParams()->getRequestId(); // 1
+```
+
+For generic message handling, `Contract\JSONRPCMessage` and
+`Contract\JSONRPCResponse` are available in both revisions. They hydrate generic
+envelopes, so consumers must still check method availability and validate the
+concrete request, notification, or result before using it.
+
 ## Validate results for the originating method
 
 Generic result roots and JSON-RPC envelopes validate their own schema, not the

@@ -233,13 +233,19 @@ responsibility of the application or tool system.
 
 Adding a revision requires a commit-pinned canonical source, a reviewed digest,
 and a compatibility classification against every revision that remains
-supported. The generator reuses existing records when their public getter
-contracts remain compatible, adds symbols for new named concepts, and records
-exact type and message availability.
+supported. The generator combines field types for shared object records, adds
+symbols for new named concepts, and records exact type and message availability.
 
-An incompatible same-named getter contract fails generation for an explicit API
-decision. The package does not silently widen the getter to `mixed` or hide the
-change behind a compatibility facade. Normal package versioning applies when a
+Generation requires reviewed decisions for same-name kind changes and getter
+changes across native PHP value categories. Other field changes, such as an
+object `$ref` swap or a required field becoming optional, are recorded in the
+compatibility manifest but do not require a separate decision. Shared getters
+can therefore gain nullability or a PHPDoc union without a native return type.
+For example, `Tool::getMeta()` represents `MetaObject|stdClass|null` in PHPDoc.
+
+Contributors must review the generated public API diff as well as the
+compatibility manifest. Passing the generation gate does not establish that
+every getter signature is unchanged. Normal package versioning applies when a
 new revision requires a public API break.
 
 Removing a revision is also potentially breaking. Records, contracts, or values

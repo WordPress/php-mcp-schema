@@ -1,8 +1,0 @@
-{
-  "schema": {
-    "version": "2024-11-05"
-  },
-  "output": {
-    "generateBuilders": false
-  }
-}

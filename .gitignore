@@ -26,6 +26,7 @@ coverage/
 # Cache
 .cache/
 .npm/
+.phpunit.result.cache
 
 # Environment
 .env

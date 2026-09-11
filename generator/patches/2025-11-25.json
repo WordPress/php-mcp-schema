@@ -1,0 +1,21 @@
+{
+  "formatVersion": 1,
+  "revision": "2025-11-25",
+  "patches": [
+    {
+      "pointer": "/$defs/ElicitResult/properties/content/additionalProperties/anyOf/1/type",
+      "oldValue": [
+        "string",
+        "integer",
+        "boolean"
+      ],
+      "newValue": [
+        "string",
+        "number",
+        "boolean"
+      ],
+      "reason": "The pinned TypeScript source permits fractional numeric elicitation answers.",
+      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2025-11-25/schema.ts#L2485"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "revision": "2026-07-28",
+  "patches": [
+    {
+      "pointer": "/$defs/ElicitResult/properties/content/additionalProperties/anyOf/1/type",
+      "oldValue": [
+        "string",
+        "integer",
+        "boolean"
+      ],
+      "newValue": [
+        "string",
+        "number",
+        "boolean"
+      ],
+      "reason": "The pinned TypeScript source permits fractional numeric elicitation answers.",
+      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L3148"
+    },
+    {
+      "pointer": "/$defs/JSONValue/anyOf/2/type",
+      "oldValue": [
+        "string",
+        "integer",
+        "boolean"
+      ],
+      "newValue": [
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ],
+      "reason": "The pinned TypeScript source defines JSONValue with number and null scalar members.",
+      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L6-L7"
+    }
+  ]
+}

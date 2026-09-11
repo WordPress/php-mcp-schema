@@ -81,6 +81,7 @@ composer test
 composer analyse
 composer validate --strict
 composer autoload:verify
+composer artifact:verify
 git diff --check
 ```
 

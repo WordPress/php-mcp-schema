@@ -14,7 +14,7 @@ Supported revisions:
 Unknown identifiers are rejected. The runtime never selects a revision by a
 range or nearest-version rule.
 
-### Older revisions
+## Older revisions
 
 Revisions before `2025-11-25` (`2024-10-07`, `2024-11-05`, `2025-03-26`, and
 `2025-06-18`) are not accepted as identifiers and have no schema of their own.
@@ -29,17 +29,12 @@ package's.
 
 ## Installation
 
-> **Unreleased branch API:** the examples below describe the current development
-> branch.
-> The latest tagged Composer release still exposes the previous public API.
-> Until this work is released, consume only an exact reviewed branch commit
-> through a VCS repository reference.
-
-After the runtime is released:
-
 ```bash
 composer require wordpress/php-mcp-schema
 ```
+
+The runtime described below ships in 0.2.0 and later. Releases before 0.2.0
+expose the removed DTO API; see the [migration guide](docs/MIGRATION.md).
 
 ## Select and use a schema
 
@@ -135,6 +130,8 @@ $schema->allowsEmbeddedInput('elicitation/create');
 
 For example, `ping` is valid under `2025-11-25` and absent under `2026-07-28`;
 `server/discover` is valid under `2026-07-28` and absent under `2025-11-25`.
+The [method to record map](docs/methods.md) lists every method with its
+request, result, or notification record and its revision availability.
 
 ## Public namespaces
 

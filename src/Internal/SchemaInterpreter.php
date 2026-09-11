@@ -348,6 +348,10 @@ final class SchemaInterpreter
             } catch (ValidationException $exception) {
                 continue;
             }
+            // Preserve an empty PHP list when a member accepts it without object conversion.
+            if ($value === array() && $result === array()) {
+                return $result;
+            }
             if (! $hasSuccess) {
                 $hasSuccess = true;
                 $firstResult = $result;

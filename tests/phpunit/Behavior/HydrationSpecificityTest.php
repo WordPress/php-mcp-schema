@@ -14,6 +14,7 @@ use WP\McpSchema\Record\ElicitRequestFormParams;
 use WP\McpSchema\Record\ElicitResult;
 use WP\McpSchema\Record\Error;
 use WP\McpSchema\Record\HeaderMismatchError;
+use WP\McpSchema\Record\JSONObject;
 use WP\McpSchema\Record\JSONRPCRequest;
 use WP\McpSchema\Record\MissingRequiredClientCapabilityError;
 use WP\McpSchema\Record\StringSchema;
@@ -24,6 +25,27 @@ use WP\McpSchema\Schemas;
 
 final class HydrationSpecificityTest extends TestCase
 {
+    public function test_json_value_unions_preserve_empty_lists_and_explicit_objects(): void
+    {
+        $schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+        $values = array(
+            array('items' => array()),
+            array('items' => array(array())),
+            array('items' => new \stdClass()),
+            array('items' => array(new \stdClass(), array())),
+            array('items' => array(1, 2)),
+            array('items' => null),
+        );
+        foreach ($values as $value) {
+            $json = json_encode($value, JSON_THROW_ON_ERROR);
+            self::assertSame($json, json_encode($schema->fromArray(JSONObject::class, $value)));
+            self::assertSame($json, json_encode($schema->fromValue(JSONObject::class, (object) $value)));
+            self::assertSame($json, json_encode($schema->fromJson(JSONObject::class, $json)));
+        }
+
+        self::assertSame('{}', json_encode($schema->fromArray(JSONObject::class, array())));
+    }
+
     /** @dataProvider revisions */
     public function test_all_overlapping_object_unions_choose_the_most_declared_input_keys(string $revision): void
     {

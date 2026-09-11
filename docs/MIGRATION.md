@@ -125,6 +125,32 @@ kind changes are intentionally represented by different roots. For example,
 `Contract\ClientNotification` is a `2025-11-25` union root, while
 `Record\ClientNotification` is a `2026-07-28` object root.
 
+## Validate results for the originating method
+
+Generic result roots and JSON-RPC envelopes validate their own schema, not the
+result expected by a particular method. An open `Result` can preserve malformed
+method-specific fields as extension data. Select the concrete payload record
+using the originating request method and, under `2026-07-28`, `resultType`.
+
+For example, a completed `tools/call` result must pass `CallToolResult` validation:
+
+```php
+use WP\McpSchema\Contract\ServerResult;
+use WP\McpSchema\Record\CallToolResult;
+
+$schema = Schemas::create()->forVersion(Schemas::V2026_07_28);
+$json = '{"resultType":"complete","content":"oops"}';
+
+$result = $schema->fromJson(ServerResult::class, $json); // Valid generic Result.
+$schema->fromValue(CallToolResult::class, $result); // Throws ValidationException at /content.
+```
+
+Under `2026-07-28`, selecting `CallToolResultResponse` alone is also insufficient:
+its result union can accept that same payload as `InputRequiredResult`. Choose
+the concrete payload before constructing the response wrapper or using a received
+result. This method and result-type dispatch belongs to the consumer; the schema
+runtime does not infer it from the fields present.
+
 ## Read and serialize records
 
 Generated named getters remain available for fields declared by the selected

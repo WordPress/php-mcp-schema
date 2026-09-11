@@ -97,6 +97,15 @@ largest number of keys present in the input, with canonical order as the tie
 breaker. This rule applies recursively to nested object unions. Scalar unions
 retain canonical first-match hydration.
 
+Aggregate result validation does not establish validity for the originating
+method. The open base `Result` accepts extension fields, so a malformed
+method-specific payload can still satisfy a generic result or JSON-RPC envelope
+schema. Consumers select the concrete payload using their request context and
+result discriminator, then validate it through the selected `Schema`. A
+method-specific response wrapper may itself contain a permissive result union;
+it does not replace concrete payload validation. See the
+[result validation example](MIGRATION.md#validate-results-for-the-originating-method).
+
 Records also expose generic field access:
 
 - `has()` distinguishes an omitted field from a field explicitly containing

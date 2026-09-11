@@ -44,7 +44,7 @@ test('the effective canonical schemas exercise the supported vocabulary', () => 
   assert.deepEqual([...usedKeywords].sort(), [...SUPPORTED_SCHEMA_KEYWORDS].sort());
 });
 
-test('the reviewed corrections exist only in the effective canonical documents', () => {
+test('the effective canonical documents preserve reviewed numeric behavior', () => {
   const v2025 = canonical.documents['2025-11-25'].$defs;
   const v2026 = canonical.documents['2026-07-28'].$defs;
 

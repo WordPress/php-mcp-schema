@@ -2,6 +2,22 @@
   "formatVersion": 1,
   "cases": [
     {
+      "id": "2025-task",
+      "revision": "2025-11-25",
+      "definition": "Task",
+      "rootClass": "WP\\McpSchema\\Record\\Task",
+      "valid": [
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z", "ttl": null},
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z", "ttl": 0},
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z", "ttl": 60000}
+      ],
+      "invalid": [
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z"},
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z", "ttl": "60000"},
+        {"taskId": "task-1", "status": "working", "createdAt": "2026-09-11T00:00:00Z", "lastUpdatedAt": "2026-09-11T00:00:00Z", "ttl": 1.5}
+      ]
+    },
+    {
       "id": "2025-elicit-result",
       "revision": "2025-11-25",
       "definition": "ElicitResult",

@@ -172,8 +172,11 @@ Notable differences include:
   any JSON value in `2026-07-28`.
 - Fractional `ElicitResult.content` values and fractional
   `NumberSchema.default`/`minimum`/`maximum` values are accepted in both
-  revisions through reviewed canonical corrections. `JSONValue` additionally
-  accepts fractional numbers and `null` in `2026-07-28`.
+  revisions. `JSONValue` additionally accepts fractional numbers and `null`
+  in `2026-07-28`. Integer-constrained fields accept only integral values, and
+  integral floats that fit the native PHP integer range retain their float kind.
+- Under `2025-11-25`, `Task.ttl` is required and accepts `null` for unlimited
+  retention.
 
 Use the selected schema's directional availability methods before dispatch or
 advertisement. Schema availability is complete; an application must still
@@ -194,27 +197,3 @@ Remove consumer references to:
 
 Then select an exact schema, construct through `Schema`, use generated getters
 or `get()`/`has()`, and serialize with `jsonSerialize()`.
-
-## Reviewed canonical JSON corrections
-
-The package preserves each downloaded `schema.json` byte-for-byte and verifies
-its raw digest. Before audit and generation, one verified loader applies a
-digest-pinned patch ledger whose entries name the exact old value, replacement,
-rationale, and authoritative `schema.ts` line. Generated catalogs, the AJV
-oracle, and PHP tests all consume that same effective document.
-
-The reviewed corrections are:
-
-- `ElicitResult.content` accepts `number` values in both revisions, matching the
-  pinned TypeScript definitions for
-  [2025-11-25](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2481)
-  and
-  [2026-07-28](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L3148).
-- `2026-07-28` `JSONValue` accepts `number` and `null`, matching its
-  [TypeScript union](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2026-07-28/schema.ts#L6-L7).
-- `2025-11-25` `NumberSchema.default`, `minimum`, and `maximum` accept `number`,
-  matching the
-  [TypeScript fields](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2258-L2260).
-
-Other integer-constrained fields remain integer-only, and integral floats that
-fit the native PHP integer range retain their float kind.

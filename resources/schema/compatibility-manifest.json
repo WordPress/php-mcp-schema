@@ -4186,13 +4186,13 @@
       },
       "revisions": {
         "2025-11-25": {
-          "effectiveSha256": "dc365163b2b89a9c691b748a68edd599e3722c64794dc6f9a3fcf59891679eb0",
+          "effectiveSha256": "46664f4d44908cfeadeedc70cdc37cf5f9c47741058ce630220ed224c27f147e",
           "patch": {
-            "count": 4,
+            "count": 1,
             "path": "patches/2025-11-25.json",
-            "sha256": "948af6f1c7880f6f75732f987534324789bf49079ba0663298c5e365ff80c8e4"
+            "sha256": "fb81932b1e4dcac1b037d9d373c0d5e86911dd74dbec505e32701bb38b95f668"
           },
-          "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a"
+          "sha256": "268a5f82ba70fd7e4b6dc4aa1e64f116f74b4d0edcb69dc046829c79dd4e97e7"
         },
         "2026-07-28": {
           "effectiveSha256": "178079a6ef6fcf41f688f8002e516074e9e8cc82411237175e9379db4fc5816a",
@@ -4204,13 +4204,13 @@
           "sha256": "ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203"
         }
       },
-      "structuralFingerprint": "cc9146a793c2745b61ce82470cb961a47ca6488ce353442bc35d1d09db8ce655"
+      "structuralFingerprint": "0e1b9fd638ac662b2cc94097e68fc7abb51d2629851421eb61472ae313bea1ff"
     }
   },
   "formatVersion": 3,
   "revisions": {
     "2025-11-25": {
-      "commit": "38c84e9f93ad191d9eb26d92b945d17bd0efcaf3",
+      "commit": "5f5440bb26a62e2cf3440b92da5a667efa03b267",
       "definitionCount": 145,
       "definitions": [
         {
@@ -5079,7 +5079,7 @@
           "publicSymbol": "record",
           "rawKind": "object",
           "resolvedKind": "object",
-          "structuralSha256": "c3a35310d4e7394cea5b5427e30ed2482017786c627dd0b21a3c0ee454eb50d1"
+          "structuralSha256": "f13170a543a1d3c62c4b65f9d3e6d44bd5210245e7b463418d778fb30602ced3"
         },
         {
           "name": "TaskAugmentedRequestParams",
@@ -5229,13 +5229,13 @@
           "structuralSha256": "29b832a7aa408e35154512de4a9c0cb4676d31c540ff4d2bc6e4764d1d0c288b"
         }
       ],
-      "effectiveSha256": "dc365163b2b89a9c691b748a68edd599e3722c64794dc6f9a3fcf59891679eb0",
+      "effectiveSha256": "46664f4d44908cfeadeedc70cdc37cf5f9c47741058ce630220ed224c27f147e",
       "patch": {
-        "count": 4,
+        "count": 1,
         "path": "patches/2025-11-25.json",
-        "sha256": "948af6f1c7880f6f75732f987534324789bf49079ba0663298c5e365ff80c8e4"
+        "sha256": "fb81932b1e4dcac1b037d9d373c0d5e86911dd74dbec505e32701bb38b95f668"
       },
-      "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a"
+      "sha256": "268a5f82ba70fd7e4b6dc4aa1e64f116f74b4d0edcb69dc046829c79dd4e97e7"
     },
     "2026-07-28": {
       "commit": "5f5440bb26a62e2cf3440b92da5a667efa03b267",

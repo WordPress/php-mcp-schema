@@ -3641,7 +3641,10 @@ This can provide context for any status, including:
                         ],
                         'ttl' => [
                             'description' => 'Actual retention duration from creation in milliseconds, null for unlimited.',
-                            'type' => 'integer',
+                            'type' => [
+                                'integer',
+                                'null',
+                            ],
                         ],
                     ],
                     'required' => [

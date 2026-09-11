@@ -15,28 +15,7 @@
         "boolean"
       ],
       "reason": "The pinned TypeScript source permits fractional numeric elicitation answers.",
-      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2481"
-    },
-    {
-      "pointer": "/$defs/NumberSchema/properties/default/type",
-      "oldValue": "integer",
-      "newValue": "number",
-      "reason": "The pinned TypeScript source declares NumberSchema.default as number.",
-      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2260"
-    },
-    {
-      "pointer": "/$defs/NumberSchema/properties/maximum/type",
-      "oldValue": "integer",
-      "newValue": "number",
-      "reason": "The pinned TypeScript source declares NumberSchema.maximum as number.",
-      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2259"
-    },
-    {
-      "pointer": "/$defs/NumberSchema/properties/minimum/type",
-      "oldValue": "integer",
-      "newValue": "number",
-      "reason": "The pinned TypeScript source declares NumberSchema.minimum as number.",
-      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.ts#L2258"
+      "source": "https://github.com/modelcontextprotocol/modelcontextprotocol/blob/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2025-11-25/schema.ts#L2485"
     }
   ]
 }

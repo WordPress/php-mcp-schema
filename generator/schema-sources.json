@@ -1,12 +1,12 @@
 {
   "2025-11-25": {
-    "commit": "38c84e9f93ad191d9eb26d92b945d17bd0efcaf3",
-    "sha256": "1ffe4c5577974012f5fa02af14ea88df4b7146679df1abaaad497c8d9230ca8a",
-    "url": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/38c84e9f93ad191d9eb26d92b945d17bd0efcaf3/schema/2025-11-25/schema.json",
+    "commit": "5f5440bb26a62e2cf3440b92da5a667efa03b267",
+    "sha256": "268a5f82ba70fd7e4b6dc4aa1e64f116f74b4d0edcb69dc046829c79dd4e97e7",
+    "url": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/5f5440bb26a62e2cf3440b92da5a667efa03b267/schema/2025-11-25/schema.json",
     "patch": {
       "path": "patches/2025-11-25.json",
-      "sha256": "948af6f1c7880f6f75732f987534324789bf49079ba0663298c5e365ff80c8e4",
-      "effectiveSha256": "dc365163b2b89a9c691b748a68edd599e3722c64794dc6f9a3fcf59891679eb0"
+      "sha256": "fb81932b1e4dcac1b037d9d373c0d5e86911dd74dbec505e32701bb38b95f668",
+      "effectiveSha256": "46664f4d44908cfeadeedc70cdc37cf5f9c47741058ce630220ed224c27f147e"
     }
   },
   "2026-07-28": {

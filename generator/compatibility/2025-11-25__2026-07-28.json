@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "reviewedStructuralFingerprint": "cc9146a793c2745b61ce82470cb961a47ca6488ce353442bc35d1d09db8ce655",
+  "reviewedStructuralFingerprint": "0e1b9fd638ac662b2cc94097e68fc7abb51d2629851421eb61472ae313bea1ff",
   "decisions": {
     "getter:CallToolResult.structuredContent": {
       "classification": "shared-getter-native-category-change",

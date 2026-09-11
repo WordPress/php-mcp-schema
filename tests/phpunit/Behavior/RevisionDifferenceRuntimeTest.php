@@ -7,14 +7,50 @@ namespace WP\McpSchema\Tests\Behavior;
 use PHPUnit\Framework\TestCase;
 use WP\McpSchema\Exception\ValidationException;
 use WP\McpSchema\Record\CallToolResult;
+use WP\McpSchema\Record\CreateTaskResult;
 use WP\McpSchema\Record\ElicitRequest;
 use WP\McpSchema\Record\InputRequests;
 use WP\McpSchema\Record\NumberSchema;
+use WP\McpSchema\Record\Task;
 use WP\McpSchema\Record\UnsupportedProtocolVersionError;
 use WP\McpSchema\Schemas;
 
 final class RevisionDifferenceRuntimeTest extends TestCase
 {
+    public function test_task_ttl_preserves_null_and_integer_values(): void
+    {
+        $schema = Schemas::create()->forVersion(Schemas::V2025_11_25);
+        foreach (array(null, 0, 60000) as $ttl) {
+            $value = array(
+                'taskId'        => 'task-1',
+                'status'        => 'working',
+                'createdAt'     => '2026-09-11T00:00:00Z',
+                'lastUpdatedAt' => '2026-09-11T00:00:00Z',
+                'ttl'           => $ttl,
+            );
+            $json = json_encode($value, JSON_THROW_ON_ERROR);
+            $records = array(
+                $schema->fromArray(Task::class, $value),
+                $schema->fromValue(Task::class, (object) $value),
+                $schema->fromJson(Task::class, $json),
+            );
+            foreach ($records as $record) {
+                self::assertTrue($record->has('ttl'));
+                self::assertSame($ttl, $record->getTtl());
+                self::assertSame($value, get_object_vars($record->jsonSerialize()));
+            }
+
+            $result = $schema->fromArray(CreateTaskResult::class, array('task' => $value));
+            self::assertInstanceOf(Task::class, $result->getTask());
+            self::assertTrue($result->getTask()->has('ttl'));
+            self::assertSame($ttl, $result->getTask()->getTtl());
+            self::assertSame(
+                array('task' => $value),
+                json_decode(json_encode($result, JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR)
+            );
+        }
+    }
+
     public function test_structured_content_widens_to_any_json_value_only_in_2026(): void
     {
         $schemas = Schemas::create();

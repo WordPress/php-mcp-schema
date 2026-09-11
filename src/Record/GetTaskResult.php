@@ -90,11 +90,11 @@ final class GetTaskResult extends \WP\McpSchema\Record implements \WP\McpSchema\
     }
 
     /**
-     * @return float|int
+     * @return float|int|null
      */
     public function getTtl()
     {
-        /** @var float|int $value */
+        /** @var float|int|null $value */
         $value = $this->declaredValue('ttl');
 
         return $value;

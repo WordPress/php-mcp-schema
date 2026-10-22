@@ -171,6 +171,10 @@ Never edit generated PHP directly. See the
 [generator guide](generator/README.md) and the
 [architecture](docs/architecture.md).
 
+### Maintainers
+
+Maintainers for this repo are [Jeffrey Paul (@jeffpaul)](https://github.com/jeffpaul) and [Ovidiu Galatan (@galatanovidiu)](https://github.com/galatanovidiu); all can be reached using the [@WordPress/php-mcp-schema-maintainers](https://github.com/orgs/WordPress/teams/php-mcp-schema-maintainers) team.
+
 ## License
 
 GPL-2.0-or-later. See [LICENSE.md](LICENSE.md).
